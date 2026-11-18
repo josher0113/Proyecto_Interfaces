@@ -40,9 +40,9 @@ function learning() {
   return `${heading('Aprender', 'Ruta de aprendizaje', 'Avanza desde el alfabeto manual hasta situaciones cotidianas.')}
     <div class="units">${units.map(([title, description, progress], index) => `<article class="unit">
       <span class="unit-number" aria-label="Unidad ${index + 1}">${index + 1}</span>
-      <div><p class="eyebrow">${['En progreso', 'Disponible', 'Pendiente'][Math.min(index, 2)]}</p>
+      <div><p class="eyebrow">${progress > 0 ? 'En progreso' : 'Vista previa disponible'}</p>
       <h2>${title}</h2><p>${description}</p>${meter('Progreso de la unidad', progress)}</div>
-      ${link(`leccion/${index}/${index === 0 ? 1 : 0}`, index === 0 ? 'Continuar' : 'Comenzar', index !== 0)}
+      ${link(`leccion/${index}/${progress > 0 ? 1 : 0}`, progress > 0 ? 'Continuar' : 'Ver unidad', progress === 0)}
     </article>`).join('')}</div>`;
 }
 
@@ -103,7 +103,7 @@ function render() {
     ? (unit?.[3][step] ? (page === 'leccion' ? lesson : practice)(unit, index, step) : learning())
     : (Object.hasOwn(pages, page) ? pages[page]() : null);
   app.innerHTML = content ? `<aside><a class="brand" href="#bienvenida">${brand}</a>
-    <nav aria-label="Navegación principal">${nav.map(([href, icon, label]) => `<a href="#${href}" ${href === active ? 'aria-current="page"' : ''}>
+    <nav aria-label="Navegación principal">${nav.map(([href, icon, label]) => `<a href="#${href}" ${href === active ? `aria-current="${isLesson ? 'true' : 'page'}"` : ''}>
       <span aria-hidden="true">${icon}</span>${label}</a>`).join('')}</nav></aside>
     <main id="contenido" tabindex="-1">${content}</main>` :
     `<main id="contenido" class="landing" tabindex="-1">${welcome()}</main>`;
@@ -123,14 +123,19 @@ app.addEventListener('submit', event => {
     : 'Escribe una palabra o frase para consultar.';
 });
 
+function focusContent() {
+  const content = app.querySelector('main');
+  content.focus({ preventScroll: true });
+  content.scrollIntoView({ block: 'start' });
+}
+
 document.querySelector('.skip').addEventListener('click', event => {
   event.preventDefault();
-  app.querySelector('main').focus();
+  focusContent();
 });
 
 window.addEventListener('hashchange', () => {
   render();
-  window.scrollTo(0, 0);
-  app.querySelector('main').focus();
+  focusContent();
 });
 render();
