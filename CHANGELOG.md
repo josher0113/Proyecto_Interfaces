@@ -1,5 +1,11 @@
 # Bitácora de cambios
 
+## 2026-11-18 · Navegación del prototipo
+
+- En `Manuel` (`f989b59`), las unidades con contenido de muestra ahora se identifican como vistas previas y se abren con «Ver unidad».
+- Se ajustaron el foco al cambiar de pantalla, el indicador de la sección activa y el espacio para navegar con la barra inferior.
+- Se verificaron las siete pantallas en Edge a cinco anchos de ventana. Los pasos y el alcance de la prueba quedaron en el [borrador del manual](docs/MANUAL_USUARIO.md).
+
 ## 2026-11-18 · Documentación inicial
 
 - Se creó la rama local `main` a partir del prototipo de `Manuel`.

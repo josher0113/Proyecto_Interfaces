@@ -2,8 +2,9 @@
 
 ## Interfaz y contenidos
 
-- [ ] Revisar las siete pantallas en navegador con tamaños de escritorio y móvil.
-- [ ] Recorrer los flujos con teclado y revisar foco, contraste, mensajes de estado y navegación de regreso.
+- [x] Comprobar las siete pantallas en Edge a 320, 390, 800, 801 y 1280 px y verificar que no haya desplazamiento horizontal.
+- [x] Comprobar con teclado el salto al contenido y el foco al entrar desde la bienvenida. Verificar la apertura y el regreso de las unidades de vista previa.
+- [ ] Revisar visualmente el contraste y los mensajes de estado, y probar el recorrido con lector de pantalla y dispositivo táctil.
 - [ ] Definir objetivos y contenidos de las unidades iniciales. Seleccionar y validar fuentes de LSM y documentar los permisos de uso de videos e imágenes.
 - [ ] Incorporar demostraciones validadas y habilitar los controles de reproducción donde exista material.
 - [ ] Obtener retroalimentación de personas usuarias y registrar los ajustes derivados de las pruebas.
@@ -20,6 +21,6 @@
 
 - [ ] Documentar el problema con un storyboard y describir a las personas usuarias con evidencia.
 - [ ] Registrar requisitos, bocetos, arquitectura, infraestructura y justificación de las interacciones por voz y gestos.
-- [ ] Redactar el manual de usuario con las pantallas y los flujos del prototipo funcional, y preparar las conclusiones.
+- [ ] Completar el [borrador del manual de usuario](MANUAL_USUARIO.md) conforme se incorporen las funciones y preparar las conclusiones.
 - [ ] Preparar la presentación y revisar el prototipo con la rúbrica de usabilidad y el requisito de dos tipos de interacción adicionales a la interfaz gráfica.
 - [ ] Empaquetar el prototipo, el reporte y la presentación para la entrega.
