@@ -1,5 +1,11 @@
 # Bitácora de cambios
 
+## Dictado en español
+
+- En `Manuel` (`dadb59a`), Traductor incorpora dictado en español de México. Al finalizar, la transcripción se agrega al texto que ya estaba escrito y se puede corregir antes de consultar.
+- Se añadieron avisos de permiso, servicio y conexión, y se cancela la escucha al salir de Traductor.
+- En Edge se verificaron el dictado simulado, la edición, la cancelación y el acceso por teclado cuando la función no está disponible. Queda pendiente probar la transcripción con micrófono físico.
+
 ## Práctica del abecedario y progreso por días
 
 - En `Manuel` (`c45788d`), la práctica con cámara cubre las 27 letras. Las estáticas se comparan mientras mantienes la posición. J, Ñ, P, Q, X y Z usan una evaluación guiada del movimiento.

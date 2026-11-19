@@ -1,6 +1,6 @@
 # Manual de usuario · Prototipo de interfaces
 
-Este borrador describe el prototipo de LinguaPlay LSM en `Manuel`, incluido el reconocimiento del abecedario en la revisión `c45788d`.
+Este borrador describe el prototipo de LinguaPlay LSM en `Manuel`, incluido el dictado de la revisión `dadb59a`.
 
 | Pantalla | Cómo usarla |
 | --- | --- |
@@ -11,7 +11,7 @@ Este borrador describe el prototipo de LinguaPlay LSM en `Manuel`, incluido el r
 | Lección | Usa **Anterior** y **Siguiente** para pasar de una letra a otra. Las fichas con video tienen controles de reproducción integrados. Para volver al índice, selecciona **Abecedario**. |
 | Ejercicio | Selecciona una letra por cada configuración de la mano y pulsa **Comprobar respuestas**. Puedes corregir tus opciones o usar **Repasar desde A**. |
 | Práctica | Consulta la referencia junto a tu cámara y registra un acierto en cualquiera de las 27 letras. Usa **Volver a la lección** para regresar a la ficha. |
-| Traductor | Escribe una frase y selecciona **Traducir** para consultar el estado de la demostración. |
+| Traductor | Escribe o dicta una frase en español. Revisa el texto y pulsa **Traducir** para ver el estado de la consulta de demostración. |
 | Progreso | Consulta el número de letras aprendidas y los días registrados por letra. Selecciona una letra para volver a practicarla. Las estadísticas generales son de ejemplo. |
 
 En escritorio, los apartados principales aparecen en la barra lateral. En móvil, aparecen en la barra inferior. Usa **Tab** y **Mayús + Tab** para recorrer los controles. Al principio de la página, **Saltar al contenido** lleva al área principal. Al cambiar de pantalla, el foco pasa al contenido de la nueva vista.
@@ -53,3 +53,11 @@ El piloto usa los archivos incluidos en la aplicación. Si el modelo falla al ca
 Se registra como máximo un acierto por letra y fecha local. Tras el primer o segundo día verás **1/3 días** o **2/3 días**. El tercer día de práctica correcta, la letra aparece en verde con la etiqueta **Aprendida** en Abecedario y Progreso. Las fechas pueden ser consecutivas o estar separadas. Puedes repasar en cualquier momento.
 
 El avance se guarda en el mismo navegador y desde la misma dirección del sitio. Por ejemplo, `localhost` y `127.0.0.1` mantienen historiales separados. Si el navegador bloquea el almacenamiento, la pantalla avisa que la práctica queda en la visita actual.
+
+## Dictar una frase en el traductor
+
+1. Abre LinguaPlay en HTTPS o desde `localhost`. En **Traductor**, pulsa **Dictar en español** y permite el micrófono cuando el navegador lo solicite.
+2. Cuando aparezca **Escuchando**, di una frase corta. Puedes pulsar **Detener dictado** para pedir que se procese lo dicho. Mientras esperas el acceso al micrófono, **Cancelar dictado** interrumpe la solicitud.
+3. El texto dictado se añade al final del campo. Puedes editarlo y pulsar **Traducir** cuando esté listo. El área de resultados sigue en modo de demostración.
+
+Si el servicio no está disponible, puedes escribir en el mismo campo. Salir de Traductor cancela la escucha. LinguaPlay recibe el texto y el navegador puede enviar audio a su proveedor de reconocimiento. [API de reconocimiento de voz](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition)

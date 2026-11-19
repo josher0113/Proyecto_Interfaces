@@ -15,7 +15,9 @@
 
 ## Funciones y pruebas
 
-- [ ] Integrar dictado en español y contemplar permisos, errores y corrección del texto.
+- [x] Integrar dictado en español de México con revisión del texto y manejo de permisos, errores y cancelación.
+- [x] Comprobar el dictado simulado en Edge y el envío por escritura cuando la API no está disponible.
+- [ ] Validar el dictado con micrófono físico y comprobar precisión, permisos y disponibilidad del servicio en escritorio y teléfono.
 - [x] Integrar la vista previa de cámara sin audio, con activación por permiso y apagado al salir.
 - [x] Verificar en Edge con una cámara simulada la activación, el rechazo de permiso, la cancelación y la liberación del video al detenerlo o salir.
 - [ ] Probar la vista en una cámara física, tanto en computadora como en teléfono.
@@ -36,6 +38,7 @@
 - [x] Documentar la elección de `getUserMedia` para la captura, la elección de MediaPipe para el seguimiento y los resultados de las pruebas de cámara simulada.
 - [x] Redactar el [borrador del manual de usuario](MANUAL_USUARIO.md) con la navegación, el abecedario, el ejercicio de A, B y C y la vista previa de cámara.
 - [x] Documentar la arquitectura, las pruebas, el uso del reconocimiento del abecedario y el criterio para marcar letras como aprendidas.
+- [x] Documentar la elección de Web Speech, el manejo del audio por parte del navegador y el flujo de dictado en el manual.
 - [ ] Añadir bocetos y completar la descripción de voz y gestos cuando se implementen y prueben ambas modalidades.
 - [ ] Actualizar el manual con las funciones restantes y redactar las conclusiones del reporte.
 - [ ] Preparar la presentación y revisar el prototipo con la rúbrica de usabilidad y el requisito de dos tipos de interacción adicionales a la interfaz gráfica.

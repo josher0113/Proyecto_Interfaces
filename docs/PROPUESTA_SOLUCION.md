@@ -9,14 +9,22 @@ LinguaPlay LSM propone una ruta de estudio y práctica para personas que empieza
 | Consultar demostraciones del abecedario | Cada una de las 27 fichas muestra una foto o un video local y el crédito de la fuente. | Implementado. |
 | Recibir retroalimentación | El ejercicio solicita tres respuestas, comunica los aciertos, permite reintentar y confirma la finalización. | Implementado en el piloto. |
 | Retomar y consultar el avance | La aplicación recupera las fechas registradas por letra después de recargar. La tercera fecha distinta marca la letra como aprendida. | Implementado para el abecedario. |
-| Introducir una consulta mediante voz | La frase dictada aparece en español en un campo editable, con estados para permisos y errores. | Pendiente. |
+| Introducir una consulta mediante voz | La frase se añade en español de México al campo editable, con estados para permisos, errores y cancelación. | Implementado y probado con reconocimiento simulado. Validación con micrófono físico pendiente. |
 | Practicar con una interacción gestual | El sistema sigue la mano y ofrece retroalimentación para las 27 letras estáticas y con movimiento. | Implementado y probado con cámara simulada. Validación con participantes pendiente. |
 
 ## Arquitectura e infraestructura
 
 El piloto usa HTML, CSS, JavaScript y archivos multimedia locales. La navegación por fragmentos de URL abre cada ficha y el ejercicio en un navegador de escritorio o móvil. El formulario comprueba las respuestas en el dispositivo. Las imágenes y videos se guardan junto con el prototipo para poder estudiar las fichas sin conexión.
 
-Para cumplir el requisito académico de dos interacciones adicionales, el **dictado** usará un micrófono para introducir consultas en español. La **práctica gestual** usa la cámara para ensayar el abecedario con retroalimentación experimental. Ambas modalidades se evaluarán por separado.
+El prototipo incorpora dos modalidades adicionales a la interfaz gráfica. El **dictado** usa un micrófono para introducir consultas en español y la **práctica gestual** usa la cámara para ensayar el abecedario. Las pruebas con participantes y dispositivos físicos se harán por separado.
+
+### Decisión técnica para el dictado
+
+Se eligió la API Web Speech porque permite incorporar una entrada por voz en la aplicación web existente. `SpeechRecognition` y su variante `webkitSpeechRecognition` permiten solicitar el micrófono desde la acción de la persona y devolver texto sin que el equipo tenga que operar un servicio propio de reconocimiento. El prototipo solicita `es-MX`, recibe una frase corta y agrega los resultados finales al campo editable. La persona confirma el envío de la consulta después de revisar el texto. [Especificación de Web Speech](https://wicg.github.io/speech-api/)
+
+Para usarlo se necesita un navegador compatible, permiso de micrófono y acceso al servicio que ofrezca ese navegador. El servicio puede requerir conexión y enviar el audio al proveedor. Por ejemplo, Microsoft documenta el uso de Azure Cognitive Services en Edge. La interfaz informa de ese tratamiento y ofrece el campo de escritura cuando el servicio falla o no está disponible. Al salir de la vista se cancela la sesión de voz. [Política de reconocimiento de voz de Edge](https://learn.microsoft.com/en-us/deployedge/microsoft-edge-browser-policies/speechrecognitionenabled)
+
+La prueba `node tests/dictation-browser.cjs` usa un servicio de voz simulado en Edge para comprobar `es-MX`, transcripción final, edición, límite de texto, permiso denegado, fallos de conexión, cancelación y escritura sin la API. La evaluación con dispositivos físicos deberá verificar la transcripción de frases en español de México y la disponibilidad real del servicio.
 
 ### Decisión técnica para la práctica con cámara
 
