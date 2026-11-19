@@ -14,7 +14,10 @@
 ## Funciones por implementar
 
 - [ ] Integrar dictado en español y contemplar permisos, errores y corrección del texto.
-- [ ] Integrar la cámara y probar el reconocimiento de un conjunto acotado de señas. Mostrar retroalimentación cuando el sistema tenga evidencia suficiente.
+- [x] Integrar la vista previa de cámara y verificar el permiso y el apagado con un dispositivo simulado.
+- [ ] Probar la vista en una cámara física, tanto en computadora como en teléfono.
+- [ ] Incorporar MediaPipe Hand Landmarker y comprobar el seguimiento de una mano.
+- [ ] Probar el reconocimiento de un conjunto acotado de señas. Mostrar retroalimentación cuando el sistema tenga evidencia suficiente.
 - [ ] Definir el catálogo de expresiones validadas para el traductor educativo y el estado que se mostrará cuando una consulta no tenga coincidencia.
 - [ ] Guardar el progreso, las lecciones completadas, los logros y los días de práctica. Calcular la racha a partir de actividades completadas en días consecutivos.
 - [ ] Definir cómo se integrarán las cuentas y el perfil del usuario.

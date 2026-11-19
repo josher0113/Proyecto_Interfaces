@@ -1,5 +1,10 @@
 # Bitácora de cambios
 
+## Vista previa de cámara
+
+- En `Manuel` (`80bcd15`), Práctica muestra la cámara junto a la referencia de la letra. La cámara se activa a petición y se libera al detenerla o salir de la vista.
+- Se comprobaron los estados del permiso y el apagado con una cámara simulada en Edge. Se documentó la decisión de usar MediaPipe para la próxima etapa de seguimiento.
+
 ## Ampliación del abecedario
 
 - En `Manuel` (`6639e92`), se añadió un índice de las 27 letras del recurso de la UABCS. Las fichas incluyen 21 fotografías y seis videos de movimiento (J, Ñ, P, Q, X y Z).

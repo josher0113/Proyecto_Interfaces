@@ -16,7 +16,7 @@ Abre [index.html](index.html) en un navegador moderno. Puedes recorrer el protot
 - **Prototipado por etapas.** La primera versión reúne siete pantallas enlazadas para revisar el recorrido, la claridad de los controles y la retroalimentación. El diseño usa navegación lateral en escritorio y navegación inferior en móvil.
 - **Implementación web estática.** HTML define la entrada, CSS adapta el diseño a distintos tamaños y JavaScript organiza las vistas, reutiliza componentes y gestiona la navegación mediante el fragmento de URL.
 - **Contenido educativo validado.** Las demostraciones de señas se incorporarán después de revisar sus fuentes. El traductor educativo se planteará como un catálogo de expresiones validadas que respete la gramática de la LSM.
-- **Interacción por voz y gestos.** El dictado y la práctica con cámara ya tienen un espacio en la interfaz. Su integración y evaluación corresponden a una etapa posterior.
+- **Interacción por voz y gestos.** Práctica ya muestra una vista previa de cámara en `Manuel`. El seguimiento de la mano, el reconocimiento de señas y el dictado siguen pendientes. Consulta el manual para probar la cámara en un origen seguro.
 
 ## Archivos y seguimiento
 

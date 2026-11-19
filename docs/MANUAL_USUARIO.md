@@ -1,6 +1,6 @@
 # Manual de usuario · Prototipo de interfaces
 
-Este borrador describe el prototipo de LinguaPlay LSM en la rama `Manuel`, incluido el abecedario de la revisión `6639e92`.
+Este borrador describe el prototipo de LinguaPlay LSM en la rama `Manuel`, incluida la vista previa de cámara de la revisión `80bcd15`.
 
 | Pantalla | Cómo usarla |
 | --- | --- |
@@ -10,7 +10,7 @@ Este borrador describe el prototipo de LinguaPlay LSM en la rama `Manuel`, inclu
 | Abecedario | Elige cualquiera de las 27 letras. La etiqueta **Foto** o **Video** indica el tipo de demostración. Desde el índice también puedes abrir el **Ejercicio de A, B y C**. |
 | Lección | Usa **Anterior** y **Siguiente** para pasar de una letra a otra. Las fichas con video tienen controles de reproducción integrados. Para volver al índice, selecciona **Abecedario**. |
 | Ejercicio | Selecciona una letra por cada configuración de la mano y pulsa **Comprobar respuestas**. Puedes corregir tus opciones o usar **Repasar desde A**. |
-| Práctica | Puedes consultar la foto o el video de la letra junto al encuadre reservado para la cámara. Usa **Volver a la lección** para retomar el mismo paso. |
+| Práctica | Consulta la foto o el video de la letra junto a tu vista de cámara. Usa **Volver a la lección** para retomar el mismo paso. |
 | Traductor | Escribe una frase y selecciona **Traducir** para consultar el estado de la demostración. |
 | Progreso | Consulta la racha, los logros y el calendario de ejemplo. |
 
@@ -29,3 +29,13 @@ Recorre las fichas de A, B y C con **Siguiente**. En la letra C o en el índice,
 En Edge se comprobaron la carga de las tres fotos, la validación de respuestas obligatorias, el reintento tras un error, la finalización y el regreso a Aprender. También se verificó que el ejercicio se cargara sin desplazamiento horizontal en los cinco anchos indicados arriba.
 
 Se comprobó además que se abren las 27 fichas desde el índice, cargan las 21 fotografías y se reproducen los videos de J, Ñ, P, Q, X y Z en Edge.
+
+## Probar la cámara
+
+Abre el prototipo en una dirección HTTPS o desde `localhost`. Para una prueba local, si ya tienes Python, ejecuta `python -m http.server 8000 --bind 127.0.0.1` desde la carpeta del proyecto en `Manuel` y abre `http://localhost:8000`.
+
+1. Entra en **Explorar abecedario**, abre una letra y selecciona **Ir a práctica con cámara**.
+2. Pulsa **Activar cámara** y acepta el permiso del navegador. Verás el encuadre en espejo junto a la referencia.
+3. Pulsa **Detener cámara** o sal de Práctica para apagarla. Si denegaste el permiso, revisa la configuración del sitio y vuelve a intentar.
+
+La vista previa usa solo video local. En Edge con una cámara simulada se comprobó la activación sin audio, el apagado manual, la salida de Práctica, el cierre de la página, el rechazo del permiso y la liberación del video si llega después de cancelar. La prueba con cámara física y en un teléfono sigue pendiente.
