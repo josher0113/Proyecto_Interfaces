@@ -16,6 +16,8 @@ const exerciseDescriptions = {
   C: 'Dedos curvados, con el pulgar separado y una abertura entre las puntas.',
 };
 const exerciseCards = ['B', 'C', 'A'];
+const cameraPracticeLetters = new Set(['A', 'B', 'C']);
+const gesturePrompt = 'Mantén una sola mano dentro del encuadre.';
 let alphabetCompleted = false;
 let cameraSession = null;
 
@@ -121,6 +123,7 @@ function lesson(unit, index, step) {
 
 function practice(unit, index, step) {
   const letter = index === 0 ? alphabetLetters[step] : null;
+  const recognitionAvailable = cameraPracticeLetters.has(letter);
   return `<a class="back" href="#leccion/${index}/${step}">← Volver a la lección</a>
     ${heading('Práctica con cámara', unit[3][step], 'Coloca la mano dentro del encuadre y busca buena iluminación.')}
     <div class="grid"><article><h2>Referencia</h2>${letter ? alphabetDemo(letter)
@@ -129,10 +132,14 @@ function practice(unit, index, step) {
       <div class="camera-preview">
         <p id="camera-placeholder">Vista previa apagada</p>
         <video id="camera-video" aria-label="Vista en vivo de la cámara" autoplay muted playsinline hidden></video>
+        ${recognitionAvailable ? '<canvas id="gesture-overlay" aria-hidden="true" hidden></canvas>' : ''}
       </div>
       <div class="actions"><button type="button" id="camera-toggle">Activar cámara</button></div>
       <p id="camera-status" role="status">El video se muestra en tu dispositivo, sin grabarse ni enviarse.</p>
-      <p>Reconocimiento de señas pendiente.</p>
+      ${recognitionAvailable
+        ? `<p>Reconocimiento experimental de A, B y C.</p>
+          <p id="gesture-status" role="status" data-letter="${letter}">${gesturePrompt}</p>`
+        : '<p>Vista previa disponible. El reconocimiento experimental está disponible en las fichas de A, B y C.</p>'}
     </article></div>`;
 }
 
@@ -148,19 +155,48 @@ function cameraView() {
     video: app.querySelector('#camera-video'),
     placeholder: app.querySelector('#camera-placeholder'),
     status: app.querySelector('#camera-status'),
+    gesture: app.querySelector('#gesture-status'),
+    canvas: app.querySelector('#gesture-overlay'),
   };
 }
 
 function stopCamera(message = 'Cámara apagada.') {
   if (!cameraSession) return;
-  const { view, stream } = cameraSession;
+  const { view, stream, stopRecognition } = cameraSession;
   cameraSession = null;
+  stopRecognition?.();
   stream?.getTracks().forEach(track => track.stop());
   view.video.srcObject = null;
   view.video.hidden = true;
   view.placeholder.hidden = false;
   view.button.textContent = 'Activar cámara';
   view.status.textContent = message;
+  if (view.gesture) view.gesture.textContent = gesturePrompt;
+}
+
+async function startRecognition(session) {
+  const { view } = session;
+  if (!view.gesture) return;
+  if (location.protocol === 'file:') {
+    view.gesture.textContent = 'Abre LinguaPlay mediante HTTPS o localhost para activar el reconocimiento.';
+    return;
+  }
+  view.gesture.textContent = 'Cargando reconocimiento de A, B y C…';
+  try {
+    const { startHandPractice } = await import('./hand-practice.mjs');
+    if (cameraSession === session) {
+      session.stopRecognition = startHandPractice({
+        video: view.video,
+        canvas: view.canvas,
+        status: view.gesture,
+        letter: view.gesture.dataset.letter,
+      });
+    }
+  } catch {
+    if (cameraSession === session) {
+      view.gesture.textContent = 'No se pudo cargar el reconocimiento. Puedes usar la vista de cámara o volver a intentar.';
+    }
+  }
 }
 
 async function toggleCamera() {
@@ -181,7 +217,10 @@ async function toggleCamera() {
   view.status.textContent = 'Esperando acceso a la cámara…';
 
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+      audio: false,
+    });
     if (cameraSession !== session) {
       stream.getTracks().forEach(track => track.stop());
       return;
@@ -201,6 +240,7 @@ async function toggleCamera() {
     view.placeholder.hidden = true;
     view.button.textContent = 'Detener cámara';
     view.status.textContent = 'Cámara activa.';
+    void startRecognition(session);
   } catch (error) {
     if (cameraSession === session) {
       stopCamera(cameraErrors[error.name] ?? 'No se pudo iniciar la cámara. Vuelve a intentar.');
