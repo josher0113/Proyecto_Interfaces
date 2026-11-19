@@ -9,6 +9,7 @@ const units = [
 ];
 
 const app = document.querySelector('#app');
+const dictation = createDictation();
 const alphabetSource = 'https://biblio.uabcs.mx/recursosedu/lsm/';
 const exerciseDescriptions = {
   A: 'Cuatro dedos flexionados hacia la palma y el pulgar al costado.',
@@ -345,11 +346,19 @@ async function toggleCamera() {
 }
 
 function translator() {
+  const voiceAvailable = dictation.available();
+  const voiceNote = voiceAvailable
+    ? 'El navegador puede enviar audio a su servicio de voz. LinguaPlay recibe el texto.'
+    : (location.protocol === 'file:' || !window.isSecureContext
+      ? 'Abre LinguaPlay en HTTPS o localhost para usar el dictado. También puedes escribir la frase.'
+      : 'Dictado no disponible en este navegador. Puedes escribir la frase.');
   return `${heading('Consulta educativa', 'Traductor LSM', 'Explora cómo se consultarán expresiones validadas en Lengua de Señas Mexicana.')}
   <div class="grid translation"><article><form id="translate">
   <h2><label for="phrase">Escribe en español</label></h2><textarea required maxlength="300" id="phrase" placeholder="Por ejemplo: Buenos días"></textarea>
-  <div class="actions"><button type="button" class="secondary" disabled><span aria-hidden="true">🎙</span> Dictar</button>
-  <button>Traducir</button></div><p>Dictado pendiente de habilitar.</p></form></article>
+  <div class="actions"><button type="button" class="secondary" id="dictation-toggle" aria-describedby="dictation-note" ${voiceAvailable ? '' : 'disabled'}>
+    <span aria-hidden="true">🎙</span><span id="dictation-label">Dictar en español</span></button>
+    <button>Traducir</button></div>
+    <p id="dictation-status" role="status"></p><p id="dictation-note">${voiceNote}</p></form></article>
   <article><h2>Resultado en LSM</h2>${media('Vista de demostración', 'Material validado pendiente')}
   <div class="actions"><button class="secondary" disabled>Reproducir</button><button class="secondary" disabled>Pausar</button><button class="secondary" disabled>Repetir</button></div>
   <p class="feedback" role="status">Aquí aparecerá una explicación de la expresión cuando haya material disponible.</p></article></div>`;
@@ -391,6 +400,11 @@ function render() {
 }
 
 app.addEventListener('click', event => {
+  const dictationButton = event.target.closest('#dictation-toggle');
+  if (dictationButton) {
+    dictation.toggle(dictationButton.form);
+    return;
+  }
   if (event.target.closest('#practice-record')) {
     recordPractice();
     return;
@@ -416,6 +430,7 @@ app.addEventListener('submit', event => {
     event.target.querySelector('#alphabet-completion').hidden = !passed;
     return;
   }
+  dictation.cancel('Dictado cancelado al consultar el texto actual.');
   const phrase = event.target.querySelector('textarea').value.trim();
   app.querySelector('.feedback').textContent = phrase
     ? `La consulta «${phrase}» se registró en la vista de demostración. El material en LSM está pendiente.`
@@ -436,10 +451,14 @@ document.querySelector('.skip').addEventListener('click', event => {
 window.addEventListener('hashchange', () => {
   if (!appReady) return;
   stopCamera();
+  dictation.cancel();
   render();
   focusContent();
 });
-window.addEventListener('pagehide', () => stopCamera());
+window.addEventListener('pagehide', () => {
+  stopCamera();
+  dictation.cancel();
+});
 
 async function startApp() {
   if (location.protocol !== 'file:') {
