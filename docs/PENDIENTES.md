@@ -7,7 +7,8 @@
 - [ ] Revisar visualmente el contraste y los mensajes de estado, y probar el recorrido con lector de pantalla y dispositivo táctil.
 - [x] Definir el objetivo del piloto y documentar la fuente y la licencia de sus fotografías para A, B y C.
 - [x] Incorporar las demostraciones fotográficas del piloto y probar el ejercicio con reintento y finalización.
-- [ ] Revisar el piloto con personas usuarias de LSM y definir fuentes y objetivos para las demás unidades. Incorporar controles de reproducción cuando se añadan videos.
+- [x] Completar las fichas del abecedario de la UABCS e incorporar controles de reproducción para las seis letras con video.
+- [ ] Revisar el piloto con personas usuarias de LSM y definir fuentes y objetivos para las demás unidades.
 - [ ] Obtener retroalimentación de personas usuarias y registrar los ajustes derivados de las pruebas.
 
 ## Funciones por implementar

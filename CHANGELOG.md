@@ -1,5 +1,11 @@
 # Bitácora de cambios
 
+## Ampliación del abecedario
+
+- En `Manuel` (`6639e92`), se añadió un índice de las 27 letras del recurso de la UABCS. Las fichas incluyen 21 fotografías y seis videos de movimiento (J, Ñ, P, Q, X y Z).
+- Los archivos se incluyen en el prototipo. Se redimensionaron las fotos y se conservaron los videos originales y la atribución.
+- En Edge se verificaron las 27 fichas, la reproducción de los seis videos, el índice en cinco anchos de pantalla y el ejercicio de A, B y C.
+
 ## 2026-11-19 · Lección piloto de Abecedario
 
 - En `Manuel` (`5c6f082`), se añadieron fichas de A, B y C con fotografías de la Biblioteca Universitaria UABCS, atribución y descripciones.
