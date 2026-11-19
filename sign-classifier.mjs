@@ -1,82 +1,103 @@
-const fingerBases = [5, 9, 13, 17];
+import { staticReferences } from './assets/gestos/static-reference-poses.mjs';
 
-function vector(point, origin) {
-  return [point.x - origin.x, point.y - origin.y, point.z - origin.z];
-}
+const minimumPalmSize = .045;
+const maximumMatchDistance = .195;
+const minimumDistanceGap = .008;
+const minimumDistanceRatio = 1.10;
+const orientationWeight = .1;
 
-function dot(a, b) {
-  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-}
-
-function length(value) {
-  return Math.hypot(...value);
-}
-
-function distance(a, b) {
-  return length(vector(a, b));
-}
-
-function direction(a, b) {
-  const offset = vector(a, b);
-  const magnitude = length(offset);
-  return magnitude > 0 ? offset.map(value => value / magnitude) : offset;
+// Fingertips and thumb joints carry more of the information that separates similar letters.
+const jointWeights = [1, 1.5, 1.5, 1.5, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2];
+const jointPairs = [];
+let totalWeight = 0;
+for (let first = 0; first < jointWeights.length; first += 1) {
+  for (let second = first + 1; second < jointWeights.length; second += 1) {
+    const weight = (jointWeights[first] + jointWeights[second]) / 2;
+    jointPairs.push({ first, second, weight });
+    totalWeight += weight;
+  }
 }
 
 function isCompleteHand(points) {
-  return Array.isArray(points) && points.length === 21 && Array.from(points).every(point =>
-    point && Number.isFinite(point.x) && Number.isFinite(point.y) && Number.isFinite(point.z));
+  if (!Array.isArray(points) || points.length !== 21) return false;
+  for (const point of points) {
+    if (!point || !Number.isFinite(point.x) || !Number.isFinite(point.y) || !Number.isFinite(point.z)) return false;
+  }
+  return true;
 }
 
-// Image-space points are used for framing. Distances and angles come from world-space
-// points so portrait/landscape aspect ratio, camera mirroring and hand size do not skew them.
-export function classifySign(landmarks, worldLandmarks) {
+function screenDirection(start, end, aspect) {
+  const x = (end.x - start.x) * aspect;
+  const y = end.y - start.y;
+  const length = Math.hypot(x, y);
+  return length ? [Math.abs(x) / length, y / length] : [0, 0];
+}
+
+function pointDistance(first, second) {
+  return Math.hypot(first[0] - second[0], first[1] - second[1], first[2] - second[2]);
+}
+
+function describePose(points, palmSize, orientation) {
+  const distances = jointPairs.map(({ first, second, weight }) =>
+    pointDistance(points[first], points[second]) / palmSize * Math.sqrt(weight / totalWeight));
+  return distances.concat(orientation.map(value => value * orientationWeight));
+}
+
+const referenceDescriptors = Object.entries(staticReferences).map(([letter, references]) => ({
+  letter,
+  descriptors: references.map(([points, orientation]) => describePose(points, 1, orientation)),
+}));
+
+function squaredDifference(first, second) {
+  let squaredDistance = 0;
+  for (let index = 0; index < first.length; index += 1) {
+    squaredDistance += (first[index] - second[index]) ** 2;
+  }
+  return squaredDistance;
+}
+
+export function classifySign(landmarks, worldLandmarks, aspect = 1) {
   if (!isCompleteHand(landmarks) || !isCompleteHand(worldLandmarks)) return null;
+  if (!Number.isFinite(aspect) || aspect <= 0) return null;
   if (landmarks.some(({ x, y }) => x < .015 || x > .985 || y < .015 || y > .985)) return null;
-  const imagePalm = Math.max(
-    Math.hypot(landmarks[0].x - landmarks[9].x, landmarks[0].y - landmarks[9].y),
-    Math.hypot(landmarks[5].x - landmarks[17].x, landmarks[5].y - landmarks[17].y),
+
+  // Measure the visible palm in units of the shorter side of the frame.
+  const widthScale = Math.max(1, aspect);
+  const heightScale = Math.max(1, 1 / aspect);
+  const imageDistance = (first, second) => Math.hypot(
+    (landmarks[first].x - landmarks[second].x) * widthScale,
+    (landmarks[first].y - landmarks[second].y) * heightScale,
   );
-  if (imagePalm < .045) return null;
+  if (Math.max(imageDistance(0, 9), imageDistance(5, 17)) < minimumPalmSize) return null;
 
-  const hand = worldLandmarks;
-  const palmLength = distance(hand[0], hand[9]);
-  const palmWidth = distance(hand[5], hand[17]);
+  const points = worldLandmarks.map(({ x, y, z }) => [x, y, z]);
+  const palmLength = pointDistance(points[0], points[9]);
+  const palmWidth = pointDistance(points[5], points[17]);
   if (palmLength < .000001 || palmWidth < .000001) return null;
-  const palmScale = (palmLength + palmWidth) / 2;
-  const towardFingers = direction(hand[9], hand[0]);
-  const towardThumb = direction(hand[5], hand[17]);
 
-  const fingers = fingerBases.map(base => {
-    const [knuckle, middle, distal, tip] = hand.slice(base, base + 4);
-    const fingerLength = distance(knuckle, middle) + distance(middle, distal) + distance(distal, tip);
-    return {
-      reach: distance(knuckle, tip) / fingerLength,
-      forward: dot(vector(tip, knuckle), towardFingers) / palmScale,
-      bend: dot(direction(middle, knuckle), direction(distal, middle)),
-    };
-  });
-  if (fingers.some(({ reach }) => !Number.isFinite(reach))) return null;
-
-  const thumbSide = dot(vector(hand[4], hand[5]), towardThumb) / palmScale;
-  const thumbBend = dot(direction(hand[3], hand[2]), direction(hand[4], hand[3]));
-  const thumbGap = distance(hand[4], hand[8]) / palmScale;
-  const thumbToIndexJoint = distance(hand[4], hand[6]) / palmScale;
-  const fingerSpread = distance(hand[8], hand[20]) / palmScale;
-
-  // Early pilot thresholds calibrated against the UABCS references. Leave ambiguous
-  // poses unclassified and let the caller require a stable result over several frames.
-  if (fingers.every(({ reach, forward }) => reach < .64 && forward < .10)
-    && thumbSide > .42 && thumbGap > .66 && thumbBend > .75) {
-    return 'A';
+  // Shape distances disregard camera mirroring and hand size. Screen direction adds
+  // a small preference for the orientation of the palm and the index finger.
+  const orientation = [
+    ...screenDirection(landmarks[0], landmarks[9], aspect),
+    ...screenDirection(landmarks[5], landmarks[8], aspect),
+  ];
+  const pose = describePose(points, (palmLength + palmWidth) / 2, orientation);
+  let bestLetter = null;
+  let bestDistance = Infinity;
+  let nextDistance = Infinity;
+  for (const { letter, descriptors } of referenceDescriptors) {
+    const distance = Math.sqrt(Math.min(...descriptors.map(reference => squaredDifference(pose, reference))));
+    if (distance < bestDistance) {
+      nextDistance = bestDistance;
+      bestDistance = distance;
+      bestLetter = letter;
+    } else if (distance < nextDistance) {
+      nextDistance = distance;
+    }
   }
-  if (fingers.every(({ reach, forward }) => reach > .91 && forward > .43)
-    && fingerSpread < 1.00 && thumbSide < -.12 && thumbToIndexJoint < .83) {
-    return 'B';
-  }
-  if (fingers.every(({ reach, forward }) => reach > .72 && forward > .12)
-    && fingers.some(({ reach, bend }) => reach < .93 && bend < .87)
-    && thumbGap > .66 && thumbGap < 1.27 && thumbBend > .75 && thumbSide > -.33 && fingerSpread < 1.04) {
-    return 'C';
-  }
-  return null;
+  return bestDistance < maximumMatchDistance
+    && nextDistance - bestDistance >= minimumDistanceGap
+    && nextDistance >= bestDistance * minimumDistanceRatio
+    ? bestLetter
+    : null;
 }

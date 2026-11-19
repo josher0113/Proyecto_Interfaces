@@ -1,7 +1,7 @@
 const alphabetLetters = [...'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'];
 const motionLetters = new Set(['J', 'Ñ', 'P', 'Q', 'X', 'Z']);
 const units = [
-  ['Abecedario', 'Explora el alfabeto manual y su uso para deletrear.', 60, alphabetLetters.map(letter => `Letra ${letter}`)],
+  ['Abecedario', 'Explora el alfabeto manual y su uso para deletrear.', 0, alphabetLetters.map(letter => `Letra ${letter}`)],
   ['Números', 'Familiarízate con los números en situaciones habituales.', 0, ['Número 1', 'Número 2', 'Número 3']],
   ['Saludos básicos', 'Empieza a saludar y despedirte.', 0, ['Hola', 'Buenos días', 'Hasta luego']],
   ['Expresiones cotidianas', 'Amplía tu repertorio de expresiones de uso diario.', 0, ['Gracias', 'Por favor', 'Disculpa']],
@@ -16,10 +16,36 @@ const exerciseDescriptions = {
   C: 'Dedos curvados, con el pulgar separado y una abertura entre las puntas.',
 };
 const exerciseCards = ['B', 'C', 'A'];
-const cameraPracticeLetters = new Set(['A', 'B', 'C']);
 const gesturePrompt = 'Mantén una sola mano dentro del encuadre.';
 let alphabetCompleted = false;
 let cameraSession = null;
+let letterProgress = null;
+let practiceGoal = 3;
+let appReady = false;
+
+function letterState(entry) {
+  if (entry?.mastered) return 'Aprendida';
+  return `${entry?.days ?? 0}/${practiceGoal} días`;
+}
+
+function letterStateClass(entry) {
+  if (entry?.mastered) return 'letter-mastered';
+  return entry?.days ? 'letter-practicing' : '';
+}
+
+function alphabetGrid(progress, destination) {
+  return `<ul class="alphabet-index">${alphabetLetters.map((letter, step) => {
+    const entry = progress?.letters[letter];
+    const mediaType = motionLetters.has(letter) ? 'Video' : 'Foto';
+    return `<li><a class="alphabet-letter ${letterStateClass(entry)}" href="#${destination}/0/${step}"
+      aria-label="Letra ${letter}, ${mediaType}, ${letterState(entry)}">
+      <strong>${letter}</strong><span>${mediaType}</span><span class="letter-state">${letterState(entry)}</span></a></li>`;
+  }).join('')}</ul>`;
+}
+
+function alphabetMasterySummary(progress) {
+  return `${progress?.masteredCount ?? 0} de ${alphabetLetters.length} letras aprendidas`;
+}
 
 const alphabetPhoto = (letter, description) =>
   `<img class="alphabet-photo" src="assets/abecedario/${letter}.jpg" alt="${description}" width="480" height="640">`;
@@ -40,10 +66,8 @@ function alphabetDemo(letter) {
 
 function alphabetIndex() {
   return `<a class="back" href="#aprender">← Ruta de aprendizaje</a>
-    ${heading('Aprender', 'Abecedario', 'Elige una letra. Las fichas marcadas con «Video» muestran el movimiento.')}
-    <article><ul class="alphabet-index">${alphabetLetters.map((letter, step) => `<li>
-      <a href="#leccion/0/${step}" aria-label="Letra ${letter}${motionLetters.has(letter) ? ', video' : ''}">
-      <strong>${letter}</strong><span>${motionLetters.has(letter) ? 'Video' : 'Foto'}</span></a></li>`).join('')}</ul>
+    ${heading('Aprender', 'Abecedario', 'Elige una letra para ver su referencia y practicarla con la cámara.')}
+    <article>${alphabetGrid(letterProgress?.snapshot(), 'leccion')}
       <div class="actions">${link('ejercicio', alphabetCompleted ? 'Repetir ejercicio de A, B y C' : 'Ejercicio de A, B y C')}</div>
     </article>`;
 }
@@ -88,18 +112,21 @@ function welcome() {
 function dashboard() {
   return `${heading('Tu espacio de aprendizaje', 'Hola, Alex', 'Continúa con tu ruta de Lengua de Señas Mexicana.')}
     <div class="grid"><article class="feature"><p class="eyebrow">Alfabeto manual</p><h2>Abecedario</h2>
-      <p>27 letras con fotos y videos.</p>${link('abecedario', 'Explorar abecedario')}</article>
+      <p>${alphabetMasterySummary(letterProgress?.snapshot())}.</p>${link('abecedario', 'Explorar abecedario')}</article>
       <article><h2>Esta semana</h2>${stats()}${meter('Meta semanal', 60)}</article>
     </div><article class="quick"><div><h2>Traductor LSM</h2><p>Explora la vista de consulta de expresiones en español.</p></div>
       ${link('traductor', 'Abrir traductor', true)}</article>`;
 }
 
 function learning() {
+  const progressSummary = alphabetMasterySummary(letterProgress?.snapshot());
   return `${heading('Aprender', 'Ruta de aprendizaje', 'Avanza desde el alfabeto manual hasta situaciones cotidianas.')}
     <div class="units">${units.map(([title, description, progress], index) => `<article class="unit">
       <span class="unit-number" aria-label="Unidad ${index + 1}">${index + 1}</span>
-      <div><p class="eyebrow">${index === 0 ? (alphabetCompleted ? 'Ejercicio de A, B y C · Piloto completado' : 'Fotos y videos disponibles') : 'Vista previa disponible'}</p>
-      <h2>${title}</h2><p>${description}</p>${index === 0 ? '' : meter('Progreso de la unidad', progress)}</div>
+      <div><p class="eyebrow">${index === 0 ? progressSummary : 'Vista previa disponible'}</p>
+      <h2>${title}</h2><p>${description}</p>${index === 0
+        ? (alphabetCompleted ? '<p>Ejercicio de A, B y C completado.</p>' : '')
+        : meter('Progreso de la unidad', progress)}</div>
       ${index === 0 ? link('abecedario', 'Explorar abecedario') : link(`leccion/${index}/0`, 'Ver unidad', true)}
     </article>`).join('')}</div>`;
 }
@@ -123,7 +150,9 @@ function lesson(unit, index, step) {
 
 function practice(unit, index, step) {
   const letter = index === 0 ? alphabetLetters[step] : null;
-  const recognitionAvailable = cameraPracticeLetters.has(letter);
+  const isMotion = motionLetters.has(letter);
+  const progress = letter && letterProgress?.snapshot();
+  const entry = progress?.letters[letter];
   return `<a class="back" href="#leccion/${index}/${step}">← Volver a la lección</a>
     ${heading('Práctica con cámara', unit[3][step], 'Coloca la mano dentro del encuadre y busca buena iluminación.')}
     <div class="grid"><article><h2>Referencia</h2>${letter ? alphabetDemo(letter)
@@ -132,15 +161,66 @@ function practice(unit, index, step) {
       <div class="camera-preview">
         <p id="camera-placeholder">Vista previa apagada</p>
         <video id="camera-video" aria-label="Vista en vivo de la cámara" autoplay muted playsinline hidden></video>
-        ${recognitionAvailable ? '<canvas id="gesture-overlay" aria-hidden="true" hidden></canvas>' : ''}
+        ${letter ? '<canvas id="gesture-overlay" aria-hidden="true" hidden></canvas>' : ''}
       </div>
-      <div class="actions"><button type="button" id="camera-toggle">Activar cámara</button></div>
+      <div class="actions"><button type="button" id="camera-toggle">Activar cámara</button>
+        ${isMotion ? '<button type="button" id="gesture-attempt" class="secondary" disabled>Evaluar movimiento</button>' : ''}</div>
       <p id="camera-status" role="status">El video se muestra en tu dispositivo, sin grabarse ni enviarse.</p>
-      ${recognitionAvailable
-        ? `<p>Reconocimiento experimental de A, B y C.</p>
-          <p id="gesture-status" role="status" data-letter="${letter}">${gesturePrompt}</p>`
-        : '<p>Vista previa disponible. El reconocimiento experimental está disponible en las fichas de A, B y C.</p>'}
-    </article></div>`;
+      ${letter ? `<p id="gesture-status" role="status" data-letter="${letter}">${practicePrompt()}</p>` : ''}
+    </article></div>
+    ${letter ? `<article class="practice-progress">
+      <div class="practice-progress-heading"><h2>Progreso de la letra ${letter}</h2>
+        <span id="practice-letter-state" class="letter-state ${letterStateClass(entry)}">${letterState(entry)}</span></div>
+      <p>La letra pasa a verde tras ${practiceGoal} prácticas correctas en días distintos.</p>
+      <div class="actions"><button type="button" id="practice-record" disabled>${practiceRecordLabel(entry)}</button></div>
+      <p id="practice-record-status" role="status"></p>
+      <p id="practice-storage-status">${practiceStorageMessage(progress)}</p>
+    </article>` : ''}`;
+}
+
+function practiceRecordLabel(entry) {
+  if (entry?.mastered) return 'Letra aprendida';
+  return entry?.practicedToday ? 'Práctica de hoy registrada' : 'Registrar práctica';
+}
+
+function practicePrompt() {
+  return location.protocol === 'file:' ? 'Abre LinguaPlay en HTTPS o localhost para reconocer y registrar letras.' : gesturePrompt;
+}
+
+function practiceStorageMessage(progress) {
+  if (!progress) {
+    return location.protocol === 'file:' ? 'El registro está disponible desde HTTPS o localhost.' : 'No se pudo cargar el registro de práctica.';
+  }
+  return progress.persistent ? 'El progreso se guarda en este navegador.' : 'No se pudo guardar todo el progreso. Los avances sin guardar quedan en esta visita.';
+}
+
+function matchedToday(session, date = new Date()) {
+  return session?.matchedAt?.toDateString() === date.toDateString();
+}
+
+function refreshPracticeProgress(view, message) {
+  if (!view.recordButton) return;
+  const progress = letterProgress?.snapshot();
+  const entry = progress?.letters[view.gesture.dataset.letter];
+  const canRecord = Boolean(progress && matchedToday(cameraSession) && !entry.mastered && !entry.practicedToday);
+  view.recordButton.disabled = !canRecord;
+  view.recordButton.textContent = practiceRecordLabel(entry);
+  view.letterState.textContent = letterState(entry);
+  view.letterState.className = `letter-state ${letterStateClass(entry)}`;
+  view.storageStatus.textContent = practiceStorageMessage(progress);
+  view.recordStatus.textContent = message ?? (canRecord ? 'Acierto confirmado. Puedes registrar la práctica de hoy.' : '');
+}
+
+function recordPractice() {
+  const date = new Date();
+  if (!letterProgress || !matchedToday(cameraSession, date)) return;
+  const { view } = cameraSession;
+  if (view.recordButton.disabled) return;
+  const entry = letterProgress.record(view.gesture.dataset.letter, date);
+  const message = entry.credited
+    ? (entry.mastered ? 'Práctica registrada. Esta letra ya aparece en verde.' : 'Práctica registrada. Vuelve otro día para seguir avanzando.')
+    : 'La práctica de hoy ya está registrada.';
+  refreshPracticeProgress(view, message);
 }
 
 const cameraErrors = {
@@ -157,6 +237,11 @@ function cameraView() {
     status: app.querySelector('#camera-status'),
     gesture: app.querySelector('#gesture-status'),
     canvas: app.querySelector('#gesture-overlay'),
+    attempt: app.querySelector('#gesture-attempt'),
+    recordButton: app.querySelector('#practice-record'),
+    letterState: app.querySelector('#practice-letter-state'),
+    recordStatus: app.querySelector('#practice-record-status'),
+    storageStatus: app.querySelector('#practice-storage-status'),
   };
 }
 
@@ -171,7 +256,8 @@ function stopCamera(message = 'Cámara apagada.') {
   view.placeholder.hidden = false;
   view.button.textContent = 'Activar cámara';
   view.status.textContent = message;
-  if (view.gesture) view.gesture.textContent = gesturePrompt;
+  if (view.gesture) view.gesture.textContent = practicePrompt();
+  refreshPracticeProgress(view);
 }
 
 async function startRecognition(session) {
@@ -181,7 +267,7 @@ async function startRecognition(session) {
     view.gesture.textContent = 'Abre LinguaPlay mediante HTTPS o localhost para activar el reconocimiento.';
     return;
   }
-  view.gesture.textContent = 'Cargando reconocimiento de A, B y C…';
+  view.gesture.textContent = 'Cargando reconocimiento del abecedario…';
   try {
     const { startHandPractice } = await import('./hand-practice.mjs');
     if (cameraSession === session) {
@@ -190,6 +276,16 @@ async function startRecognition(session) {
         canvas: view.canvas,
         status: view.gesture,
         letter: view.gesture.dataset.letter,
+        motionButton: view.attempt,
+        onMatch: () => {
+          if (matchedToday(session)) return;
+          session.matchedAt = new Date();
+          refreshPracticeProgress(view);
+        },
+        onAttempt: () => {
+          session.matchedAt = null;
+          refreshPracticeProgress(view);
+        },
       });
     }
   } catch {
@@ -260,9 +356,13 @@ function translator() {
 }
 
 function profile() {
+  const progress = letterProgress?.snapshot();
   return `${heading('Tu perfil', 'Progreso', 'Consulta tus estadísticas de ejemplo y días de práctica.')}
     <article class="quick"><div class="identity"><span class="avatar" aria-hidden="true">A</span><h2>Alex Rivera</h2></div>${stats()}</article>
-    <div class="grid"><article><h2>Progreso por unidad</h2>${units.map(([title, , progress]) => meter(title, progress)).join('')}</article>
+    <article class="practice-progress"><h2>Dominio del abecedario</h2>
+      <p>${alphabetMasterySummary(progress)}. Selecciona una letra para practicar.</p>
+      ${alphabetGrid(progress, 'practica')}<p>${practiceStorageMessage(progress)}</p></article>
+    <div class="grid practice-progress"><article><h2>Otras unidades</h2>${units.slice(1).map(([title, , percent]) => meter(title, percent)).join('')}</article>
     <article><h2>Calendario de práctica</h2><p>Semana de ejemplo</p><ol class="calendar">${['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, index) =>
       `<li><span>${day}</span><span class="${index < 4 ? 'checked' : ''}" aria-label="${index < 4 ? 'Práctica completada' : 'Sin práctica'}">${index < 4 ? '✓' : '·'}</span></li>`).join('')}</ol>
       <h2>Logros</h2><p>Primer paso · Primera lección completada</p><h2>Actividad reciente</h2><p>Abecedario · Practicaste la letra A</p></article></div>`;
@@ -291,6 +391,10 @@ function render() {
 }
 
 app.addEventListener('click', event => {
+  if (event.target.closest('#practice-record')) {
+    recordPractice();
+    return;
+  }
   if (event.target.closest('#camera-toggle')) {
     void toggleCamera();
     return;
@@ -330,9 +434,25 @@ document.querySelector('.skip').addEventListener('click', event => {
 });
 
 window.addEventListener('hashchange', () => {
+  if (!appReady) return;
   stopCamera();
   render();
   focusContent();
 });
 window.addEventListener('pagehide', () => stopCamera());
-render();
+
+async function startApp() {
+  if (location.protocol !== 'file:') {
+    try {
+      const { createLetterProgress, LETTER_PRACTICE_GOAL } = await import('./letter-progress.mjs');
+      letterProgress = createLetterProgress();
+      practiceGoal = LETTER_PRACTICE_GOAL;
+    } catch {
+      // Lessons and the live preview are still usable if the progress module is unavailable.
+    }
+  }
+  appReady = true;
+  render();
+}
+
+void startApp();

@@ -1,8 +1,10 @@
 import { classifySign } from './sign-classifier.mjs';
+import { classifyMotion } from './sign-motion.mjs';
 
-const frameInterval = 100;
 const stableSamples = 3;
 const maxSampleGap = 600;
+const motionLeadTime = 900;
+const motionDuration = 3500;
 
 function drawHand(canvas, video, landmarks, connections) {
   if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
@@ -35,9 +37,13 @@ function drawHand(canvas, video, landmarks, connections) {
   }
 }
 
-export function startHandPractice({ video, canvas, status, letter }) {
+export function startHandPractice({ video, canvas, status, letter, motionButton, onMatch, onAttempt }) {
+  const frameInterval = motionButton ? 65 : 100;
   let worker;
   let timer;
+  let motionTimer;
+  let motionCapture = null;
+  let motionState = 'idle';
   let stopped = false;
   let videoTime = -1;
   let lastFrameAt = 0;
@@ -53,6 +59,13 @@ export function startHandPractice({ video, canvas, status, letter }) {
   function stop() {
     stopped = true;
     clearTimeout(timer);
+    clearTimeout(motionTimer);
+    motionCapture = null;
+    if (motionButton) {
+      motionButton.removeEventListener('click', startMotionAttempt);
+      motionButton.disabled = true;
+      motionButton.textContent = 'Evaluar movimiento';
+    }
     worker?.terminate();
     canvas.hidden = true;
     canvas.width = 1;
@@ -91,16 +104,65 @@ export function startHandPractice({ video, canvas, status, letter }) {
     }
   }
 
-  function updateResult(landmarks, worldLandmarks) {
-    const hand = landmarks.length === 1 ? landmarks[0] : null;
-    drawHand(canvas, video, hand, connections);
-    const prediction = hand ? classifySign(hand, worldLandmarks[0]) : null;
+  function showPrediction(prediction) {
+    if (prediction === letter) {
+      show(`Letra ${prediction} detectada. Coincide con la referencia.`);
+    } else {
+      show(`Letra ${prediction} detectada. Practica la letra ${letter} de esta ficha.`);
+    }
+  }
+
+  function finishMotionAttempt() {
+    const { frames } = motionCapture;
+    motionCapture = null;
+    motionState = 'result';
+    motionButton.disabled = false;
+    motionButton.textContent = 'Evaluar otro intento';
+    if (frames.length < 8) {
+      show('Mantén una sola mano visible durante todo el movimiento y vuelve a intentar.');
+      return;
+    }
+    const prediction = classifyMotion(frames, video.videoWidth / video.videoHeight);
+    if (!prediction) {
+      show('No se pudo identificar el movimiento. Revisa el video y vuelve a intentar.');
+      return;
+    }
+    showPrediction(prediction);
+    if (prediction === letter) onMatch();
+  }
+
+  function startMotionAttempt() {
+    onAttempt();
+    motionState = 'preparing';
+    motionButton.disabled = true;
+    motionButton.textContent = 'Prepárate…';
+    show('Coloca tu mano en la posición inicial.');
+    motionTimer = setTimeout(() => {
+      motionState = 'recording';
+      motionCapture = { startedAt: performance.now(), frames: [] };
+      motionButton.textContent = 'Evaluando…';
+      show('Haz el movimiento una vez y mantén tu mano visible hasta el final.');
+      motionTimer = setTimeout(finishMotionAttempt, motionDuration);
+    }, motionLeadTime);
+  }
+
+  function updateMotionResult(hand, worldHand) {
+    if (motionCapture && hand && worldHand && lastFrameAt >= motionCapture.startedAt) {
+      motionCapture.frames.push({ landmarks: hand, worldLandmarks: worldHand, timestamp: lastFrameAt });
+    }
+    if (motionState !== 'idle') return;
+    if (hand) show('Mano detectada. Pulsa Evaluar movimiento cuando estés listo.');
+    else show('Coloca una mano dentro del encuadre.');
+  }
+
+  function updateStaticResult(hand, worldHand, handCount) {
+    const prediction = hand ? classifySign(hand, worldHand, video.videoWidth / video.videoHeight) : null;
     const now = performance.now();
     samples = prediction && prediction === candidate && now - lastResultAt <= maxSampleGap ? samples + 1 : 1;
     candidate = prediction;
     lastResultAt = now;
 
-    if (landmarks.length > 1) {
+    if (handCount > 1) {
       show('Muestra una sola mano.');
     } else if (!hand) {
       show('Coloca una mano dentro del encuadre.');
@@ -108,14 +170,20 @@ export function startHandPractice({ video, canvas, status, letter }) {
       show('Mano detectada. No se pudo identificar la letra.');
     } else if (samples < stableSamples) {
       show('Mano detectada. Mantén la seña un momento.');
-    } else if (prediction === letter) {
-      show(`Letra ${prediction} detectada. Coincide con la referencia.`);
     } else {
-      show(`Letra ${prediction} detectada. Practica la letra ${letter} de esta ficha.`);
+      showPrediction(prediction);
+      if (prediction === letter && samples === stableSamples) onMatch();
     }
   }
 
-  show('Cargando reconocimiento de A, B y C…');
+  function updateResult(landmarks, worldLandmarks) {
+    const hand = landmarks.length === 1 ? landmarks[0] : null;
+    drawHand(canvas, video, hand, connections);
+    if (motionButton) updateMotionResult(hand, worldLandmarks[0]);
+    else updateStaticResult(hand, worldLandmarks[0], landmarks.length);
+  }
+
+  show('Cargando reconocimiento del abecedario…');
   try {
     worker = new Worker(new URL('./hand-worker.js', import.meta.url));
     worker.addEventListener('error', event => {
@@ -129,6 +197,10 @@ export function startHandPractice({ video, canvas, status, letter }) {
       if (data.type === 'ready') {
         connections = data.connections;
         canvas.hidden = false;
+        if (motionButton) {
+          motionButton.disabled = false;
+          motionButton.addEventListener('click', startMotionAttempt);
+        }
         show('Coloca una mano dentro del encuadre.');
         requestFrame(0);
       } else if (data.type === 'result') {
@@ -138,7 +210,7 @@ export function startHandPractice({ video, canvas, status, letter }) {
         fail();
       }
     });
-    worker.postMessage({ type: 'init' });
+    worker.postMessage({ type: 'init', singleHand: Boolean(motionButton) });
     timer = setTimeout(fail, 20000);
   } catch {
     fail();

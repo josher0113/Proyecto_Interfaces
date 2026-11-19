@@ -8,7 +8,7 @@ self.addEventListener('message', async ({ data }) => {
       landmarker = await HandLandmarker.createFromOptions(files, {
         baseOptions: { modelAssetPath: './vendor/mediapipe/hand_landmarker.task', delegate: 'CPU' },
         runningMode: 'VIDEO',
-        numHands: 2,
+        numHands: data.singleHand ? 1 : 2,
       });
       self.postMessage({ type: 'ready', connections: HandLandmarker.HAND_CONNECTIONS });
     } catch (error) {

@@ -81,6 +81,15 @@ progress::-moz-progress-bar { background: var(--wine); }
 .alphabet-index a:hover { background: var(--rose); }
 .alphabet-index strong { font: 1.7rem Georgia, serif; }
 .alphabet-index span { font-size: .75rem; }
+.letter-state { display: inline-block; padding: .2rem .35rem; border-radius: 6px; background: var(--cream); color: var(--muted); font-size: .8rem; font-weight: 650; text-align: center; }
+.letter-state.letter-practicing, .letter-practicing .letter-state { background: #f5e7d2; color: #654219; }
+.letter-state.letter-mastered, .letter-mastered .letter-state { background: #dceee2; color: #235438; }
+.alphabet-index .letter-mastered { border-color: #87ac94; color: #235438; background: #edf6ef; }
+.alphabet-index .letter-mastered:hover { background: #dfefe4; }
+.practice-progress { margin-top: 1rem; }
+.practice-progress .alphabet-index { margin-top: 1rem; }
+.practice-progress-heading { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
+.practice-progress button:disabled { background: var(--cream); }
 .media-credit { font-size: .8rem; }
 .exercise-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
 .exercise-grid fieldset { min-width: 0; margin: 0; padding: .75rem; border: 1px solid var(--line); border-radius: 12px; }
