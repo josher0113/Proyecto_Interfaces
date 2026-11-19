@@ -1,5 +1,11 @@
 # Bitácora de cambios
 
+## Reconocimiento experimental de A, B y C
+
+- En `Manuel` (`373feb2`), se incorporaron el motor web y el modelo Hand Landmarker de MediaPipe como archivos locales.
+- En `Manuel` (`cd34839`), Práctica dibuja los puntos de una mano y compara una predicción estable con la letra de referencia. Las demás fichas conservan la vista previa de cámara.
+- Pasaron las cuatro pruebas unitarias y la prueba de integración en Edge con cámara simulada. Queda pendiente la validación con cámaras físicas y diferentes personas usuarias de LSM.
+
 ## Seguimiento de pendientes
 
 - Se actualizaron las casillas de navegación, abecedario, cámara y documentación para distinguir lo comprobado de las pruebas e integraciones que faltan.

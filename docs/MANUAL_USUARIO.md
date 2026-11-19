@@ -1,6 +1,6 @@
 # Manual de usuario · Prototipo de interfaces
 
-Este borrador describe el prototipo de LinguaPlay LSM en la rama `Manuel`, incluida la vista previa de cámara de la revisión `80bcd15`.
+Este borrador describe el prototipo de LinguaPlay LSM en `Manuel`, incluido el reconocimiento experimental de la revisión `cd34839`.
 
 | Pantalla | Cómo usarla |
 | --- | --- |
@@ -10,7 +10,7 @@ Este borrador describe el prototipo de LinguaPlay LSM en la rama `Manuel`, inclu
 | Abecedario | Elige cualquiera de las 27 letras. La etiqueta **Foto** o **Video** indica el tipo de demostración. Desde el índice también puedes abrir el **Ejercicio de A, B y C**. |
 | Lección | Usa **Anterior** y **Siguiente** para pasar de una letra a otra. Las fichas con video tienen controles de reproducción integrados. Para volver al índice, selecciona **Abecedario**. |
 | Ejercicio | Selecciona una letra por cada configuración de la mano y pulsa **Comprobar respuestas**. Puedes corregir tus opciones o usar **Repasar desde A**. |
-| Práctica | Consulta la foto o el video de la letra junto a tu vista de cámara. Usa **Volver a la lección** para retomar el mismo paso. |
+| Práctica | Consulta la referencia junto a tu cámara. Las fichas de A, B y C ofrecen reconocimiento experimental. Usa **Volver a la lección** para retomar el mismo paso. |
 | Traductor | Escribe una frase y selecciona **Traducir** para consultar el estado de la demostración. |
 | Progreso | Consulta la racha, los logros y el calendario de ejemplo. |
 
@@ -39,3 +39,11 @@ Abre el prototipo en una dirección HTTPS o desde `localhost`. Para una prueba l
 3. Pulsa **Detener cámara** o sal de Práctica para apagarla. Si denegaste el permiso, revisa la configuración del sitio y vuelve a intentar.
 
 La vista previa usa solo video local. En Edge con una cámara simulada se comprobó la activación sin audio, el apagado manual, la salida de Práctica, el cierre de la página, el rechazo del permiso y la liberación del video si llega después de cancelar. La prueba con cámara física y en un teléfono sigue pendiente.
+
+### Practicar con reconocimiento
+
+1. Abre la ficha de **A**, **B** o **C** y activa la cámara. Espera a que termine de cargar el reconocimiento.
+2. Muestra una sola mano completa y sostén la configuración durante un momento. Verás puntos sobre la mano cuando el navegador la detecte.
+3. Lee el resultado debajo del encuadre. La pantalla indica si la predicción coincide con la ficha o si identifica otra de las tres letras. Si el resultado es incierto, revisa la referencia, el encuadre y la iluminación antes de volver a intentar.
+
+El piloto usa los archivos incluidos en la aplicación. Si el modelo falla al cargar, puedes seguir viendo la cámara y reintentar apagándola y encendiéndola.
