@@ -16,7 +16,7 @@ Para probar la versión actual, cambia a `Manuel`. Puedes abrir `index.html` dir
 - **Prototipado por etapas.** La primera versión reúne siete pantallas enlazadas para revisar el recorrido, la claridad de los controles y la retroalimentación. El diseño usa navegación lateral en escritorio y navegación inferior en móvil.
 - **Implementación web estática.** HTML define la entrada, CSS adapta el diseño a distintos tamaños y JavaScript organiza las vistas, reutiliza componentes y gestiona la navegación mediante el fragmento de URL.
 - **Contenido educativo validado.** Las demostraciones de señas se incorporarán después de revisar sus fuentes. El traductor educativo se planteará como un catálogo de expresiones validadas que respete la gramática de la LSM.
-- **Interacción por voz y gestos.** Práctica reconoce A, B y C de forma experimental con MediaPipe y un clasificador geométrico en el navegador. El dictado y la validación de gestos con participantes siguen pendientes.
+- **Interacción por voz y gestos.** Práctica reconoce experimentalmente las 27 letras del abecedario en el navegador. Cada letra se marca como aprendida después de tres aciertos registrados en días distintos. El dictado y la validación con participantes siguen pendientes.
 
 ## Archivos y seguimiento
 

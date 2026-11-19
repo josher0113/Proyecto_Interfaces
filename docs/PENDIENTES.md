@@ -20,11 +20,13 @@
 - [x] Verificar en Edge con una cámara simulada la activación, el rechazo de permiso, la cancelación y la liberación del video al detenerlo o salir.
 - [ ] Probar la vista en una cámara física, tanto en computadora como en teléfono.
 - [x] Incorporar MediaPipe Hand Landmarker localmente y comprobar en Edge el seguimiento de una mano.
-- [x] Implementar el reconocimiento experimental de A, B y C con retroalimentación de coincidencia, letra diferente y resultado incierto.
-- [x] Verificar el clasificador con pruebas unitarias y el flujo completo con cámara simulada y el modelo real.
-- [ ] Validar A, B y C con diferentes personas usuarias de LSM y cámaras físicas. Registrar aciertos, confusiones y casos sin resultado bajo distintas condiciones de luz y encuadre.
+- [x] Implementar el reconocimiento experimental de las 21 letras estáticas y las seis letras con movimiento.
+- [x] Verificar ambos clasificadores y el flujo de cámara simulada en Edge con fotos y videos de la UABCS.
+- [x] Guardar el avance del abecedario por fecha en el navegador. Verificar que los reintentos del mismo día no sumen y que la tercera fecha marque la letra en verde incluso después de recargar.
+- [ ] Validar las 27 letras con diferentes personas usuarias de LSM y cámaras físicas. Registrar aciertos, confusiones y abstenciones con distintas condiciones de luz, encuadre y velocidad.
+- [ ] Revisar con el equipo si conservar el criterio de tres fechas o ajustar la frecuencia de práctica.
 - [ ] Definir el catálogo de expresiones validadas para el traductor educativo y el estado que se mostrará cuando una consulta no tenga coincidencia.
-- [ ] Guardar el progreso, las lecciones completadas, los logros y los días de práctica. Calcular la racha a partir de actividades completadas en días consecutivos.
+- [ ] Guardar el avance de las otras unidades, las lecciones completadas y los logros. Calcular la racha a partir de actividades completadas en días consecutivos.
 - [ ] Definir cómo se integrarán las cuentas y el perfil del usuario.
 
 ## Entrega académica
@@ -33,7 +35,7 @@
 - [x] Iniciar la [propuesta de solución](PROPUESTA_SOLUCION.md) con requisitos, arquitectura del piloto e infraestructura prevista para voz y gestos.
 - [x] Documentar la elección de `getUserMedia` para la captura, la elección de MediaPipe para el seguimiento y los resultados de las pruebas de cámara simulada.
 - [x] Redactar el [borrador del manual de usuario](MANUAL_USUARIO.md) con la navegación, el abecedario, el ejercicio de A, B y C y la vista previa de cámara.
-- [x] Documentar la arquitectura, las pruebas y el uso del reconocimiento experimental de A, B y C.
+- [x] Documentar la arquitectura, las pruebas, el uso del reconocimiento del abecedario y el criterio para marcar letras como aprendidas.
 - [ ] Añadir bocetos y completar la descripción de voz y gestos cuando se implementen y prueben ambas modalidades.
 - [ ] Actualizar el manual con las funciones restantes y redactar las conclusiones del reporte.
 - [ ] Preparar la presentación y revisar el prototipo con la rúbrica de usabilidad y el requisito de dos tipos de interacción adicionales a la interfaz gráfica.

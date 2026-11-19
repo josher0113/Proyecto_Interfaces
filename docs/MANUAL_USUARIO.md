@@ -1,6 +1,6 @@
 # Manual de usuario · Prototipo de interfaces
 
-Este borrador describe el prototipo de LinguaPlay LSM en `Manuel`, incluido el reconocimiento experimental de la revisión `cd34839`.
+Este borrador describe el prototipo de LinguaPlay LSM en `Manuel`, incluido el reconocimiento del abecedario en la revisión `c45788d`.
 
 | Pantalla | Cómo usarla |
 | --- | --- |
@@ -10,9 +10,9 @@ Este borrador describe el prototipo de LinguaPlay LSM en `Manuel`, incluido el r
 | Abecedario | Elige cualquiera de las 27 letras. La etiqueta **Foto** o **Video** indica el tipo de demostración. Desde el índice también puedes abrir el **Ejercicio de A, B y C**. |
 | Lección | Usa **Anterior** y **Siguiente** para pasar de una letra a otra. Las fichas con video tienen controles de reproducción integrados. Para volver al índice, selecciona **Abecedario**. |
 | Ejercicio | Selecciona una letra por cada configuración de la mano y pulsa **Comprobar respuestas**. Puedes corregir tus opciones o usar **Repasar desde A**. |
-| Práctica | Consulta la referencia junto a tu cámara. Las fichas de A, B y C ofrecen reconocimiento experimental. Usa **Volver a la lección** para retomar el mismo paso. |
+| Práctica | Consulta la referencia junto a tu cámara y registra un acierto en cualquiera de las 27 letras. Usa **Volver a la lección** para regresar a la ficha. |
 | Traductor | Escribe una frase y selecciona **Traducir** para consultar el estado de la demostración. |
-| Progreso | Consulta la racha, los logros y el calendario de ejemplo. |
+| Progreso | Consulta el número de letras aprendidas y los días registrados por letra. Selecciona una letra para volver a practicarla. Las estadísticas generales son de ejemplo. |
 
 En escritorio, los apartados principales aparecen en la barra lateral. En móvil, aparecen en la barra inferior. Usa **Tab** y **Mayús + Tab** para recorrer los controles. Al principio de la página, **Saltar al contenido** lleva al área principal. Al cambiar de pantalla, el foco pasa al contenido de la nueva vista.
 
@@ -42,8 +42,14 @@ La vista previa usa solo video local. En Edge con una cámara simulada se compro
 
 ### Practicar con reconocimiento
 
-1. Abre la ficha de **A**, **B** o **C** y activa la cámara. Espera a que termine de cargar el reconocimiento.
-2. Muestra una sola mano completa y sostén la configuración durante un momento. Verás puntos sobre la mano cuando el navegador la detecte.
-3. Lee el resultado debajo del encuadre. La pantalla indica si la predicción coincide con la ficha o si identifica otra de las tres letras. Si el resultado es incierto, revisa la referencia, el encuadre y la iluminación antes de volver a intentar.
+1. Abre la práctica de cualquier letra y activa la cámara. Coloca una sola mano completa dentro del encuadre.
+2. Para una letra con foto, mantén la posición hasta recibir el resultado. En **J, Ñ, P, Q, X y Z**, pulsa **Evaluar movimiento**, coloca la mano en la posición inicial y haz el movimiento una vez cuando aparezca **Evaluando…**. Mantén la mano visible durante los 3.5 segundos de evaluación.
+3. Si el resultado coincide con la ficha, pulsa **Registrar práctica**. Si aparece otra letra o un resultado incierto, revisa la referencia y vuelve a intentar.
 
 El piloto usa los archivos incluidos en la aplicación. Si el modelo falla al cargar, puedes seguir viendo la cámara y reintentar apagándola y encendiéndola.
+
+### Aprender una letra en días distintos
+
+Se registra como máximo un acierto por letra y fecha local. Tras el primer o segundo día verás **1/3 días** o **2/3 días**. El tercer día de práctica correcta, la letra aparece en verde con la etiqueta **Aprendida** en Abecedario y Progreso. Las fechas pueden ser consecutivas o estar separadas. Puedes repasar en cualquier momento.
+
+El avance se guarda en el mismo navegador y desde la misma dirección del sitio. Por ejemplo, `localhost` y `127.0.0.1` mantienen historiales separados. Si el navegador bloquea el almacenamiento, la pantalla avisa que la práctica queda en la visita actual.

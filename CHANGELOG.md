@@ -1,5 +1,11 @@
 # Bitácora de cambios
 
+## Práctica del abecedario y progreso por días
+
+- En `Manuel` (`c45788d`), la práctica con cámara cubre las 27 letras. Las estáticas se comparan mientras mantienes la posición. J, Ñ, P, Q, X y Z usan una evaluación guiada del movimiento.
+- La práctica de cada letra se puede registrar una vez por fecha local (`bbc989b`). Tras tres aciertos en fechas distintas, el abecedario y Progreso muestran la letra en verde como **Aprendida**.
+- Pasaron 14 pruebas unitarias y las dos pruebas de integración en Edge con cámara simulada. La validación con más personas y cámaras físicas sigue pendiente.
+
 ## Reconocimiento experimental de A, B y C
 
 - En `Manuel` (`373feb2`), se incorporaron el motor web y el modelo Hand Landmarker de MediaPipe como archivos locales.
