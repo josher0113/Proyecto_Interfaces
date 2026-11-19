@@ -1,5 +1,11 @@
 # Bitácora de cambios
 
+## 2026-11-19 · Lección piloto de Abecedario
+
+- En `Manuel` (`5c6f082`), se añadieron fichas de A, B y C con fotografías de la Biblioteca Universitaria UABCS, atribución y descripciones.
+- Se añadió un ejercicio de tres preguntas, con comprobación, reintento y un estado de finalización que se conserva durante la visita.
+- Se probó el recorrido en Microsoft Edge y se documentaron los requisitos y las dos modalidades de interacción previstas para la entrega.
+
 ## 2026-11-18 · Navegación del prototipo
 
 - En `Manuel` (`f989b59`), las unidades con contenido de muestra ahora se identifican como vistas previas y se abren con «Ver unidad».

@@ -28,3 +28,4 @@ Abre [index.html](index.html) en un navegador moderno. Puedes recorrer el protot
 | [Bitácora](CHANGELOG.md) | Cambios registrados desde el prototipo inicial |
 | [Pendientes](docs/PENDIENTES.md) | Trabajo por completar y criterios de revisión |
 | [Manual de usuario](docs/MANUAL_USUARIO.md) | Recorrido del prototipo y comprobaciones de navegación |
+| [Propuesta de solución](docs/PROPUESTA_SOLUCION.md) | Requisitos, arquitectura, infraestructura y fuentes del piloto |
