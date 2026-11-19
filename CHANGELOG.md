@@ -1,5 +1,9 @@
 # Bitácora de cambios
 
+## Seguimiento de pendientes
+
+- Se actualizaron las casillas de navegación, abecedario, cámara y documentación para distinguir lo comprobado de las pruebas e integraciones que faltan.
+
 ## Vista previa de cámara
 
 - En `Manuel` (`80bcd15`), Práctica muestra la cámara junto a la referencia de la letra. La cámara se activa a petición y se libera al detenerla o salir de la vista.
