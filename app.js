@@ -17,6 +17,7 @@ const exerciseDescriptions = {
 };
 const exerciseCards = ['B', 'C', 'A'];
 let alphabetCompleted = false;
+let cameraSession = null;
 
 const alphabetPhoto = (letter, description) =>
   `<img class="alphabet-photo" src="assets/abecedario/${letter}.jpg" alt="${description}" width="480" height="640">`;
@@ -121,12 +122,90 @@ function lesson(unit, index, step) {
 function practice(unit, index, step) {
   const letter = index === 0 ? alphabetLetters[step] : null;
   return `<a class="back" href="#leccion/${index}/${step}">← Volver a la lección</a>
-    ${heading('Práctica con cámara', unit[3][step], 'Cuando la práctica esté habilitada, coloca tus manos dentro del encuadre y busca buena iluminación.')}
+    ${heading('Práctica con cámara', unit[3][step], 'Coloca la mano dentro del encuadre y busca buena iluminación.')}
     <div class="grid"><article><h2>Referencia</h2>${letter ? alphabetDemo(letter)
       : media('Ejemplo', 'Demostración pendiente')}</article>
-    <article><h2>Vista de cámara</h2>${media('Encuadre de práctica', 'Cámara pendiente de habilitar')}</article></div>
-    <article class="quick"><div><h2>Retroalimentación</h2><p class="feedback" role="status">Aquí aparecerán las observaciones de tu práctica.</p></div>
-    <button data-note="La cámara y el reconocimiento se incorporarán en una etapa posterior.">Comenzar práctica</button></article>`;
+    <article><h2>Vista de cámara</h2>
+      <div class="camera-preview">
+        <p id="camera-placeholder">Vista previa apagada</p>
+        <video id="camera-video" aria-label="Vista en vivo de la cámara" autoplay muted playsinline hidden></video>
+      </div>
+      <div class="actions"><button type="button" id="camera-toggle">Activar cámara</button></div>
+      <p id="camera-status" role="status">El video se muestra en tu dispositivo, sin grabarse ni enviarse.</p>
+      <p>Reconocimiento de señas pendiente.</p>
+    </article></div>`;
+}
+
+const cameraErrors = {
+  NotAllowedError: 'No se concedió acceso a la cámara. Revisa el permiso del sitio en el navegador y vuelve a intentar.',
+  NotFoundError: 'No encontramos una cámara. Conecta o habilita una y vuelve a intentar.',
+  NotReadableError: 'No se pudo usar la cámara. Cierra otras aplicaciones que puedan estar usándola y vuelve a intentar.',
+};
+
+function cameraView() {
+  return {
+    button: app.querySelector('#camera-toggle'),
+    video: app.querySelector('#camera-video'),
+    placeholder: app.querySelector('#camera-placeholder'),
+    status: app.querySelector('#camera-status'),
+  };
+}
+
+function stopCamera(message = 'Cámara apagada.') {
+  if (!cameraSession) return;
+  const { view, stream } = cameraSession;
+  cameraSession = null;
+  stream?.getTracks().forEach(track => track.stop());
+  view.video.srcObject = null;
+  view.video.hidden = true;
+  view.placeholder.hidden = false;
+  view.button.textContent = 'Activar cámara';
+  view.status.textContent = message;
+}
+
+async function toggleCamera() {
+  if (cameraSession) {
+    stopCamera();
+    return;
+  }
+
+  const view = cameraView();
+  if (!navigator.mediaDevices?.getUserMedia) {
+    view.status.textContent = 'Abre LinguaPlay en HTTPS o localhost con un navegador que admita cámara.';
+    return;
+  }
+
+  const session = { view, stream: null };
+  cameraSession = session;
+  view.button.textContent = 'Cancelar';
+  view.status.textContent = 'Esperando acceso a la cámara…';
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+    if (cameraSession !== session) {
+      stream.getTracks().forEach(track => track.stop());
+      return;
+    }
+
+    session.stream = stream;
+    for (const track of stream.getVideoTracks()) {
+      track.addEventListener('ended', () => {
+        if (cameraSession === session) stopCamera('La cámara se desconectó. Puedes volver a activarla.');
+      }, { once: true });
+    }
+    view.video.srcObject = stream;
+    view.video.muted = true;
+    await view.video.play();
+    if (cameraSession !== session) return;
+    view.video.hidden = false;
+    view.placeholder.hidden = true;
+    view.button.textContent = 'Detener cámara';
+    view.status.textContent = 'Cámara activa.';
+  } catch (error) {
+    if (cameraSession === session) {
+      stopCamera(cameraErrors[error.name] ?? 'No se pudo iniciar la cámara. Vuelve a intentar.');
+    }
+  }
 }
 
 function translator() {
@@ -172,6 +251,10 @@ function render() {
 }
 
 app.addEventListener('click', event => {
+  if (event.target.closest('#camera-toggle')) {
+    void toggleCamera();
+    return;
+  }
   const button = event.target.closest('[data-note]');
   if (button) app.querySelector('.feedback').textContent = button.dataset.note;
 });
@@ -207,7 +290,9 @@ document.querySelector('.skip').addEventListener('click', event => {
 });
 
 window.addEventListener('hashchange', () => {
+  stopCamera();
   render();
   focusContent();
 });
+window.addEventListener('pagehide', () => stopCamera());
 render();
