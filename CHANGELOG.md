@@ -1,5 +1,11 @@
 # Bitácora de cambios
 
+## Unidad de frutas y colores
+
+- El equipo precisó que «tiempo» se refiere a las horas del reloj y retiró lugares y estados del alcance.
+- En `Manuel` (`a5c01cd`), Aprender incorpora la unidad **Frutas y colores** con referencias institucionales y tres situaciones de repaso con retroalimentación.
+- En Edge se comprobó la navegación, la validación del formulario, el reintento y la vista de 320 px.
+
 ## 21 de noviembre de 2026 · Pruebas con la asociación en Xalapa
 
 - Un integrante del equipo acudió a la Asociación de Sordos del Estado de Veracruz, en Xalapa, para probar LinguaPlay LSM y recibir retroalimentación.

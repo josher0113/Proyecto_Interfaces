@@ -6,7 +6,7 @@ Este borrador describe el prototipo de LinguaPlay LSM en `Manuel`, incluido el d
 | --- | --- |
 | Bienvenida | Selecciona **Comenzar** para entrar a Inicio. |
 | Inicio | Usa **Explorar abecedario** para entrar al índice o **Abrir traductor** para ir a la consulta. |
-| Aprender | Usa **Explorar abecedario** para consultar las letras o **Ver unidad** para abrir otra unidad en vista previa. |
+| Aprender | Abre **Frutas y colores** para consultar vocabulario y hacer el repaso. Usa **Explorar abecedario** para consultar las letras. |
 | Abecedario | Elige cualquiera de las 27 letras. La etiqueta **Foto** o **Video** indica el tipo de demostración. Desde el índice también puedes abrir el **Ejercicio de A, B y C**. |
 | Lección | Usa **Anterior** y **Siguiente** para pasar de una letra a otra. Las fichas con video tienen controles de reproducción integrados. Para volver al índice, selecciona **Abecedario**. |
 | Ejercicio | Selecciona una letra por cada configuración de la mano y pulsa **Comprobar respuestas**. Puedes corregir tus opciones o usar **Repasar desde A**. |
@@ -29,6 +29,14 @@ Recorre las fichas de A, B y C con **Siguiente**. En la letra C o en el índice,
 En Edge se comprobaron la carga de las tres fotos, la validación de respuestas obligatorias, el reintento tras un error, la finalización y el regreso a Aprender. También se verificó que el ejercicio se cargara sin desplazamiento horizontal en los cinco anchos indicados arriba.
 
 Se comprobó además que se abren las 27 fichas desde el índice, cargan las 21 fotografías y se reproducen los videos de J, Ñ, P, Q, X y Z en Edge.
+
+## Repasar frutas y colores
+
+1. En **Aprender**, localiza **Frutas y colores** y pulsa **Abrir unidad**.
+2. Consulta manzana, plátano y pera en las páginas impresas 167 a 169 de *Manos con voz*. Para rojo, amarillo y verde, abre el video «Colores en LSM» en la Biblioteca de México. Ambas referencias se abren en otra pestaña.
+3. En **Elige el vocabulario**, selecciona un par por situación y pulsa **Comprobar respuestas**. Puedes corregir tus selecciones y volver a comprobarlas.
+
+El repaso indica cuáles pares corresponden a cada situación. La práctica de la ejecución de estas señas se revisará con la asociación.
 
 ## Probar la cámara
 

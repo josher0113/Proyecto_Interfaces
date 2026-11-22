@@ -11,8 +11,11 @@
 - [x] Incorporar el índice de 27 letras de la UABCS, con 21 fotografías, seis videos y créditos del material.
 - [x] Verificar en Edge la carga de las 27 fichas, la reproducción de los seis videos y la adaptación del índice a cinco anchos de pantalla.
 - [x] Realizar una primera visita para probar el prototipo y recibir retroalimentación de la asociación de Xalapa el 21 de noviembre de 2026. [Registro y análisis](PROPUESTA_SOLUCION.md#pruebas-con-la-asociación-en-xalapa).
-- [ ] Definir objetivos, ejemplos y fuentes de LSM para frutas, comida, colores, animales y muebles.
-- [ ] Precisar con la asociación el alcance de lugares y estados, tiempo y operaciones matemáticas.
+- [x] Definir el alcance acordado después de la visita. Tiempo se refiere a las horas del reloj. El tema de lugares y estados se retiró del plan.
+- [x] Implementar y probar la unidad inicial de frutas y colores con referencias y tres situaciones de repaso.
+- [ ] Definir objetivos, ejemplos y fuentes de LSM para comida, animales y muebles.
+- [ ] Preparar la unidad de horas con ejemplos para preguntar y decir la hora.
+- [ ] Acordar con la asociación qué operaciones matemáticas introducir a partir de la unidad de Números.
 - [ ] Revisar las señas y variantes locales antes de producir las fichas, y registrar las tareas, los resultados y los ajustes de la siguiente ronda de pruebas.
 
 ## Funciones y pruebas

@@ -11,11 +11,17 @@ El 21 de noviembre de 2026, un integrante del equipo visitó a la Asociación de
 | Frutas y comida | Crear una unidad de alimentación con frutas como grupo propio. Usar alimentos cotidianos como ejemplos. |
 | Colores | Añadir una actividad para reconocer colores y usarlos al describir alimentos u objetos. |
 | Animales y muebles | Preparar grupos de vocabulario separados. Seleccionar ejemplos conocidos y confirmar las señas con la asociación. |
-| Lugares y estados | Precisar si la unidad debe cubrir lugares de la comunidad, nombres de estados de México o ambos. |
-| Tiempo | Confirmar si se refiere a horas, fechas, clima o una combinación. La selección de ejemplos depende de esa definición. |
+| Lugares y estados | Tema sugerido durante la visita y retirado del alcance por decisión del equipo. |
+| Tiempo | El equipo precisó que se refiere a las horas del reloj. La unidad abordará cómo preguntar y decir la hora. |
 | Operaciones matemáticas | Usar la unidad de Números como base. Acordar qué operaciones y ejemplos introducir primero y cómo expresarlos en LSM. |
 
-El prototipo tiene una unidad de Números en vista previa. Las demás sugerencias amplían el catálogo temático. Para la primera ampliación se propone combinar frutas y colores en un ejercicio de descripción. Ese alcance permite revisar pocas señas y probar una actividad completa antes de producir más material. La agrupación y el orden propuestos quedan por revisar con la asociación.
+El prototipo tiene una unidad de Números en vista previa que puede servir de base para Horas y Operaciones matemáticas.
+
+### Primera ampliación de vocabulario
+
+La unidad **Frutas y colores** está disponible en Aprender en la revisión `a5c01cd` de `Manuel`. Presenta manzana, plátano y pera, y rojo, amarillo y verde. Enlaza el diccionario *Manos con voz* y el video «Colores en LSM» de la Biblioteca de México. [Diccionario ilustrado](https://educacionespecial.sep.gob.mx/storage/recursos/2023/05/xzrfl019nV-4Diccionario_lengua_%20Senas.pdf) · [Colores en LSM](https://www.bibliotecademexico.gob.mx/bmvirtual/pda.php?cat=2&idcat=11&page=2&subcat=2)
+
+El ejercicio propone tres situaciones de descripción y comprueba la selección del vocabulario. Se eligió este alcance para revisar con la asociación un grupo pequeño de señas antes de producir más material. En Edge, la prueba `node tests/vocabulary-browser.cjs` comprobó el acceso desde Aprender, los enlaces de referencia, las respuestas obligatorias, la retroalimentación, el reintento y la vista de 320 px.
 
 ### Evidencia y seguimiento
 

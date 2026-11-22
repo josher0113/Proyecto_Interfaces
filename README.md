@@ -7,7 +7,7 @@ LinguaPlay LSM es un proyecto educativo para empezar a aprender Lengua de Señas
 Para probar la versión actual, cambia a `Manuel`. Puedes abrir `index.html` directamente para recorrer el prototipo. Sirve esa misma carpeta mediante `localhost` o HTTPS para probar la cámara y el dictado. Los pasos están en el [manual](docs/MANUAL_USUARIO.md).
 
 1. En la bienvenida, selecciona **Comenzar** para entrar al inicio.
-2. En **Aprender**, abre una unidad y recorre sus pasos o entra a **Práctica** desde una lección.
+2. En **Aprender**, abre **Frutas y colores** para consultar las referencias y hacer el repaso, o elige una letra del abecedario para practicar con cámara.
 3. En **Traductor**, escribe o dicta una frase en español, revisa el texto y selecciona **Traducir** para ver el estado de la consulta.
 4. En **Progreso**, consulta las estadísticas, los logros y el calendario con datos de ejemplo.
 
