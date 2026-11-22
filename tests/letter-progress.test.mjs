@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createLetterProgress, isLetterPracticeStorageKey, LETTER_PRACTICE_GOAL } from '../letter-progress.mjs';
+import { createLetterProgress, createVocabularyProgress, isLetterPracticeStorageKey, LETTER_PRACTICE_GOAL } from '../letter-progress.mjs';
 
 process.env.TZ = 'America/Mexico_City';
 
@@ -16,6 +16,30 @@ function createStorage() {
     clear() { data.clear(); },
   };
 }
+
+test('vocabulary requires three consecutive calendar days per sign', () => {
+  const storage = createStorage();
+  const progress = createVocabularyProgress(['manzana', 'rojo'], storage);
+  assert.equal(progress.record('manzana', localDate(18)).days, 1);
+  assert.equal(progress.record('manzana', localDate(18, 23)).credited, false);
+  assert.equal(progress.snapshot(localDate(20)).entries.manzana.days, 0);
+  assert.equal(progress.record('manzana', localDate(20)).days, 1);
+  assert.equal(progress.record('manzana', localDate(21)).days, 2);
+  assert.equal(progress.snapshot(localDate(22)).entries.manzana.mastered, false);
+  assert.equal(progress.record('manzana', localDate(22)).mastered, true);
+  assert.equal(progress.snapshot(localDate(22)).entries.rojo.days, 0);
+
+  const reloaded = createVocabularyProgress(['manzana', 'rojo'], storage);
+  assert.equal(reloaded.snapshot(localDate(28)).entries.manzana.mastered, true);
+  assert.equal(createLetterProgress(storage).snapshot().letters.M.days, 0);
+});
+
+test('a vocabulary streak crosses month boundaries on consecutive dates', () => {
+  const progress = createVocabularyProgress(['pera'], createStorage());
+  progress.record('pera', new Date(2026, 10, 29, 23, 59));
+  progress.record('pera', new Date(2026, 10, 30, 0, 1));
+  assert.equal(progress.record('pera', new Date(2026, 11, 1, 0, 1)).mastered, true);
+});
 
 test('starts with all 27 letters and counts only one practice on a local date', () => {
   const progress = createLetterProgress(createStorage());
