@@ -1,8 +1,15 @@
 const alphabetLetters = [...'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'];
 const motionLetters = new Set(['J', 'Ñ', 'P', 'Q', 'X', 'Z']);
+const numberGroups = [
+  ['Del 1 al 10', Array.from({ length: 10 }, (_, index) => String(index + 1))],
+  ['Decenas hasta el 100', Array.from({ length: 9 }, (_, index) => String((index + 2) * 10))],
+  ['Centenas hasta el 1000', Array.from({ length: 9 }, (_, index) => String((index + 2) * 100))],
+];
+const numberSigns = numberGroups.flatMap(([, numbers]) => numbers);
+const numberDemos = typeof numberReferences === 'undefined' ? {} : numberReferences;
 const units = [
   ['Abecedario', 'Explora el alfabeto manual y su uso para deletrear.', 0, alphabetLetters.map(letter => `Letra ${letter}`)],
-  ['Números', 'Aprende a identificar los números del 1 al 3 en LSM.', 0, ['Número 1', 'Número 2', 'Número 3']],
+  ['Números', 'Practica las señas del 1 al 10, las decenas y las centenas hasta el 1000.', 0, numberSigns.map(number => `Número ${number}`)],
   ['Saludos básicos', 'Empieza a saludar y despedirte.', 0, ['Hola', 'Buenos días', 'Hasta luego']],
   ['Expresiones cotidianas', 'Amplía tu repertorio de expresiones de uso diario.', 0, ['Gracias', 'Por favor', 'Disculpa']],
   ['Frases y comunicación básica', 'Explora situaciones sencillas de conversación.', 0, ['Presentarse', 'Pedir ayuda', 'Invitar a participar']],
@@ -17,26 +24,21 @@ const exerciseDescriptions = {
   C: 'Dedos curvados, con el pulgar separado y una abertura entre las puntas.',
 };
 const exerciseCards = ['B', 'C', 'A'];
-const numberDescriptions = {
-  1: 'Dorso hacia el frente, con el índice hacia arriba y el resto de los dedos flexionados.',
-  2: 'Dorso hacia el frente, con el índice y el medio hacia arriba y separados. Los otros dedos están flexionados.',
-  3: 'Dorso hacia el frente, con el índice, el medio y el anular hacia arriba y separados. El pulgar y el meñique están flexionados.',
-};
-const numberCards = [2, 3, 1];
 const numberSource = 'https://riudg.udg.mx/handle/20.500.12104/111344';
 const gesturePrompt = 'Mantén una sola mano dentro del encuadre.';
 let alphabetCompleted = false;
 let cameraSession = null;
 let letterProgress = null;
+let numberProgress = null;
 let practiceGoal = 3;
 let appReady = false;
 
-function letterState(entry) {
-  if (entry?.mastered) return 'Aprendida';
+function practiceState(entry, isNumber = false) {
+  if (entry?.mastered) return isNumber ? 'Aprendido' : 'Aprendida';
   return `${entry?.days ?? 0}/${practiceGoal} días`;
 }
 
-function letterStateClass(entry) {
+function practiceStateClass(entry) {
   if (entry?.mastered) return 'letter-mastered';
   return entry?.days ? 'letter-practicing' : '';
 }
@@ -45,14 +47,33 @@ function alphabetGrid(progress, destination) {
   return `<ul class="alphabet-index">${alphabetLetters.map((letter, step) => {
     const entry = progress?.letters[letter];
     const mediaType = motionLetters.has(letter) ? 'Video' : 'Foto';
-    return `<li><a class="alphabet-letter ${letterStateClass(entry)}" href="#${destination}/0/${step}"
-      aria-label="Letra ${letter}, ${mediaType}, ${letterState(entry)}">
-      <strong>${letter}</strong><span>${mediaType}</span><span class="letter-state">${letterState(entry)}</span></a></li>`;
+    return `<li><a class="alphabet-letter ${practiceStateClass(entry)}" href="#${destination}/0/${step}"
+      aria-label="Letra ${letter}, ${mediaType}, ${practiceState(entry)}">
+      <strong>${letter}</strong><span>${mediaType}</span><span class="letter-state">${practiceState(entry)}</span></a></li>`;
   }).join('')}</ul>`;
 }
 
 function alphabetMasterySummary(progress) {
   return `${progress?.masteredCount ?? 0} de ${alphabetLetters.length} letras aprendidas`;
+}
+
+function numberMasterySummary(progress) {
+  return `${progress?.masteredCount ?? 0} de ${numberSigns.length} números aprendidos`;
+}
+
+function numberGrid(progress, destination) {
+  const groupHeading = destination === 'practica' ? 'h3' : 'h2';
+  return numberGroups.map(([title, numbers]) => `<section class="number-group">
+    <${groupHeading}>${title}</${groupHeading}>
+    <ul class="alphabet-index number-index">${numbers.map(number => {
+      const step = numberSigns.indexOf(number);
+      const entry = progress?.letters[number];
+      const mediaType = numberDemos[number]?.motion ? 'Movimiento' : 'Foto';
+      const state = practiceState(entry, true);
+      return `<li><a class="number-card ${practiceStateClass(entry)}" href="#${destination}/1/${step}"
+        aria-label="Número ${number}, ${mediaType}, ${state}">
+        <strong>${number}</strong><span>${mediaType}</span><span class="letter-state">${state}</span></a></li>`;
+    }).join('')}</ul></section>`).join('');
 }
 
 const alphabetPhoto = (letter, description) =>
@@ -98,31 +119,23 @@ function alphabetExercise() {
     </form>${alphabetCredit()}</article>`;
 }
 
-function numberPhoto(number, description = numberDescriptions[number]) {
-  return `<img class="alphabet-photo" src="assets/numeros/${number}.jpg"
-    alt="${description}" width="260" height="342">`;
-}
-
-function numberCredit() {
-  return `<p class="media-credit">Fotografías de Servando Alvarado Cisneros, recortadas del
-    <a href="${numberSource}">Glosario universitario de Lengua de Señas Mexicana</a> (Universidad de Guadalajara, pp. 65–66).
+function numberDemo(number) {
+  const reference = numberDemos[number];
+  if (!reference) return '<p>No se pudo cargar la referencia de esta seña. Vuelve a cargar la página.</p>';
+  const { description, motion, images, page } = reference;
+  return `<figure class="alphabet-demo"><div class="number-poses">${images.map((src, index) => {
+    const alt = images.length > 1 ? `Posición ${index + 1} de ${images.length} de la seña para ${number}` : '';
+    return `<img class="alphabet-photo" src="${src}" alt="${alt}">`;
+  }).join('')}</div><figcaption>${description}${motion ? `<p>${motion}</p>` : ''}</figcaption></figure>
+  <p class="media-credit">Fotografías de Servando Alvarado Cisneros, recortadas del
+    <a href="${numberSource}">Glosario universitario de Lengua de Señas Mexicana</a> (Universidad de Guadalajara, p. ${page}).
     <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</p>`;
 }
 
-function numberExercise() {
-  return `<a class="back" href="#leccion/1/0">← Repasar las señas</a>
-    ${heading('Números', 'Ejercicio del 1 al 3', 'Elige el número que corresponde a cada seña.')}
-    <article><form id="number-exercise">
-      <div class="exercise-grid">${numberCards.map((number, index) => `<fieldset>
-        <legend>Seña ${index + 1}</legend>
-        ${numberPhoto(number)}
-        <div class="choices">${[1, 2, 3].map(option => `<label>
-          <input type="radio" name="answer-${index}" value="${option}" ${option === 1 ? 'required' : ''}> ${option}
-        </label>`).join('')}</div>
-      </fieldset>`).join('')}</div>
-      <div class="actions"><button>Comprobar respuestas</button>${link('aprender', 'Volver a la ruta', true)}</div>
-      <p class="feedback" role="status"></p>
-    </form>${numberCredit()}</article>`;
+function numberIndex() {
+  return `<a class="back" href="#aprender">← Ruta de aprendizaje</a>
+    ${heading('Aprender', 'Números', 'Elige un número para ver su referencia y practicarlo con la cámara.')}
+    <article>${numberGrid(numberProgress?.snapshot(), 'leccion')}</article>`;
 }
 
 const brand = 'LinguaPlay <small>LSM</small>';
@@ -155,82 +168,97 @@ function dashboard() {
 }
 
 function learning() {
-  const progressSummary = alphabetMasterySummary(letterProgress?.snapshot());
+  const progressSummaries = [
+    alphabetMasterySummary(letterProgress?.snapshot()),
+    numberMasterySummary(numberProgress?.snapshot()),
+  ];
+  const unitLinks = [
+    link('abecedario', 'Explorar abecedario'),
+    link('numeros', 'Explorar números'),
+  ];
   return `${heading('Aprender', 'Ruta de aprendizaje', 'Avanza desde el alfabeto manual hasta situaciones cotidianas.')}
     <div class="units">${units.map(([title, description, progress], index) => `<article class="unit">
       <span class="unit-number" aria-label="Unidad ${index + 1}">${index + 1}</span>
-      <div>${index !== 1 ? `<p class="eyebrow">${index === 0 ? progressSummary : 'Vista previa disponible'}</p>` : ''}
+      <div><p class="eyebrow">${progressSummaries[index] ?? 'Vista previa disponible'}</p>
       <h2>${title}</h2><p>${description}</p>${index === 0
         ? (alphabetCompleted ? '<p>Ejercicio de A, B y C completado.</p>' : '')
         : (index > 1 ? meter('Progreso de la unidad', progress) : '')}</div>
-      ${index === 0 ? link('abecedario', 'Explorar abecedario') : link(`leccion/${index}/0`, 'Ver unidad', true)}
+      ${unitLinks[index] ?? link(`leccion/${index}/0`, 'Ver unidad', true)}
     </article>`).join('')}</div>`;
 }
 
 function lesson(unit, index, step) {
   const [title, description, , topics] = unit;
   const letter = index === 0 ? alphabetLetters[step] : null;
-  const number = index === 1 ? step + 1 : null;
+  const number = index === 1 ? numberSigns[step] : null;
+  const indexPage = letter ? ['abecedario', 'Abecedario'] : number ? ['numeros', 'Números'] : ['aprender', 'Ruta de aprendizaje'];
   let demonstration = `${media('Demostración', 'Material en LSM pendiente de incorporar')}<p>Este espacio mostrará una demostración y su explicación.</p>`;
-  let practiceLink = link(`practica/${index}/${step}`, 'Ir a práctica con cámara', true);
   if (letter) {
     demonstration = alphabetDemo(letter);
   }
   if (number) {
-    demonstration = `<figure class="alphabet-demo">${numberPhoto(number, '')}<figcaption>${numberDescriptions[number]}</figcaption></figure>${numberCredit()}`;
-    practiceLink = link('ejercicio-numeros', 'Practicar del 1 al 3');
+    demonstration = numberDemo(number);
   }
-  return `<a class="back" href="#${letter ? 'abecedario' : 'aprender'}">← ${letter ? 'Abecedario' : 'Ruta de aprendizaje'}</a>
-    ${heading(title, topics[step], description)}
+  return `<a class="back" href="#${indexPage[0]}">← ${indexPage[1]}</a>
+    ${heading(title, topics[step], number ? 'Observa la referencia y practica la seña con la cámara.' : description)}
     <article>${meter(`Paso ${step + 1} de ${topics.length}`, Math.round((step + 1) / topics.length * 100))}
       ${demonstration}
       <div class="actions">${letter === 'C' ? link('ejercicio', 'Ejercicio de A, B y C') : ''}
-        ${practiceLink}</div>
+        ${link(`practica/${index}/${step}`, 'Ir a práctica con cámara', true)}</div>
     </article><div class="between actions">
       ${step > 0 ? link(`leccion/${index}/${step - 1}`, 'Anterior', true) : '<button class="secondary" disabled>Anterior</button>'}
       ${step + 1 < topics.length ? link(`leccion/${index}/${step + 1}`, 'Siguiente')
-        : letter ? link('abecedario', 'Volver al abecedario') : link('aprender', 'Volver a la ruta')}
+        : link(indexPage[0], ['Volver al abecedario', 'Volver a Números'][index] ?? 'Volver a la ruta')}
     </div>`;
 }
 
 function practice(unit, index, step) {
-  if (index === 1) return numberExercise();
-  const letter = index === 0 ? alphabetLetters[step] : null;
-  const isMotion = motionLetters.has(letter);
-  const progress = letter && letterProgress?.snapshot();
-  const entry = progress?.letters[letter];
+  const isNumber = index === 1;
+  const sign = isNumber ? numberSigns[step] : index === 0 ? alphabetLetters[step] : null;
+  const reference = isNumber ? numberDemos[sign] : null;
+  const canRecognize = Boolean(sign && (!isNumber || reference));
+  const isMotion = isNumber ? Boolean(reference?.motion) : motionLetters.has(sign);
+  const handCount = reference?.hands ?? 1;
+  const progress = canRecognize && (isNumber ? numberProgress : letterProgress)?.snapshot();
+  const entry = progress?.letters[sign];
+  const label = isNumber ? `del número ${sign}` : `de la letra ${sign}`;
+  const framing = handCount === 2 ? 'Coloca las dos manos dentro del encuadre' : 'Coloca la mano dentro del encuadre';
+  const demonstration = isNumber ? numberDemo(sign) : sign ? alphabetDemo(sign) : media('Ejemplo', 'Demostración pendiente');
   return `<a class="back" href="#leccion/${index}/${step}">← Volver a la lección</a>
-    ${heading('Práctica con cámara', unit[3][step], 'Coloca la mano dentro del encuadre y busca buena iluminación.')}
-    <div class="grid"><article><h2>Referencia</h2>${letter ? alphabetDemo(letter)
-      : media('Ejemplo', 'Demostración pendiente')}</article>
+    ${heading('Práctica con cámara', unit[3][step], `${framing} y busca buena iluminación.`)}
+    <div class="grid"><article><h2>Referencia</h2>${demonstration}</article>
     <article><h2>Vista de cámara</h2>
       <div class="camera-preview">
         <p id="camera-placeholder">Vista previa apagada</p>
         <video id="camera-video" aria-label="Vista en vivo de la cámara" autoplay muted playsinline hidden></video>
-        ${letter ? '<canvas id="gesture-overlay" aria-hidden="true" hidden></canvas>' : ''}
+        ${canRecognize ? '<canvas id="gesture-overlay" aria-hidden="true" hidden></canvas>' : ''}
       </div>
       <div class="actions"><button type="button" id="camera-toggle">Activar cámara</button>
         ${isMotion ? '<button type="button" id="gesture-attempt" class="secondary" disabled>Evaluar movimiento</button>' : ''}</div>
       <p id="camera-status" role="status">El video se muestra en tu dispositivo, sin grabarse ni enviarse.</p>
-      ${letter ? `<p id="gesture-status" role="status" data-letter="${letter}">${practicePrompt()}</p>` : ''}
+      ${canRecognize ? `<p id="gesture-status" role="status" data-${isNumber ? 'number' : 'letter'}="${sign}"
+        data-hand-count="${handCount}">${practicePrompt(isNumber, handCount)}</p>` : ''}
     </article></div>
-    ${letter ? `<article class="practice-progress">
-      <div class="practice-progress-heading"><h2>Progreso de la letra ${letter}</h2>
-        <span id="practice-letter-state" class="letter-state ${letterStateClass(entry)}">${letterState(entry)}</span></div>
-      <p>La letra pasa a verde tras ${practiceGoal} prácticas correctas en días distintos.</p>
-      <div class="actions"><button type="button" id="practice-record" disabled>${practiceRecordLabel(entry)}</button></div>
+    ${canRecognize ? `<article class="practice-progress">
+      <div class="practice-progress-heading"><h2>Progreso ${label}</h2>
+        <span id="practice-letter-state" class="letter-state ${practiceStateClass(entry)}">${practiceState(entry, isNumber)}</span></div>
+      <p>${isNumber ? 'El número' : 'La letra'} pasa a verde tras ${practiceGoal} prácticas correctas en días distintos.</p>
+      <div class="actions"><button type="button" id="practice-record" disabled>${practiceRecordLabel(entry, isNumber)}</button></div>
       <p id="practice-record-status" role="status"></p>
       <p id="practice-storage-status">${practiceStorageMessage(progress)}</p>
     </article>` : ''}`;
 }
 
-function practiceRecordLabel(entry) {
-  if (entry?.mastered) return 'Letra aprendida';
+function practiceRecordLabel(entry, isNumber) {
+  if (entry?.mastered) return isNumber ? 'Número aprendido' : 'Letra aprendida';
   return entry?.practicedToday ? 'Práctica de hoy registrada' : 'Registrar práctica';
 }
 
-function practicePrompt() {
-  return location.protocol === 'file:' ? 'Abre LinguaPlay en HTTPS o localhost para reconocer y registrar letras.' : gesturePrompt;
+function practicePrompt(isNumber, handCount) {
+  if (location.protocol === 'file:') {
+    return `Abre LinguaPlay en HTTPS o localhost para reconocer y registrar ${isNumber ? 'números' : 'letras'}.`;
+  }
+  return handCount === 2 ? 'Mantén las dos manos dentro del encuadre.' : gesturePrompt;
 }
 
 function practiceStorageMessage(progress) {
@@ -246,25 +274,27 @@ function matchedToday(session, date = new Date()) {
 
 function refreshPracticeProgress(view, message) {
   if (!view.recordButton) return;
-  const progress = letterProgress?.snapshot();
-  const entry = progress?.letters[view.gesture.dataset.letter];
-  const canRecord = Boolean(progress && matchedToday(cameraSession) && !entry.mastered && !entry.practicedToday);
+  const progress = (view.isNumber ? numberProgress : letterProgress)?.snapshot();
+  const entry = progress?.letters[view.sign];
+  const canRecord = Boolean(entry && matchedToday(cameraSession) && !entry.mastered && !entry.practicedToday);
   view.recordButton.disabled = !canRecord;
-  view.recordButton.textContent = practiceRecordLabel(entry);
-  view.letterState.textContent = letterState(entry);
-  view.letterState.className = `letter-state ${letterStateClass(entry)}`;
+  view.recordButton.textContent = practiceRecordLabel(entry, view.isNumber);
+  view.letterState.textContent = practiceState(entry, view.isNumber);
+  view.letterState.className = `letter-state ${practiceStateClass(entry)}`;
   view.storageStatus.textContent = practiceStorageMessage(progress);
   view.recordStatus.textContent = message ?? (canRecord ? 'Acierto confirmado. Puedes registrar la práctica de hoy.' : '');
 }
 
 function recordPractice() {
   const date = new Date();
-  if (!letterProgress || !matchedToday(cameraSession, date)) return;
+  if (!matchedToday(cameraSession, date)) return;
   const { view } = cameraSession;
-  if (view.recordButton.disabled) return;
-  const entry = letterProgress.record(view.gesture.dataset.letter, date);
+  const progress = view.isNumber ? numberProgress : letterProgress;
+  if (!progress || view.recordButton.disabled) return;
+  const entry = progress.record(view.sign, date);
+  const subject = view.isNumber ? 'Este número' : 'Esta letra';
   const message = entry.credited
-    ? (entry.mastered ? 'Práctica registrada. Esta letra ya aparece en verde.' : 'Práctica registrada. Vuelve otro día para seguir avanzando.')
+    ? (entry.mastered ? `Práctica registrada. ${subject} ya aparece en verde.` : 'Práctica registrada. Vuelve otro día para seguir avanzando.')
     : 'La práctica de hoy ya está registrada.';
   refreshPracticeProgress(view, message);
 }
@@ -276,12 +306,16 @@ const cameraErrors = {
 };
 
 function cameraView() {
+  const gesture = app.querySelector('#gesture-status');
   return {
     button: app.querySelector('#camera-toggle'),
     video: app.querySelector('#camera-video'),
     placeholder: app.querySelector('#camera-placeholder'),
     status: app.querySelector('#camera-status'),
-    gesture: app.querySelector('#gesture-status'),
+    gesture,
+    sign: gesture?.dataset.number ?? gesture?.dataset.letter,
+    isNumber: Boolean(gesture?.dataset.number),
+    handCount: Number(gesture?.dataset.handCount ?? 1),
     canvas: app.querySelector('#gesture-overlay'),
     attempt: app.querySelector('#gesture-attempt'),
     recordButton: app.querySelector('#practice-record'),
@@ -302,7 +336,7 @@ function stopCamera(message = 'Cámara apagada.') {
   view.placeholder.hidden = false;
   view.button.textContent = 'Activar cámara';
   view.status.textContent = message;
-  if (view.gesture) view.gesture.textContent = practicePrompt();
+  if (view.gesture) view.gesture.textContent = practicePrompt(view.isNumber, view.handCount);
   refreshPracticeProgress(view);
 }
 
@@ -313,7 +347,7 @@ async function startRecognition(session) {
     view.gesture.textContent = 'Abre LinguaPlay mediante HTTPS o localhost para activar el reconocimiento.';
     return;
   }
-  view.gesture.textContent = 'Cargando reconocimiento del abecedario…';
+  view.gesture.textContent = view.isNumber ? 'Cargando reconocimiento de números…' : 'Cargando reconocimiento del abecedario…';
   try {
     const { startHandPractice } = await import('./hand-practice.mjs');
     if (cameraSession === session) {
@@ -321,14 +355,17 @@ async function startRecognition(session) {
         video: view.video,
         canvas: view.canvas,
         status: view.gesture,
-        letter: view.gesture.dataset.letter,
+        letter: view.sign,
+        kind: view.isNumber ? 'number' : 'letter',
+        handCount: view.handCount,
         motionButton: view.attempt,
         onMatch: () => {
-          if (matchedToday(session)) return;
+          if (cameraSession !== session || matchedToday(session)) return;
           session.matchedAt = new Date();
           refreshPracticeProgress(view);
         },
         onAttempt: () => {
+          if (cameraSession !== session) return;
           session.matchedAt = null;
           refreshPracticeProgress(view);
         },
@@ -411,12 +448,16 @@ function translator() {
 
 function profile() {
   const progress = letterProgress?.snapshot();
+  const numbers = numberProgress?.snapshot();
   return `${heading('Tu perfil', 'Progreso', 'Consulta tus estadísticas de ejemplo y días de práctica.')}
     <article class="quick"><div class="identity"><span class="avatar" aria-hidden="true">A</span><h2>Alex Rivera</h2></div>${stats()}</article>
     <article class="practice-progress"><h2>Dominio del abecedario</h2>
       <p>${alphabetMasterySummary(progress)}. Selecciona una letra para practicar.</p>
       ${alphabetGrid(progress, 'practica')}<p>${practiceStorageMessage(progress)}</p></article>
-    <div class="grid practice-progress"><article><h2>Otras unidades</h2>${units.slice(1).map(([title, , percent]) => meter(title, percent)).join('')}</article>
+    <article class="practice-progress"><h2>Dominio de números</h2>
+      <p>${numberMasterySummary(numbers)}. Selecciona un número para practicar.</p>
+      ${numberGrid(numbers, 'practica')}<p>${practiceStorageMessage(numbers)}</p></article>
+    <div class="grid practice-progress"><article><h2>Otras unidades</h2>${units.slice(2).map(([title, , percent]) => meter(title, percent)).join('')}</article>
     <article><h2>Calendario de práctica</h2><p>Semana de ejemplo</p><ol class="calendar">${['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, index) =>
       `<li><span>${day}</span><span class="${index < 4 ? 'checked' : ''}" aria-label="${index < 4 ? 'Práctica completada' : 'Sin práctica'}">${index < 4 ? '✓' : '·'}</span></li>`).join('')}</ol>
       <h2>Logros</h2><p>Primer paso · Primera lección completada</p><h2>Actividad reciente</h2><p>Abecedario · Practicaste la letra A</p></article></div>`;
@@ -424,7 +465,7 @@ function profile() {
 
 const pages = {
   inicio: dashboard, aprender: learning, abecedario: alphabetIndex, ejercicio: alphabetExercise,
-  'ejercicio-numeros': numberExercise, traductor: translator, progreso: profile,
+  numeros: numberIndex, 'ejercicio-numeros': numberIndex, traductor: translator, progreso: profile,
 };
 const nav = [['inicio', '⌂', 'Inicio'], ['aprender', '▤', 'Aprender'], ['traductor', '⇄', 'Traductor'], ['progreso', '◉', 'Progreso']];
 
@@ -434,7 +475,7 @@ function render() {
   const step = Number(stepParam);
   const unit = units[index];
   const isLesson = page === 'leccion' || page === 'practica';
-  const isLearningDetail = isLesson || ['abecedario', 'ejercicio', 'ejercicio-numeros'].includes(page);
+  const isLearningDetail = isLesson || ['abecedario', 'ejercicio', 'numeros', 'ejercicio-numeros'].includes(page);
   const active = isLearningDetail ? 'aprender' : page;
   const content = isLesson
     ? (unit?.[3][step] ? (page === 'leccion' ? lesson : practice)(unit, index, step) : learning())
@@ -467,14 +508,6 @@ app.addEventListener('click', event => {
 
 app.addEventListener('submit', event => {
   event.preventDefault();
-  if (event.target.id === 'number-exercise') {
-    const answers = new FormData(event.target);
-    const correct = numberCards.filter((number, index) => answers.get(`answer-${index}`) === String(number)).length;
-    event.target.querySelector('.feedback').textContent = correct === numberCards.length
-      ? '¡Ejercicio completado! Identificaste las tres señas.'
-      : `${correct} de ${numberCards.length} respuestas correctas. Revisa tus opciones y vuelve a intentar.`;
-    return;
-  }
   if (event.target.id === 'alphabet-exercise') {
     const answers = new FormData(event.target);
     const correct = exerciseCards.filter((letter, index) => answers.get(`answer-${index}`) === letter).length;
@@ -519,8 +552,9 @@ window.addEventListener('pagehide', () => {
 async function startApp() {
   if (location.protocol !== 'file:') {
     try {
-      const { createLetterProgress, LETTER_PRACTICE_GOAL } = await import('./letter-progress.mjs');
+      const { createLetterProgress, createNumberProgress, LETTER_PRACTICE_GOAL } = await import('./letter-progress.mjs');
       letterProgress = createLetterProgress();
+      numberProgress = createNumberProgress(numberSigns);
       practiceGoal = LETTER_PRACTICE_GOAL;
     } catch {
       // Lessons and the live preview are still usable if the progress module is unavailable.

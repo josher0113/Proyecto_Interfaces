@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createLetterProgress, isLetterPracticeStorageKey, LETTER_PRACTICE_GOAL } from '../letter-progress.mjs';
+import { createLetterProgress, createNumberProgress, isLetterPracticeStorageKey, LETTER_PRACTICE_GOAL } from '../letter-progress.mjs';
 
 process.env.TZ = 'America/Mexico_City';
 
@@ -30,6 +30,22 @@ test('starts with all 27 letters and counts only one practice on a local date', 
   });
   assert.equal(progress.snapshot(localDate(20, 0)).letters.Ñ.practicedToday, false);
   assert.equal(progress.record('Ñ', localDate(20, 0)).credited, true);
+});
+
+test('counts number practice on distinct dates and preserves separate letter records', () => {
+  const storage = createStorage();
+  const numbers = createNumberProgress(['1', '20', '1000'], storage);
+  const letters = createLetterProgress(storage);
+  letters.record('A', localDate(12));
+  assert.equal(numbers.record('20', localDate(12)).credited, true);
+  assert.equal(numbers.record('20', localDate(12, 18)).credited, false);
+  assert.equal(numbers.record('20', localDate(15)).mastered, false);
+  assert.equal(numbers.record('20', localDate(19)).mastered, true);
+  const reloaded = createNumberProgress(['1', '20', '1000'], storage);
+  assert.equal(reloaded.snapshot(localDate(20)).letters['20'].mastered, true);
+  assert.equal(reloaded.snapshot(localDate(20)).letters['1000'].days, 0);
+  assert.equal(letters.snapshot(localDate(20)).letters.A.days, 1);
+  assert.throws(() => numbers.record('25', localDate(20)), RangeError);
 });
 
 test('marks the third distinct date as mastery and restores it on reload', () => {

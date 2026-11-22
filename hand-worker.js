@@ -19,8 +19,8 @@ self.addEventListener('message', async ({ data }) => {
 
   if (data.type === 'frame') {
     try {
-      const { landmarks, worldLandmarks } = landmarker.detectForVideo(data.bitmap, data.timestamp);
-      self.postMessage({ type: 'result', landmarks, worldLandmarks });
+      const { landmarks, worldLandmarks, handedness } = landmarker.detectForVideo(data.bitmap, data.timestamp);
+      self.postMessage({ type: 'result', landmarks, worldLandmarks, handedness });
     } catch (error) {
       self.postMessage({ type: 'error', message: error.message });
     } finally {

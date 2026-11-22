@@ -1,11 +1,12 @@
 const letters = [...'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'];
-const keyPrefix = 'linguaplay:letter-practice:v1:';
+const letterPrefix = 'linguaplay:letter-practice:v1:';
+const numberPrefix = 'linguaplay:number-practice:v1:';
 const storedValue = '1';
 
 export const LETTER_PRACTICE_GOAL = 3;
 
 export function isLetterPracticeStorageKey(key) {
-  return typeof key === 'string' && key.startsWith(keyPrefix);
+  return typeof key === 'string' && key.startsWith(letterPrefix);
 }
 
 function getBrowserStorage() {
@@ -31,15 +32,24 @@ function localDateKey(date) {
   ].join('-');
 }
 
-function isPracticeToken(token) {
-  const match = /^([A-ZÑ]):(\d{4}-\d{2}-\d{2})$/.exec(token);
-  if (!match) return false;
-  const day = match[2];
+function isPracticeToken(token, signs) {
+  const match = /^([^:]+):(\d{4}-\d{2}-\d{2})$/.exec(token);
+  if (!match || !signs.has(match[1])) return false;
+  const [, , day] = match;
   const parsed = new Date(day + 'T00:00:00Z');
   return Number.isFinite(parsed.getTime()) && parsed.toISOString().startsWith(day + 'T');
 }
 
 export function createLetterProgress(storage = getBrowserStorage()) {
+  return createPracticeProgress(letters, letterPrefix, 'Letra de práctica fuera del abecedario.', storage);
+}
+
+export function createNumberProgress(numbers, storage = getBrowserStorage()) {
+  return createPracticeProgress(numbers.map(String), numberPrefix, 'Número de práctica fuera de la unidad.', storage);
+}
+
+function createPracticeProgress(signs, keyPrefix, unknownSign, storage) {
+  const validSigns = new Set(signs);
   let saved = new Set();
   const pending = new Set();
 
@@ -49,9 +59,9 @@ export function createLetterProgress(storage = getBrowserStorage()) {
       const latest = new Set();
       for (let index = 0; index < storage.length; index++) {
         const key = storage.key(index);
-        if (!isLetterPracticeStorageKey(key)) continue;
+        if (typeof key !== 'string' || !key.startsWith(keyPrefix)) continue;
         const token = key.slice(keyPrefix.length);
-        if (isPracticeToken(token) && storage.getItem(key) === storedValue) latest.add(token);
+        if (isPracticeToken(token, validSigns) && storage.getItem(key) === storedValue) latest.add(token);
       }
       saved = latest;
       // Another tab may have saved a day while this tab had trouble writing it.
@@ -79,18 +89,18 @@ export function createLetterProgress(storage = getBrowserStorage()) {
   }
 
   function summarize(today, persistent) {
-    const byLetter = Object.fromEntries(letters.map(letter => [
-      letter, { days: 0, mastered: false, practicedToday: false },
+    const bySign = Object.fromEntries(signs.map(sign => [
+      sign, { days: 0, mastered: false, practicedToday: false },
     ]));
     for (const token of new Set([...saved, ...pending])) {
-      const [letter, day] = token.split(':');
-      const entry = byLetter[letter];
+      const [sign, day] = token.split(':');
+      const entry = bySign[sign];
       entry.days++;
       entry.mastered = entry.days >= LETTER_PRACTICE_GOAL;
       if (day === today) entry.practicedToday = true;
     }
-    const masteredCount = Object.values(byLetter).filter(entry => entry.mastered).length;
-    return { letters: byLetter, masteredCount, persistent };
+    const masteredCount = Object.values(bySign).filter(entry => entry.mastered).length;
+    return { letters: bySign, masteredCount, persistent };
   }
 
   return {
@@ -99,15 +109,16 @@ export function createLetterProgress(storage = getBrowserStorage()) {
       return summarize(today, refresh() && pending.size === 0);
     },
 
-    record(letter, date = new Date()) {
-      if (!letters.includes(letter)) throw new RangeError('Letra de práctica fuera del abecedario.');
+    record(sign, date = new Date()) {
+      const label = String(sign);
+      if (!validSigns.has(label)) throw new RangeError(unknownSign);
       const today = localDateKey(date);
       const readable = refresh();
-      const token = `${letter}:${today}`;
+      const token = `${label}:${today}`;
       const credited = !saved.has(token) && !pending.has(token);
       if (credited) pending.add(token);
       const persistent = readable && savePending();
-      return { credited, ...summarize(today, persistent).letters[letter], persistent };
+      return { credited, ...summarize(today, persistent).letters[label], persistent };
     },
   };
 }

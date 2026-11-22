@@ -6,16 +6,14 @@ const maxSampleGap = 600;
 const motionLeadTime = 900;
 const motionDuration = 3500;
 
-function drawHand(canvas, video, landmarks, connections) {
+function drawHands(canvas, video, hands, connections) {
   if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
   }
   const context = canvas.getContext('2d');
   context.clearRect(0, 0, canvas.width, canvas.height);
-  if (!landmarks) return;
-
-  const points = landmarks.map(({ x, y }) => [x * canvas.width, y * canvas.height]);
+  if (!hands.length) return;
   const scale = Math.max(1, Math.min(canvas.width, canvas.height) / 320);
   context.lineWidth = 2 * scale;
   context.strokeStyle = '#fff2dc';
@@ -23,22 +21,32 @@ function drawHand(canvas, video, landmarks, connections) {
   context.shadowColor = '#3a2d31';
   context.shadowBlur = 3 * scale;
 
-  context.beginPath();
-  for (const { start, end } of connections) {
-    context.moveTo(...points[start]);
-    context.lineTo(...points[end]);
-  }
-  context.stroke();
-
-  for (const [x, y] of points) {
+  for (const landmarks of hands) {
+    const points = landmarks.map(({ x, y }) => [x * canvas.width, y * canvas.height]);
     context.beginPath();
-    context.arc(x, y, 2.5 * scale, 0, Math.PI * 2);
-    context.fill();
+    for (const { start, end } of connections) {
+      context.moveTo(...points[start]);
+      context.lineTo(...points[end]);
+    }
+    context.stroke();
+
+    for (const [x, y] of points) {
+      context.beginPath();
+      context.arc(x, y, 2.5 * scale, 0, Math.PI * 2);
+      context.fill();
+    }
   }
 }
 
-export function startHandPractice({ video, canvas, status, letter, motionButton, onMatch, onAttempt }) {
+export function startHandPractice({
+  video, canvas, status, letter, motionButton, onMatch, onAttempt, kind = 'letter', handCount = 1,
+}) {
+  const numberPractice = kind === 'number';
+  const subject = numberPractice ? 'número' : 'letra';
+  const title = numberPractice ? 'Número' : 'Letra';
+  const framing = handCount === 2 ? 'ambas manos' : 'una sola mano';
   const frameInterval = motionButton ? 65 : 100;
+  let numberClassifier;
   let worker;
   let timer;
   let motionTimer;
@@ -106,9 +114,9 @@ export function startHandPractice({ video, canvas, status, letter, motionButton,
 
   function showPrediction(prediction) {
     if (prediction === letter) {
-      show(`Letra ${prediction} detectada. Coincide con la referencia.`);
+      show(`${title} ${prediction} ${numberPractice ? 'detectado' : 'detectada'}. Coincide con la referencia.`);
     } else {
-      show(`Letra ${prediction} detectada. Practica la letra ${letter} de esta ficha.`);
+      show(`${title} ${prediction} ${numberPractice ? 'detectado' : 'detectada'}. Practica ${numberPractice ? 'el' : 'la'} ${subject} ${letter} de esta ficha.`);
     }
   }
 
@@ -118,11 +126,14 @@ export function startHandPractice({ video, canvas, status, letter, motionButton,
     motionState = 'result';
     motionButton.disabled = false;
     motionButton.textContent = 'Evaluar otro intento';
-    if (frames.length < 8) {
-      show('Mantén una sola mano visible durante todo el movimiento y vuelve a intentar.');
+    if (frames.filter(frame => !numberPractice || frame.landmarks.length === handCount).length < 8) {
+      show(`Mantén ${framing} ${handCount === 2 ? 'visibles' : 'visible'} durante todo el movimiento y vuelve a intentar.`);
       return;
     }
-    const prediction = classifyMotion(frames, video.videoWidth / video.videoHeight);
+    const aspect = video.videoWidth / video.videoHeight;
+    const prediction = numberPractice
+      ? numberClassifier.classifyMotion(frames, aspect)
+      : classifyMotion(frames, aspect);
     if (!prediction) {
       show('No se pudo identificar el movimiento. Revisa el video y vuelve a intentar.');
       return;
@@ -136,38 +147,48 @@ export function startHandPractice({ video, canvas, status, letter, motionButton,
     motionState = 'preparing';
     motionButton.disabled = true;
     motionButton.textContent = 'Prepárate…';
-    show('Coloca tu mano en la posición inicial.');
+    show(handCount === 2 ? 'Coloca las manos en la posición inicial.' : 'Coloca tu mano en la posición inicial.');
     motionTimer = setTimeout(() => {
       motionState = 'recording';
       motionCapture = { startedAt: performance.now(), frames: [] };
       motionButton.textContent = 'Evaluando…';
-      show('Haz el movimiento una vez y mantén tu mano visible hasta el final.');
-      motionTimer = setTimeout(finishMotionAttempt, motionDuration);
+      show(numberPractice ? 'Haz la seña completa como en la referencia y mantén el encuadre.' :
+        'Haz el movimiento una vez y mantén tu mano visible hasta el final.');
+      motionTimer = setTimeout(finishMotionAttempt, numberPractice ? 5000 : motionDuration);
     }, motionLeadTime);
   }
 
-  function updateMotionResult(hand, worldHand) {
-    if (motionCapture && hand && worldHand && lastFrameAt >= motionCapture.startedAt) {
-      motionCapture.frames.push({ landmarks: hand, worldLandmarks: worldHand, timestamp: lastFrameAt });
+  function updateMotionResult(frame, hand, worldHand) {
+    if (motionCapture && lastFrameAt >= motionCapture.startedAt) {
+      if (numberPractice) motionCapture.frames.push(frame);
+      else if (hand && worldHand) {
+        motionCapture.frames.push({ landmarks: hand, worldLandmarks: worldHand, timestamp: lastFrameAt });
+      }
     }
     if (motionState !== 'idle') return;
-    if (hand) show('Mano detectada. Pulsa Evaluar movimiento cuando estés listo.');
-    else show('Coloca una mano dentro del encuadre.');
+    if (frame.landmarks.length === handCount) {
+      show(`${handCount === 2 ? 'Manos detectadas' : 'Mano detectada'}. Pulsa Evaluar movimiento cuando estés listo.`);
+    } else {
+      show(`Coloca ${numberPractice ? framing : 'una mano'} dentro del encuadre.`);
+    }
   }
 
-  function updateStaticResult(hand, worldHand, handCount) {
-    const prediction = hand ? classifySign(hand, worldHand, video.videoWidth / video.videoHeight) : null;
+  function updateStaticResult(frame, hand, worldHand) {
+    const aspect = video.videoWidth / video.videoHeight;
+    const prediction = hand
+      ? (numberPractice ? numberClassifier.classifyStatic(frame, aspect) : classifySign(hand, worldHand, aspect))
+      : null;
     const now = performance.now();
     samples = prediction && prediction === candidate && now - lastResultAt <= maxSampleGap ? samples + 1 : 1;
     candidate = prediction;
     lastResultAt = now;
 
-    if (handCount > 1) {
+    if (frame.landmarks.length > 1) {
       show('Muestra una sola mano.');
     } else if (!hand) {
       show('Coloca una mano dentro del encuadre.');
     } else if (!prediction) {
-      show('Mano detectada. No se pudo identificar la letra.');
+      show(`Mano detectada. No se pudo identificar ${numberPractice ? 'el' : 'la'} ${subject}.`);
     } else if (samples < stableSamples) {
       show('Mano detectada. Mantén la seña un momento.');
     } else {
@@ -176,15 +197,22 @@ export function startHandPractice({ video, canvas, status, letter, motionButton,
     }
   }
 
-  function updateResult(landmarks, worldLandmarks) {
+  function updateResult({ landmarks, worldLandmarks, handedness }) {
+    const frame = { landmarks, worldLandmarks, handedness, timestamp: lastFrameAt };
     const hand = landmarks.length === 1 ? landmarks[0] : null;
-    drawHand(canvas, video, hand, connections);
-    if (motionButton) updateMotionResult(hand, worldLandmarks[0]);
-    else updateStaticResult(hand, worldLandmarks[0], landmarks.length);
+    drawHands(canvas, video, numberPractice ? landmarks : hand ? [hand] : [], connections);
+    if (motionButton) updateMotionResult(frame, hand, worldLandmarks[0]);
+    else updateStaticResult(frame, hand, worldLandmarks[0]);
   }
 
-  show('Cargando reconocimiento del abecedario…');
-  try {
+  async function initialize() {
+    if (numberPractice) {
+      const [{ createNumberClassifier }, { numberGestureReferences }] = await Promise.all([
+        import('./number-classifier.mjs'), import('./number-gesture-references.mjs'),
+      ]);
+      numberClassifier = createNumberClassifier(numberGestureReferences);
+      if (stopped) return;
+    }
     worker = new Worker(new URL('./hand-worker.js', import.meta.url));
     worker.addEventListener('error', event => {
       event.preventDefault();
@@ -201,19 +229,19 @@ export function startHandPractice({ video, canvas, status, letter, motionButton,
           motionButton.disabled = false;
           motionButton.addEventListener('click', startMotionAttempt);
         }
-        show('Coloca una mano dentro del encuadre.');
+        show(`Coloca ${numberPractice ? framing : 'una mano'} dentro del encuadre.`);
         requestFrame(0);
       } else if (data.type === 'result') {
-        updateResult(data.landmarks, data.worldLandmarks);
+        updateResult(data);
         requestFrame(Math.max(0, frameInterval - (performance.now() - lastFrameAt)));
       } else {
         fail();
       }
     });
-    worker.postMessage({ type: 'init', singleHand: Boolean(motionButton) });
+    worker.postMessage({ type: 'init', singleHand: !numberPractice && Boolean(motionButton) });
     timer = setTimeout(fail, 20000);
-  } catch {
-    fail();
   }
+  show(`Cargando reconocimiento ${numberPractice ? 'de números' : 'del abecedario'}…`);
+  void initialize().catch(fail);
   return stop;
 }
