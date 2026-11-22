@@ -13,7 +13,9 @@
 - [x] Realizar una primera visita para probar el prototipo y recibir retroalimentación de la asociación de Xalapa el 21 de noviembre de 2026. [Registro y análisis](PROPUESTA_SOLUCION.md#pruebas-con-la-asociación-en-xalapa).
 - [x] Definir el alcance acordado después de la visita. Tiempo se refiere a las horas del reloj. El tema de lugares y estados se retiró del plan.
 - [x] Incorporar las fichas del 1 al 3 y verificar en Edge el ejercicio de identificación, su retroalimentación y el reintento.
-- [ ] Ampliar la práctica de Números con más señas y ejemplos cotidianos. Revisar las muestras con la asociación.
+- [x] Ampliar Números a 28 fichas con referencias de la UdeG y práctica con cámara. Aplicar un registro por número y fecha, con dominio después de tres días distintos.
+- [ ] Probar las 28 señas numéricas con la asociación y cámaras físicas de escritorio y teléfono. Registrar resultados de las señas parecidas, los movimientos repetidos y la práctica del 1000 con dos manos.
+- [ ] Incorporar ejemplos cotidianos de uso de los números y revisar con la asociación variantes y formas de expresar cantidades intermedias.
 - [ ] En una próxima actualización, reincorporar **Frutas** y **Colores** como dos prácticas separadas, con un video de referencia por seña, validación con cámara y estado verde **Aprendida** después de tres días consecutivos de aciertos por seña. El prototipo anterior se conserva en `4a5dc90` y `b5550bf` de `Manuel`.
 - [ ] Antes de reincorporar Frutas y Colores, validar sus seis señas con la asociación y cámaras físicas. Medir aciertos, confusiones y abstenciones con diferentes personas y encuadres.
 - [ ] Definir objetivos, ejemplos y fuentes de LSM para comida, animales y muebles.

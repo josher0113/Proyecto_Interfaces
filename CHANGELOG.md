@@ -1,5 +1,12 @@
 # Bitácora de cambios
 
+## Práctica de Números con cámara
+
+- En `Manuel`, Números incorpora 28 fichas del 1 al 10, las decenas del 20 al 100 y las centenas del 200 al 1000. Sustituye el ejercicio inicial del 1 al 3 por práctica con la cámara y referencias del glosario de la UdeG.
+- Se reutilizaron MediaPipe y el flujo del abecedario para reconocer posturas y movimientos. El 1000 se realiza con ambas manos.
+- Se guarda un acierto por número y fecha. Después de tres fechas distintas, la ficha cambia a verde y muestra **Aprendido** en Números y Progreso.
+- Pasaron 21 pruebas unitarias. En Edge se comprobó la práctica del 2, el progreso después de recargar y que sostener inmóvil la postura inicial del 1000 no acredita el intento.
+
 ## Primer ejercicio de Números y alcance de la entrega
 
 - En `Manuel`, se retiraron Frutas y Colores de Aprender y Progreso (`07f5917`). Las prácticas separadas, sus videos y el criterio de tres días consecutivos quedan en el historial y en [Pendientes](docs/PENDIENTES.md) para una próxima actualización.

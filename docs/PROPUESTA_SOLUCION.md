@@ -1,6 +1,6 @@
 # Propuesta de solución · Borrador del reporte
 
-LinguaPlay LSM propone una ruta de estudio y práctica para personas que empiezan a aprender Lengua de Señas Mexicana. El piloto permite consultar y practicar las 27 letras del alfabeto manual. Incluye un ejercicio de identificación para A, B y C y otro para los números del 1 al 3.
+LinguaPlay LSM propone una ruta de estudio y práctica para personas que empiezan a aprender Lengua de Señas Mexicana. El piloto permite consultar y practicar con cámara las 27 letras del alfabeto manual y 28 números cardinales en LSM. También incluye un ejercicio de identificación de A, B y C.
 
 ## Pruebas con la asociación en Xalapa
 
@@ -15,13 +15,15 @@ El 21 de noviembre de 2026, un integrante del equipo visitó a la Asociación de
 | Tiempo | El equipo precisó que se refiere a las horas del reloj. La unidad abordará cómo preguntar y decir la hora. |
 | Operaciones matemáticas | Usar la unidad de Números como base. Acordar qué operaciones y ejemplos introducir primero y cómo expresarlos en LSM. |
 
-### Primera práctica de Números
+### Práctica de Números
 
-Por el tiempo disponible, se priorizó una actividad breve para reconocer los números del 1 al 3. Cada ficha muestra la configuración de la mano y el ejercicio pide asociar tres señas con sus números. Las fotos se sirven localmente. El formulario comprueba las respuestas en el dispositivo y permite reintentar. Esta actividad introduce contenidos que luego servirán para Horas y Operaciones matemáticas. El reconocimiento de señas numéricas con cámara queda fuera de esta primera actividad.
+La unidad cubre del 1 al 10, las decenas del 20 al 100 y las centenas del 200 al 1000. Cada ficha incluye una foto para la seña estática o dos posiciones y una instrucción para la seña en movimiento. Las referencias proceden de los recortes de fotografías de Servando Alvarado Cisneros en el glosario, bajo CC BY-NC-SA 4.0. [Glosario universitario de Lengua de Señas Mexicana](https://riudg.udg.mx/handle/20.500.12104/111344) · [Licencia](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-Se usaron recortes de las fotografías de Servando Alvarado Cisneros en las páginas 65 y 66 del glosario, bajo CC BY-NC-SA 4.0. Se conserva el crédito en cada ficha y en el ejercicio. [Glosario universitario de Lengua de Señas Mexicana](https://riudg.udg.mx/handle/20.500.12104/111344) · [Licencia](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+Se reutilizaron la cámara, el seguimiento local de MediaPipe y los controles de práctica del abecedario. Para las señas del 1 al 8, el comparador contrasta la geometría de la mano y la orientación con las fotos. Para las demás señas, compara una secuencia temporal y considera el recorrido, la orientación y los cambios de configuración. Los movimientos repetidos se representan con posiciones de referencia alternadas. El 1000 usa ambas manos. Cuando faltan puntos, el movimiento es insuficiente o las coincidencias son demasiado parecidas, el sistema puede pedir un nuevo intento.
 
-En `Manuel`, `node tests/numbers-browser.cjs` comprueba en Edge el recorrido de las fichas, la carga de las tres fotos, las respuestas obligatorias, el reintento, la finalización y el ancho de 320 píxeles. También comprueba que Frutas y Colores queden fuera de Aprender y Progreso.
+Cada coincidencia con la ficha habilita el registro. El historial usa claves por número y fecha local independientes del abecedario. Tras tres fechas distintas con acierto registrado, la ficha aparece en verde como **Aprendido** en Números y Progreso. El reconocimiento es experimental y deberá validarse con participantes y cámaras físicas.
+
+Las pruebas unitarias cubrieron las 28 señas con posturas y transiciones de referencia, así como el rechazo de secuencias invertidas o incompletas. En Edge, `node tests/numbers-browser.cjs` verificó la carga de todas las fichas a 320 píxeles, la coincidencia del 2 con una cámara simulada y su persistencia tras tres días distintos. En la ficha del 1000 se detectaron las dos manos y se rechazó una postura inmóvil.
 
 ### Frutas y Colores en una próxima actualización
 
@@ -38,10 +40,10 @@ Antes de publicar nuevas fichas, confirmar las señas, las variantes pertinentes
 | Requisito | Criterio de comprobación | Estado |
 | --- | --- | --- |
 | Consultar demostraciones del abecedario | Cada una de las 27 fichas muestra una foto o un video local y el crédito de la fuente. | Implementado. |
-| Recibir retroalimentación | La actividad solicita tres respuestas, comunica los aciertos, permite reintentar y confirma la finalización. | Implementado en los ejercicios de A, B y C y de números del 1 al 3. |
-| Retomar y consultar el avance | La aplicación recupera las fechas registradas por letra después de recargar. La tercera fecha distinta marca la letra como aprendida. | Implementado para el abecedario. |
+| Recibir retroalimentación | La práctica con cámara comunica la coincidencia o pide reintentar. El ejercicio de A, B y C muestra el número de aciertos. | Implementado. |
+| Retomar y consultar el avance | La aplicación recupera los aciertos por seña después de recargar. La tercera fecha distinta marca la ficha aprendida en verde. | Implementado en Abecedario y Números. |
 | Introducir una consulta mediante voz | La frase se añade en español de México al campo editable, con estados para permisos, errores y cancelación. | Implementado y probado con reconocimiento simulado. Validación con micrófono físico pendiente. |
-| Practicar con una interacción gestual | El sistema sigue la mano y ofrece retroalimentación para las 27 letras estáticas y con movimiento. | Implementado y probado con cámara simulada. Validación con participantes pendiente. |
+| Practicar con una interacción gestual | El sistema sigue una o ambas manos y ofrece retroalimentación para las 27 letras y 28 números. | Reconocimiento experimental. Validación con participantes pendiente. |
 
 ## Arquitectura e infraestructura
 
