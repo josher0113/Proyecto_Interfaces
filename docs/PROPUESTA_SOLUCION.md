@@ -1,6 +1,6 @@
 # Propuesta de solución · Borrador del reporte
 
-LinguaPlay LSM propone una ruta de estudio y práctica para personas que empiezan a aprender Lengua de Señas Mexicana. El piloto permite consultar y practicar con cámara las 27 letras del alfabeto manual y 28 números cardinales en LSM. También incluye un ejercicio de identificación de A, B y C.
+LinguaPlay LSM propone una ruta de estudio y práctica para personas que empiezan a aprender Lengua de Señas Mexicana. El piloto permite consultar y practicar con cámara las 27 letras del alfabeto manual y los números del 1 al 10 en LSM. También incluye un ejercicio de identificación de A, B y C y una introducción a Saludos básicos.
 
 ## Pruebas con la asociación en Xalapa
 
@@ -17,13 +17,21 @@ El 21 de noviembre de 2026, un integrante del equipo visitó a la Asociación de
 
 ### Práctica de Números
 
-La unidad cubre del 1 al 10, las decenas del 20 al 100 y las centenas del 200 al 1000. Cada ficha incluye una foto para la seña estática o dos posiciones y una instrucción para la seña en movimiento. Las referencias proceden de los recortes de fotografías de Servando Alvarado Cisneros en el glosario, bajo CC BY-NC-SA 4.0. [Glosario universitario de Lengua de Señas Mexicana](https://riudg.udg.mx/handle/20.500.12104/111344) · [Licencia](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+La unidad activa cubre del 1 al 10. Cada ficha incluye una foto para la seña estática o dos posiciones y una instrucción para la seña en movimiento. Las referencias proceden de los recortes de fotografías de Servando Alvarado Cisneros en el glosario, bajo CC BY-NC-SA 4.0. [Glosario universitario de Lengua de Señas Mexicana](https://riudg.udg.mx/handle/20.500.12104/111344) · [Licencia](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-Se reutilizaron la cámara, el seguimiento local de MediaPipe y los controles de práctica del abecedario. Para las señas del 1 al 8, el comparador contrasta la geometría de la mano y la orientación con las fotos. Para las demás señas, compara una secuencia temporal y considera el recorrido, la orientación y los cambios de configuración. Los movimientos repetidos se representan con posiciones de referencia alternadas. El 1000 usa ambas manos. Cuando faltan puntos, el movimiento es insuficiente o las coincidencias son demasiado parecidas, el sistema puede pedir un nuevo intento.
+MediaPipe sigue la mano desde el navegador. Para las señas del 1 al 8, el comparador contrasta la geometría y la orientación con las fotos. Para el 9 y el 10, considera también la secuencia de movimiento. En las pruebas cruzadas, las posturas de referencia de 2, 3 y 4 produjeron V, W y B al evaluarlas desde el abecedario. Se separaron las entradas a los dos clasificadores. Cada ficha inicia el reconocimiento de su unidad, y una versión incompatible del módulo pide recargar la página. El registro se habilita con una coincidencia en la ficha actual.
 
-Cada coincidencia con la ficha habilita el registro. El historial usa claves por número y fecha local independientes del abecedario. Tras tres fechas distintas con acierto registrado, la ficha aparece en verde como **Aprendido** en Números y Progreso. El reconocimiento es experimental y deberá validarse con participantes y cámaras físicas.
+El historial usa claves por número y fecha local independientes del abecedario. Tras tres fechas distintas con acierto registrado, la ficha aparece en verde como **Aprendido** en Números y Progreso. El reconocimiento es experimental y deberá validarse con participantes y cámaras físicas.
 
-Las pruebas unitarias cubrieron las 28 señas con posturas y transiciones de referencia, así como el rechazo de secuencias invertidas o incompletas. En Edge, `node tests/numbers-browser.cjs` verificó la carga de todas las fichas a 320 píxeles, la coincidencia del 2 con una cámara simulada y su persistencia tras tres días distintos. En la ficha del 1000 se detectaron las dos manos y se rechazó una postura inmóvil.
+Las pruebas unitarias usaron posturas y transiciones de referencia para comprobar las señas del 1 al 8, las repeticiones del 9 y el giro del 10. También verificaron el registro por fecha. En Edge, `node tests/numbers-browser.cjs` usó MediaPipe y una cámara simulada. La misma imagen se identificó como V en Abecedario y como 2 en Números. Al cambiar de unidad se liberó la cámara anterior. Se verificaron el regreso al índice desde las rutas de números retirados, el rechazo de las posturas inmóviles del 9 y el 10 y la persistencia del progreso tras tres fechas distintas.
+
+Las decenas del 20 al 100 y las centenas del 200 al 1000 quedan para una próxima actualización. Sus fichas y referencias permanecen en el historial de `Manuel` (`bca086d`). Se conservan los registros previos que ya tuviera el navegador.
+
+### Saludos básicos
+
+La primera versión presenta **Hola**, **Buenos días** y **Hasta luego**. Las dos primeras fichas usan secuencias fotográficas de las páginas 152 y 158 del glosario de la UdeG, con licencia CC BY-NC-SA 4.0. La última enlaza al video de Carlos Gonzalez publicado para Wikisigns. El repaso comprueba qué expresión corresponde a cada situación. La evaluación de la ejecución con cámara y la validación con personas usuarias de LSM quedan pendientes. [Glosario de la UdeG](https://riudg.udg.mx/handle/20.500.12104/111344) · [Hasta luego en Wikisigns](https://www.wikisigns.org/es/lsm/hasta%20luego)
+
+En Edge, `node tests/greetings-browser.cjs` comprobó las tres fichas a 320 píxeles, la carga de las seis fotos, el enlace al video y la navegación desde una ruta anterior. El repaso solicitó las tres respuestas y permitió pasar de dos aciertos a tres en un reintento. La unidad permaneció disponible sin solicitar permiso de cámara.
 
 ### Frutas y Colores en una próxima actualización
 
@@ -43,13 +51,13 @@ Antes de publicar nuevas fichas, confirmar las señas, las variantes pertinentes
 | Recibir retroalimentación | La práctica con cámara comunica la coincidencia o pide reintentar. El ejercicio de A, B y C muestra el número de aciertos. | Implementado. |
 | Retomar y consultar el avance | La aplicación recupera los aciertos por seña después de recargar. La tercera fecha distinta marca la ficha aprendida en verde. | Implementado en Abecedario y Números. |
 | Introducir una consulta mediante voz | La frase se añade en español de México al campo editable, con estados para permisos, errores y cancelación. | Implementado y probado con reconocimiento simulado. Validación con micrófono físico pendiente. |
-| Practicar con una interacción gestual | El sistema sigue una o ambas manos y ofrece retroalimentación para las 27 letras y 28 números. | Reconocimiento experimental. Validación con participantes pendiente. |
+| Practicar con una interacción gestual | El sistema sigue la mano y ofrece retroalimentación para las 27 letras y los 10 números disponibles. | Reconocimiento experimental. Validación con participantes pendiente. |
 
 ## Arquitectura e infraestructura
 
-El piloto usa HTML, CSS, JavaScript y archivos multimedia locales. La navegación por fragmentos de URL abre cada ficha y el ejercicio en un navegador de escritorio o móvil. El formulario comprueba las respuestas en el dispositivo. Las imágenes y videos se guardan junto con el prototipo para poder estudiar las fichas sin conexión.
+El piloto usa HTML, CSS, JavaScript y archivos multimedia locales. La navegación por fragmentos de URL abre cada ficha y el ejercicio en un navegador de escritorio o móvil. El formulario comprueba las respuestas en el dispositivo. El prototipo incluye las fotos y los videos del abecedario y las fotos de Números y Saludos básicos. El video de Hasta luego se consulta en su sitio de origen.
 
-El prototipo incorpora dos modalidades adicionales a la interfaz gráfica. El **dictado** usa un micrófono para introducir consultas en español y la **práctica gestual** usa la cámara para ensayar el abecedario. Las pruebas con participantes y dispositivos físicos se harán por separado.
+El prototipo incorpora dos modalidades adicionales a la interfaz gráfica. El **dictado** usa un micrófono para introducir consultas en español y la **práctica gestual** usa la cámara para ensayar las letras y los números del 1 al 10. Las pruebas con participantes y dispositivos físicos se harán por separado.
 
 ### Decisión técnica para el dictado
 

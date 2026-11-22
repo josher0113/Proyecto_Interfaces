@@ -1,5 +1,12 @@
 # Bitácora de cambios
 
+## Ajustes en Números e inicio de Saludos básicos
+
+- La unidad de Números queda disponible del 1 al 10. Las decenas y centenas pasan a [Pendientes](docs/PENDIENTES.md), con el prototipo anterior en `bca086d` de `Manuel`.
+- Se separó la entrada al reconocimiento de cada unidad. Al abrir una práctica numérica se inicia el clasificador de números, incluso cuando una postura se parece a una letra.
+- Se inició **Saludos básicos** con fichas de **Hola**, **Buenos días** y **Hasta luego**, y un repaso para elegir la expresión adecuada a cada situación. En Edge se verificaron a 320 píxeles las referencias y el reintento del repaso.
+- Pasaron 21 pruebas unitarias. En Edge se comprobó que una misma postura recibe la etiqueta de su unidad, que las rutas de números retirados vuelven al índice y que el progreso de tres días persiste al recargar.
+
 ## Práctica de Números con cámara
 
 - En `Manuel`, Números incorpora 28 fichas del 1 al 10, las decenas del 20 al 100 y las centenas del 200 al 1000. Sustituye el ejercicio inicial del 1 al 3 por práctica con la cámara y referencias del glosario de la UdeG.
