@@ -1,21 +1,21 @@
 import { classifySign } from './sign-classifier.mjs';
 import { classifyMotion } from './sign-motion.mjs';
-import { classifyVocabularyMotion } from './vocabulary-gesture.mjs';
-import { vocabularyReferences } from './vocabulary-references.mjs';
 
 const stableSamples = 3;
 const maxSampleGap = 600;
 const motionLeadTime = 900;
 const motionDuration = 3500;
 
-function drawHands(canvas, video, hands, connections) {
+function drawHand(canvas, video, landmarks, connections) {
   if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
   }
   const context = canvas.getContext('2d');
   context.clearRect(0, 0, canvas.width, canvas.height);
-  if (!hands.length) return;
+  if (!landmarks) return;
+
+  const points = landmarks.map(({ x, y }) => [x * canvas.width, y * canvas.height]);
   const scale = Math.max(1, Math.min(canvas.width, canvas.height) / 320);
   context.lineWidth = 2 * scale;
   context.strokeStyle = '#fff2dc';
@@ -23,23 +23,21 @@ function drawHands(canvas, video, hands, connections) {
   context.shadowColor = '#3a2d31';
   context.shadowBlur = 3 * scale;
 
-  for (const landmarks of hands) {
-    const points = landmarks.map(({ x, y }) => [x * canvas.width, y * canvas.height]);
+  context.beginPath();
+  for (const { start, end } of connections) {
+    context.moveTo(...points[start]);
+    context.lineTo(...points[end]);
+  }
+  context.stroke();
+
+  for (const [x, y] of points) {
     context.beginPath();
-    for (const { start, end } of connections) {
-      context.moveTo(...points[start]);
-      context.lineTo(...points[end]);
-    }
-    context.stroke();
-    for (const [x, y] of points) {
-      context.beginPath();
-      context.arc(x, y, 2.5 * scale, 0, Math.PI * 2);
-      context.fill();
-    }
+    context.arc(x, y, 2.5 * scale, 0, Math.PI * 2);
+    context.fill();
   }
 }
 
-export function startHandPractice({ video, canvas, status, letter, vocabulary = false, motionButton, onMatch, onAttempt }) {
+export function startHandPractice({ video, canvas, status, letter, motionButton, onMatch, onAttempt }) {
   const frameInterval = motionButton ? 65 : 100;
   let worker;
   let timer;
@@ -107,9 +105,7 @@ export function startHandPractice({ video, canvas, status, letter, vocabulary = 
   }
 
   function showPrediction(prediction) {
-    if (vocabulary) {
-      show(prediction === letter ? 'La seña coincide con la muestra.' : 'Se detectó otra seña. Revisa la muestra y vuelve a intentar.');
-    } else if (prediction === letter) {
+    if (prediction === letter) {
       show(`Letra ${prediction} detectada. Coincide con la referencia.`);
     } else {
       show(`Letra ${prediction} detectada. Practica la letra ${letter} de esta ficha.`);
@@ -123,11 +119,10 @@ export function startHandPractice({ video, canvas, status, letter, vocabulary = 
     motionButton.disabled = false;
     motionButton.textContent = 'Evaluar otro intento';
     if (frames.length < 8) {
-      show(vocabulary ? 'Mantén visibles las manos durante el movimiento y vuelve a intentar.' : 'Mantén una sola mano visible durante todo el movimiento y vuelve a intentar.');
+      show('Mantén una sola mano visible durante todo el movimiento y vuelve a intentar.');
       return;
     }
-    const aspect = video.videoWidth / video.videoHeight;
-    const prediction = vocabulary ? classifyVocabularyMotion(frames, aspect, vocabularyReferences) : classifyMotion(frames, aspect);
+    const prediction = classifyMotion(frames, video.videoWidth / video.videoHeight);
     if (!prediction) {
       show('No se pudo identificar el movimiento. Revisa el video y vuelve a intentar.');
       return;
@@ -146,8 +141,8 @@ export function startHandPractice({ video, canvas, status, letter, vocabulary = 
       motionState = 'recording';
       motionCapture = { startedAt: performance.now(), frames: [] };
       motionButton.textContent = 'Evaluando…';
-      show(vocabulary ? 'Haz la seña una vez y mantén las manos visibles.' : 'Haz el movimiento una vez y mantén tu mano visible hasta el final.');
-      motionTimer = setTimeout(finishMotionAttempt, vocabulary ? 4500 : motionDuration);
+      show('Haz el movimiento una vez y mantén tu mano visible hasta el final.');
+      motionTimer = setTimeout(finishMotionAttempt, motionDuration);
     }, motionLeadTime);
   }
 
@@ -183,15 +178,7 @@ export function startHandPractice({ video, canvas, status, letter, vocabulary = 
 
   function updateResult(landmarks, worldLandmarks) {
     const hand = landmarks.length === 1 ? landmarks[0] : null;
-    if (vocabulary) {
-      drawHands(canvas, video, landmarks, connections);
-      if (motionCapture && landmarks.length && lastFrameAt >= motionCapture.startedAt) {
-        motionCapture.frames.push({ landmarks, worldLandmarks, timestamp: lastFrameAt });
-      }
-      if (motionState === 'idle') show(landmarks.length ? 'Manos en el encuadre. Pulsa Evaluar movimiento.' : 'Coloca las manos en el encuadre.');
-      return;
-    }
-    drawHands(canvas, video, hand ? landmarks : [], connections);
+    drawHand(canvas, video, hand, connections);
     if (motionButton) updateMotionResult(hand, worldLandmarks[0]);
     else updateStaticResult(hand, worldLandmarks[0], landmarks.length);
   }
@@ -223,7 +210,7 @@ export function startHandPractice({ video, canvas, status, letter, vocabulary = 
         fail();
       }
     });
-    worker.postMessage({ type: 'init', singleHand: Boolean(motionButton && !vocabulary), vocabulary });
+    worker.postMessage({ type: 'init', singleHand: Boolean(motionButton) });
     timer = setTimeout(fail, 20000);
   } catch {
     fail();

@@ -9,11 +9,6 @@ self.addEventListener('message', async ({ data }) => {
         baseOptions: { modelAssetPath: './vendor/mediapipe/hand_landmarker.task', delegate: 'CPU' },
         runningMode: 'VIDEO',
         numHands: data.singleHand ? 1 : 2,
-        ...(data.vocabulary ? {
-          minHandDetectionConfidence: .3,
-          minHandPresenceConfidence: .35,
-          minTrackingConfidence: .35,
-        } : {}),
       });
       self.postMessage({ type: 'ready', connections: HandLandmarker.HAND_CONNECTIONS });
     } catch (error) {

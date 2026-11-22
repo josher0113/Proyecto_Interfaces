@@ -17,23 +17,10 @@ const exerciseDescriptions = {
   C: 'Dedos curvados, con el pulgar separado y una abertura entre las puntas.',
 };
 const exerciseCards = ['B', 'C', 'A'];
-const vocabularyUnits = {
-  frutas: { title: 'Frutas', signs: [
-    { id: 'manzana', label: 'Manzana', start: 2.55 },
-    { id: 'platano', label: 'Plátano', start: 2.60 },
-    { id: 'pera', label: 'Pera', start: 1.90 },
-  ] },
-  colores: { title: 'Colores', signs: [
-    { id: 'rojo', label: 'Rojo', start: .95 },
-    { id: 'amarillo', label: 'Amarillo', start: .70 },
-    { id: 'verde', label: 'Verde', start: .90 },
-  ] },
-};
 const gesturePrompt = 'Mantén una sola mano dentro del encuadre.';
 let alphabetCompleted = false;
 let cameraSession = null;
 let letterProgress = null;
-let vocabularyProgress = null;
 let practiceGoal = 3;
 let appReady = false;
 
@@ -135,7 +122,6 @@ function dashboard() {
 function learning() {
   const progressSummary = alphabetMasterySummary(letterProgress?.snapshot());
   return `${heading('Aprender', 'Ruta de aprendizaje', 'Avanza desde el alfabeto manual hasta situaciones cotidianas.')}
-    ${vocabularyCards()}
     <div class="units">${units.map(([title, description, progress], index) => `<article class="unit">
       <span class="unit-number" aria-label="Unidad ${index + 1}">${index + 1}</span>
       <div><p class="eyebrow">${index === 0 ? progressSummary : 'Vista previa disponible'}</p>
@@ -144,46 +130,6 @@ function learning() {
         : meter('Progreso de la unidad', progress)}</div>
       ${index === 0 ? link('abecedario', 'Explorar abecedario') : link(`leccion/${index}/0`, 'Ver unidad', true)}
     </article>`).join('')}</div>`;
-}
-
-function vocabularyCards() {
-  return `<div class="grid vocabulary-unit">${Object.entries(vocabularyUnits).map(([route, { title }]) =>
-    `<article><h2>${title}</h2><div class="actions">${link(route, `Abrir práctica de ${title.toLowerCase()}`)}</div></article>`).join('')}</div>`;
-}
-
-function vocabularyGrid(route, progress) {
-  return `<ul class="alphabet-index vocabulary-index">${vocabularyUnits[route].signs.map(({ id, label }) => {
-    const entry = progress?.entries[id];
-    return `<li><a class="${letterStateClass(entry)}" href="#practica-vocabulario/${route}/${id}">
-      <strong>${label}</strong><span class="letter-state">${letterState(entry)}</span></a></li>`;
-  }).join('')}</ul>`;
-}
-
-function vocabularyUnit(route) {
-  return `<a class="back" href="#aprender">← Ruta de aprendizaje</a>
-    ${heading('Aprender', vocabularyUnits[route].title, 'Elige una seña para ver la muestra y practicar con la cámara.')}
-    <article>${vocabularyGrid(route, vocabularyProgress?.snapshot())}</article>`;
-}
-
-function vocabularyDemo(sign) {
-  const source = 'https://www.wikisigns.org/es/lsm/' + encodeURIComponent(sign.label.toLowerCase());
-  return `<figure class="alphabet-demo">
-    <video class="alphabet-video" controls playsinline preload="metadata" aria-label="Muestra de ${sign.label} en LSM"
-      src="assets/vocabulario/${sign.id}.mp4#t=${sign.start}"></video>
-    <figcaption><a href="${source}" target="_blank" rel="noopener">${sign.label} en Wikisigns (nueva pestaña)</a>
-      · <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></figcaption></figure>`;
-}
-
-function vocabularyPractice(route, sign) {
-  return practiceScreen({
-    back: route,
-    backLabel: vocabularyUnits[route].title,
-    title: sign.label,
-    reference: vocabularyDemo(sign),
-    term: sign.id,
-    vocabulary: true,
-    isMotion: true,
-  });
 }
 
 function lesson(unit, index, step) {
@@ -205,52 +151,41 @@ function lesson(unit, index, step) {
 
 function practice(unit, index, step) {
   const letter = index === 0 ? alphabetLetters[step] : null;
-  return practiceScreen({
-    back: `leccion/${index}/${step}`,
-    backLabel: 'Volver a la lección',
-    title: unit[3][step],
-    reference: letter ? alphabetDemo(letter) : media('Ejemplo', 'Demostración pendiente'),
-    term: letter,
-    isMotion: motionLetters.has(letter),
-  });
-}
-
-function practiceScreen({ back, backLabel, title, reference, term, isMotion, vocabulary = false }) {
-  const progress = term && (vocabulary ? vocabularyProgress : letterProgress)?.snapshot();
-  const entry = (vocabulary ? progress?.entries : progress?.letters)?.[term];
-  const instruction = vocabulary ? 'Observa la muestra y deja visibles las manos durante todo el movimiento.' : 'Coloca la mano dentro del encuadre y busca buena iluminación.';
-  return `<a class="back" href="#${back}">← ${backLabel}</a>
-    ${heading('Práctica con cámara', title, instruction)}
-    <div class="grid"><article><h2>Referencia</h2>${reference}</article>
+  const isMotion = motionLetters.has(letter);
+  const progress = letter && letterProgress?.snapshot();
+  const entry = progress?.letters[letter];
+  return `<a class="back" href="#leccion/${index}/${step}">← Volver a la lección</a>
+    ${heading('Práctica con cámara', unit[3][step], 'Coloca la mano dentro del encuadre y busca buena iluminación.')}
+    <div class="grid"><article><h2>Referencia</h2>${letter ? alphabetDemo(letter)
+      : media('Ejemplo', 'Demostración pendiente')}</article>
     <article><h2>Vista de cámara</h2>
       <div class="camera-preview">
         <p id="camera-placeholder">Vista previa apagada</p>
         <video id="camera-video" aria-label="Vista en vivo de la cámara" autoplay muted playsinline hidden></video>
-        ${term ? '<canvas id="gesture-overlay" aria-hidden="true" hidden></canvas>' : ''}
+        ${letter ? '<canvas id="gesture-overlay" aria-hidden="true" hidden></canvas>' : ''}
       </div>
       <div class="actions"><button type="button" id="camera-toggle">Activar cámara</button>
         ${isMotion ? '<button type="button" id="gesture-attempt" class="secondary" disabled>Evaluar movimiento</button>' : ''}</div>
       <p id="camera-status" role="status">El video se muestra en tu dispositivo, sin grabarse ni enviarse.</p>
-      ${term ? `<p id="gesture-status" role="status" data-letter="${term}" ${vocabulary ? 'data-vocabulary' : ''}>${practicePrompt(vocabulary)}</p>` : ''}
+      ${letter ? `<p id="gesture-status" role="status" data-letter="${letter}">${practicePrompt()}</p>` : ''}
     </article></div>
-    ${term ? `<article class="practice-progress">
-      <div class="practice-progress-heading"><h2>${vocabulary ? 'Progreso de la seña' : `Progreso de la letra ${term}`}</h2>
+    ${letter ? `<article class="practice-progress">
+      <div class="practice-progress-heading"><h2>Progreso de la letra ${letter}</h2>
         <span id="practice-letter-state" class="letter-state ${letterStateClass(entry)}">${letterState(entry)}</span></div>
-      <p>${vocabulary ? `La seña pasa a verde tras ${practiceGoal} días consecutivos de práctica correcta.` : `La letra pasa a verde tras ${practiceGoal} prácticas correctas en días distintos.`}</p>
-      <div class="actions"><button type="button" id="practice-record" disabled>${practiceRecordLabel(entry, vocabulary)}</button></div>
+      <p>La letra pasa a verde tras ${practiceGoal} prácticas correctas en días distintos.</p>
+      <div class="actions"><button type="button" id="practice-record" disabled>${practiceRecordLabel(entry)}</button></div>
       <p id="practice-record-status" role="status"></p>
       <p id="practice-storage-status">${practiceStorageMessage(progress)}</p>
     </article>` : ''}`;
 }
 
-function practiceRecordLabel(entry, vocabulary) {
-  if (entry?.mastered) return vocabulary ? 'Seña aprendida' : 'Letra aprendida';
+function practiceRecordLabel(entry) {
+  if (entry?.mastered) return 'Letra aprendida';
   return entry?.practicedToday ? 'Práctica de hoy registrada' : 'Registrar práctica';
 }
 
-function practicePrompt(vocabulary) {
-  if (location.protocol === 'file:') return 'Abre LinguaPlay en HTTPS o localhost para evaluar y registrar la práctica.';
-  return vocabulary ? 'Muestra las manos que usa la seña de referencia.' : gesturePrompt;
+function practicePrompt() {
+  return location.protocol === 'file:' ? 'Abre LinguaPlay en HTTPS o localhost para reconocer y registrar letras.' : gesturePrompt;
 }
 
 function practiceStorageMessage(progress) {
@@ -266,11 +201,11 @@ function matchedToday(session, date = new Date()) {
 
 function refreshPracticeProgress(view, message) {
   if (!view.recordButton) return;
-  const progress = (view.vocabulary ? vocabularyProgress : letterProgress)?.snapshot();
-  const entry = (view.vocabulary ? progress?.entries : progress?.letters)?.[view.gesture.dataset.letter];
+  const progress = letterProgress?.snapshot();
+  const entry = progress?.letters[view.gesture.dataset.letter];
   const canRecord = Boolean(progress && matchedToday(cameraSession) && !entry.mastered && !entry.practicedToday);
   view.recordButton.disabled = !canRecord;
-  view.recordButton.textContent = practiceRecordLabel(entry, view.vocabulary);
+  view.recordButton.textContent = practiceRecordLabel(entry);
   view.letterState.textContent = letterState(entry);
   view.letterState.className = `letter-state ${letterStateClass(entry)}`;
   view.storageStatus.textContent = practiceStorageMessage(progress);
@@ -279,13 +214,12 @@ function refreshPracticeProgress(view, message) {
 
 function recordPractice() {
   const date = new Date();
-  if (!matchedToday(cameraSession, date)) return;
+  if (!letterProgress || !matchedToday(cameraSession, date)) return;
   const { view } = cameraSession;
-  const store = view.vocabulary ? vocabularyProgress : letterProgress;
-  if (!store || view.recordButton.disabled) return;
-  const entry = store.record(view.gesture.dataset.letter, date);
+  if (view.recordButton.disabled) return;
+  const entry = letterProgress.record(view.gesture.dataset.letter, date);
   const message = entry.credited
-    ? (entry.mastered ? 'Práctica registrada. Ya aparece en verde.' : (view.vocabulary ? 'Práctica registrada. Vuelve mañana para continuar la racha.' : 'Práctica registrada. Vuelve otro día para seguir avanzando.'))
+    ? (entry.mastered ? 'Práctica registrada. Esta letra ya aparece en verde.' : 'Práctica registrada. Vuelve otro día para seguir avanzando.')
     : 'La práctica de hoy ya está registrada.';
   refreshPracticeProgress(view, message);
 }
@@ -297,14 +231,12 @@ const cameraErrors = {
 };
 
 function cameraView() {
-  const gesture = app.querySelector('#gesture-status');
   return {
     button: app.querySelector('#camera-toggle'),
     video: app.querySelector('#camera-video'),
     placeholder: app.querySelector('#camera-placeholder'),
     status: app.querySelector('#camera-status'),
-    gesture,
-    vocabulary: Boolean(gesture?.hasAttribute('data-vocabulary')),
+    gesture: app.querySelector('#gesture-status'),
     canvas: app.querySelector('#gesture-overlay'),
     attempt: app.querySelector('#gesture-attempt'),
     recordButton: app.querySelector('#practice-record'),
@@ -325,7 +257,7 @@ function stopCamera(message = 'Cámara apagada.') {
   view.placeholder.hidden = false;
   view.button.textContent = 'Activar cámara';
   view.status.textContent = message;
-  if (view.gesture) view.gesture.textContent = practicePrompt(view.vocabulary);
+  if (view.gesture) view.gesture.textContent = practicePrompt();
   refreshPracticeProgress(view);
 }
 
@@ -336,7 +268,7 @@ async function startRecognition(session) {
     view.gesture.textContent = 'Abre LinguaPlay mediante HTTPS o localhost para activar el reconocimiento.';
     return;
   }
-  view.gesture.textContent = 'Cargando reconocimiento…';
+  view.gesture.textContent = 'Cargando reconocimiento del abecedario…';
   try {
     const { startHandPractice } = await import('./hand-practice.mjs');
     if (cameraSession === session) {
@@ -345,7 +277,6 @@ async function startRecognition(session) {
         canvas: view.canvas,
         status: view.gesture,
         letter: view.gesture.dataset.letter,
-        vocabulary: view.vocabulary,
         motionButton: view.attempt,
         onMatch: () => {
           if (matchedToday(session)) return;
@@ -435,21 +366,18 @@ function translator() {
 
 function profile() {
   const progress = letterProgress?.snapshot();
-  const words = vocabularyProgress?.snapshot();
   return `${heading('Tu perfil', 'Progreso', 'Consulta tus estadísticas de ejemplo y días de práctica.')}
     <article class="quick"><div class="identity"><span class="avatar" aria-hidden="true">A</span><h2>Alex Rivera</h2></div>${stats()}</article>
     <article class="practice-progress"><h2>Dominio del abecedario</h2>
       <p>${alphabetMasterySummary(progress)}. Selecciona una letra para practicar.</p>
       ${alphabetGrid(progress, 'practica')}<p>${practiceStorageMessage(progress)}</p></article>
-    <div class="grid practice-progress">${Object.entries(vocabularyUnits).map(([route, { title }]) =>
-      `<article><h2>${title}</h2>${vocabularyGrid(route, words)}</article>`).join('')}</div>
     <div class="grid practice-progress"><article><h2>Otras unidades</h2>${units.slice(1).map(([title, , percent]) => meter(title, percent)).join('')}</article>
     <article><h2>Calendario de práctica</h2><p>Semana de ejemplo</p><ol class="calendar">${['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, index) =>
       `<li><span>${day}</span><span class="${index < 4 ? 'checked' : ''}" aria-label="${index < 4 ? 'Práctica completada' : 'Sin práctica'}">${index < 4 ? '✓' : '·'}</span></li>`).join('')}</ol>
       <h2>Logros</h2><p>Primer paso · Primera lección completada</p><h2>Actividad reciente</h2><p>Abecedario · Practicaste la letra A</p></article></div>`;
 }
 
-const pages = { inicio: dashboard, aprender: learning, abecedario: alphabetIndex, ejercicio: alphabetExercise, 'frutas-y-colores': learning, traductor: translator, progreso: profile };
+const pages = { inicio: dashboard, aprender: learning, abecedario: alphabetIndex, ejercicio: alphabetExercise, traductor: translator, progreso: profile };
 const nav = [['inicio', '⌂', 'Inicio'], ['aprender', '▤', 'Aprender'], ['traductor', '⇄', 'Traductor'], ['progreso', '◉', 'Progreso']];
 
 function render() {
@@ -458,18 +386,11 @@ function render() {
   const step = Number(stepParam);
   const unit = units[index];
   const isLesson = page === 'leccion' || page === 'practica';
-  const isVocabularyUnit = Object.hasOwn(vocabularyUnits, page);
-  const isVocabularyPractice = page === 'practica-vocabulario';
-  const isLearningDetail = isLesson || isVocabularyUnit || isVocabularyPractice || page === 'ejercicio' || page === 'abecedario' || page === 'frutas-y-colores';
+  const isLearningDetail = isLesson || page === 'ejercicio' || page === 'abecedario';
   const active = isLearningDetail ? 'aprender' : page;
-  let content;
-  if (isLesson) content = unit?.[3][step] ? (page === 'leccion' ? lesson : practice)(unit, index, step) : learning();
-  else if (isVocabularyUnit) content = vocabularyUnit(page);
-  else if (isVocabularyPractice) {
-    const group = Object.hasOwn(vocabularyUnits, unitParam) ? vocabularyUnits[unitParam] : null;
-    const sign = group?.signs.find(({ id }) => id === stepParam);
-    content = sign ? vocabularyPractice(unitParam, sign) : learning();
-  } else if (Object.hasOwn(pages, page)) content = pages[page]();
+  const content = isLesson
+    ? (unit?.[3][step] ? (page === 'leccion' ? lesson : practice)(unit, index, step) : learning())
+    : (Object.hasOwn(pages, page) ? pages[page]() : null);
   app.innerHTML = content ? `<aside><a class="brand" href="#bienvenida">${brand}</a>
     <nav aria-label="Navegación principal">${nav.map(([href, icon, label]) => `<a href="#${href}" ${href === active ? `aria-current="${isLearningDetail ? 'true' : 'page'}"` : ''}>
       <span aria-hidden="true">${icon}</span>${label}</a>`).join('')}</nav></aside>
@@ -542,9 +463,8 @@ window.addEventListener('pagehide', () => {
 async function startApp() {
   if (location.protocol !== 'file:') {
     try {
-      const { createLetterProgress, createVocabularyProgress, LETTER_PRACTICE_GOAL } = await import('./letter-progress.mjs');
+      const { createLetterProgress, LETTER_PRACTICE_GOAL } = await import('./letter-progress.mjs');
       letterProgress = createLetterProgress();
-      vocabularyProgress = createVocabularyProgress(Object.values(vocabularyUnits).flatMap(unit => unit.signs.map(sign => sign.id)));
       practiceGoal = LETTER_PRACTICE_GOAL;
     } catch {
       // Lessons and the live preview are still usable if the progress module is unavailable.

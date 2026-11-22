@@ -89,9 +89,6 @@ progress::-moz-progress-bar { background: var(--wine); }
 .practice-progress { margin-top: 1rem; }
 .practice-progress .alphabet-index { margin-top: 1rem; }
 .practice-progress-heading { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
-.vocabulary-unit { margin-bottom: .85rem; }
-.vocabulary-index { grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); }
-.vocabulary-index strong { font-size: 1.1rem; }
 .practice-progress button:disabled { background: var(--cream); }
 .media-credit { font-size: .8rem; }
 .exercise-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
