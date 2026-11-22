@@ -17,11 +17,13 @@ El 21 de noviembre de 2026, un integrante del equipo visitó a la Asociación de
 
 El prototipo tiene una unidad de Números en vista previa que puede servir de base para Horas y Operaciones matemáticas.
 
-### Primera ampliación de vocabulario
+### Prácticas de Frutas y Colores
 
-La unidad **Frutas y colores** está disponible en Aprender en la revisión `a5c01cd` de `Manuel`. Presenta manzana, plátano y pera, y rojo, amarillo y verde. Enlaza el diccionario *Manos con voz* y el video «Colores en LSM» de la Biblioteca de México. [Diccionario ilustrado](https://educacionespecial.sep.gob.mx/storage/recursos/2023/05/xzrfl019nV-4Diccionario_lengua_%20Senas.pdf) · [Colores en LSM](https://www.bibliotecademexico.gob.mx/bmvirtual/pda.php?cat=2&idcat=11&page=2&subcat=2)
+En la revisión `4a5dc90` de `Manuel`, Frutas presenta manzana, plátano y pera. Colores presenta rojo, amarillo y verde. Cada ficha incluye una demostración en video de Wikisigns, su crédito y una evaluación con cámara. [Diccionario Wikisigns de LSM](https://www.wikisigns.org/list/es/lsm)
 
-El ejercicio propone tres situaciones de descripción y comprueba la selección del vocabulario. Se eligió este alcance para revisar con la asociación un grupo pequeño de señas antes de producir más material. En Edge, la prueba `node tests/vocabulary-browser.cjs` comprobó el acceso desde Aprender, los enlaces de referencia, las respuestas obligatorias, la retroalimentación, el reintento y la vista de 320 px.
+La evaluación toma una secuencia de puntos de una o ambas manos con MediaPipe. El comparador contrasta la trayectoria y las distancias entre articulaciones con el video de referencia, y devuelve una coincidencia solo si el resultado es suficientemente claro. El modelo usa ejemplos de Wikisigns. Queda pendiente medir su precisión con otras personas y corroborar con la asociación las variantes que se emplean en Xalapa.
+
+El primer acierto confirmado y registrado en cada fecha cuenta para la seña correspondiente. Se exige una racha de tres fechas locales consecutivas, independiente por seña. El historial usa el almacenamiento del navegador y el color verde va acompañado de la etiqueta **Aprendida**. Las pruebas unitarias comprueban los saltos de día, el cambio de mes, los registros duplicados y la conservación del estado aprendido. En Manuel, el comando `node tests/vocabulary-browser.cjs` prueba las seis muestras en Edge con cámara simulada, una seña distinta a la ficha y el paso a verde en la tercera fecha.
 
 ### Evidencia y seguimiento
 

@@ -1,5 +1,11 @@
 # Bitácora de cambios
 
+## Prácticas separadas de Frutas y Colores
+
+- En `Manuel` (`4a5dc90`), Frutas y Colores tienen accesos y fichas propias. Cada ficha incluye un video local de Wikisigns y evaluación del movimiento con cámara.
+- Una coincidencia habilita el registro de la práctica. El verde «Aprendida» requiere un acierto registrado por seña en cada uno de tres días consecutivos.
+- En Edge se comprobaron las seis muestras con cámara simulada, el rechazo de una seña distinta y la tercera fecha en verde. Las pruebas unitarias cubren rachas, cambio de mes y registros duplicados.
+
 ## Unidad de frutas y colores
 
 - El equipo precisó que «tiempo» se refiere a las horas del reloj y retiró lugares y estados del alcance.
