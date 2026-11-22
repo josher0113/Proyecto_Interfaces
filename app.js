@@ -2,7 +2,7 @@ const alphabetLetters = [...'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'];
 const motionLetters = new Set(['J', 'Ñ', 'P', 'Q', 'X', 'Z']);
 const units = [
   ['Abecedario', 'Explora el alfabeto manual y su uso para deletrear.', 0, alphabetLetters.map(letter => `Letra ${letter}`)],
-  ['Números', 'Familiarízate con los números en situaciones habituales.', 0, ['Número 1', 'Número 2', 'Número 3']],
+  ['Números', 'Aprende a identificar los números del 1 al 3 en LSM.', 0, ['Número 1', 'Número 2', 'Número 3']],
   ['Saludos básicos', 'Empieza a saludar y despedirte.', 0, ['Hola', 'Buenos días', 'Hasta luego']],
   ['Expresiones cotidianas', 'Amplía tu repertorio de expresiones de uso diario.', 0, ['Gracias', 'Por favor', 'Disculpa']],
   ['Frases y comunicación básica', 'Explora situaciones sencillas de conversación.', 0, ['Presentarse', 'Pedir ayuda', 'Invitar a participar']],
@@ -17,6 +17,13 @@ const exerciseDescriptions = {
   C: 'Dedos curvados, con el pulgar separado y una abertura entre las puntas.',
 };
 const exerciseCards = ['B', 'C', 'A'];
+const numberDescriptions = {
+  1: 'Dorso hacia el frente, con el índice hacia arriba y el resto de los dedos flexionados.',
+  2: 'Dorso hacia el frente, con el índice y el medio hacia arriba y separados. Los otros dedos están flexionados.',
+  3: 'Dorso hacia el frente, con el índice, el medio y el anular hacia arriba y separados. El pulgar y el meñique están flexionados.',
+};
+const numberCards = [2, 3, 1];
+const numberSource = 'https://riudg.udg.mx/handle/20.500.12104/111344';
 const gesturePrompt = 'Mantén una sola mano dentro del encuadre.';
 let alphabetCompleted = false;
 let cameraSession = null;
@@ -90,6 +97,34 @@ function alphabetExercise() {
         <div class="actions">${link('aprender', 'Volver a la ruta')}</div></div>
     </form>${alphabetCredit()}</article>`;
 }
+
+function numberPhoto(number, description = numberDescriptions[number]) {
+  return `<img class="alphabet-photo" src="assets/numeros/${number}.jpg"
+    alt="${description}" width="260" height="342">`;
+}
+
+function numberCredit() {
+  return `<p class="media-credit">Fotografías de Servando Alvarado Cisneros, recortadas del
+    <a href="${numberSource}">Glosario universitario de Lengua de Señas Mexicana</a> (Universidad de Guadalajara, pp. 65–66).
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</p>`;
+}
+
+function numberExercise() {
+  return `<a class="back" href="#leccion/1/0">← Repasar las señas</a>
+    ${heading('Números', 'Ejercicio del 1 al 3', 'Elige el número que corresponde a cada seña.')}
+    <article><form id="number-exercise">
+      <div class="exercise-grid">${numberCards.map((number, index) => `<fieldset>
+        <legend>Seña ${index + 1}</legend>
+        ${numberPhoto(number)}
+        <div class="choices">${[1, 2, 3].map(option => `<label>
+          <input type="radio" name="answer-${index}" value="${option}" ${option === 1 ? 'required' : ''}> ${option}
+        </label>`).join('')}</div>
+      </fieldset>`).join('')}</div>
+      <div class="actions"><button>Comprobar respuestas</button>${link('aprender', 'Volver a la ruta', true)}</div>
+      <p class="feedback" role="status"></p>
+    </form>${numberCredit()}</article>`;
+}
+
 const brand = 'LinguaPlay <small>LSM</small>';
 const media = (label, note) => `<div class="media"><span aria-hidden="true">▣</span><strong>${label}</strong><span>${note}</span></div>`;
 const link = (href, label, secondary = false) =>
@@ -124,10 +159,10 @@ function learning() {
   return `${heading('Aprender', 'Ruta de aprendizaje', 'Avanza desde el alfabeto manual hasta situaciones cotidianas.')}
     <div class="units">${units.map(([title, description, progress], index) => `<article class="unit">
       <span class="unit-number" aria-label="Unidad ${index + 1}">${index + 1}</span>
-      <div><p class="eyebrow">${index === 0 ? progressSummary : 'Vista previa disponible'}</p>
+      <div>${index !== 1 ? `<p class="eyebrow">${index === 0 ? progressSummary : 'Vista previa disponible'}</p>` : ''}
       <h2>${title}</h2><p>${description}</p>${index === 0
         ? (alphabetCompleted ? '<p>Ejercicio de A, B y C completado.</p>' : '')
-        : meter('Progreso de la unidad', progress)}</div>
+        : (index > 1 ? meter('Progreso de la unidad', progress) : '')}</div>
       ${index === 0 ? link('abecedario', 'Explorar abecedario') : link(`leccion/${index}/0`, 'Ver unidad', true)}
     </article>`).join('')}</div>`;
 }
@@ -135,13 +170,22 @@ function learning() {
 function lesson(unit, index, step) {
   const [title, description, , topics] = unit;
   const letter = index === 0 ? alphabetLetters[step] : null;
+  const number = index === 1 ? step + 1 : null;
+  let demonstration = `${media('Demostración', 'Material en LSM pendiente de incorporar')}<p>Este espacio mostrará una demostración y su explicación.</p>`;
+  let practiceLink = link(`practica/${index}/${step}`, 'Ir a práctica con cámara', true);
+  if (letter) {
+    demonstration = alphabetDemo(letter);
+  }
+  if (number) {
+    demonstration = `<figure class="alphabet-demo">${numberPhoto(number, '')}<figcaption>${numberDescriptions[number]}</figcaption></figure>${numberCredit()}`;
+    practiceLink = link('ejercicio-numeros', 'Practicar del 1 al 3');
+  }
   return `<a class="back" href="#${letter ? 'abecedario' : 'aprender'}">← ${letter ? 'Abecedario' : 'Ruta de aprendizaje'}</a>
     ${heading(title, topics[step], description)}
     <article>${meter(`Paso ${step + 1} de ${topics.length}`, Math.round((step + 1) / topics.length * 100))}
-      ${letter ? alphabetDemo(letter)
-        : `${media('Demostración', 'Material en LSM pendiente de incorporar')}<p>Este espacio mostrará una demostración y su explicación.</p>`}
+      ${demonstration}
       <div class="actions">${letter === 'C' ? link('ejercicio', 'Ejercicio de A, B y C') : ''}
-        ${link(`practica/${index}/${step}`, 'Ir a práctica con cámara', true)}</div>
+        ${practiceLink}</div>
     </article><div class="between actions">
       ${step > 0 ? link(`leccion/${index}/${step - 1}`, 'Anterior', true) : '<button class="secondary" disabled>Anterior</button>'}
       ${step + 1 < topics.length ? link(`leccion/${index}/${step + 1}`, 'Siguiente')
@@ -150,6 +194,7 @@ function lesson(unit, index, step) {
 }
 
 function practice(unit, index, step) {
+  if (index === 1) return numberExercise();
   const letter = index === 0 ? alphabetLetters[step] : null;
   const isMotion = motionLetters.has(letter);
   const progress = letter && letterProgress?.snapshot();
@@ -377,7 +422,10 @@ function profile() {
       <h2>Logros</h2><p>Primer paso · Primera lección completada</p><h2>Actividad reciente</h2><p>Abecedario · Practicaste la letra A</p></article></div>`;
 }
 
-const pages = { inicio: dashboard, aprender: learning, abecedario: alphabetIndex, ejercicio: alphabetExercise, traductor: translator, progreso: profile };
+const pages = {
+  inicio: dashboard, aprender: learning, abecedario: alphabetIndex, ejercicio: alphabetExercise,
+  'ejercicio-numeros': numberExercise, traductor: translator, progreso: profile,
+};
 const nav = [['inicio', '⌂', 'Inicio'], ['aprender', '▤', 'Aprender'], ['traductor', '⇄', 'Traductor'], ['progreso', '◉', 'Progreso']];
 
 function render() {
@@ -386,7 +434,7 @@ function render() {
   const step = Number(stepParam);
   const unit = units[index];
   const isLesson = page === 'leccion' || page === 'practica';
-  const isLearningDetail = isLesson || page === 'ejercicio' || page === 'abecedario';
+  const isLearningDetail = isLesson || ['abecedario', 'ejercicio', 'ejercicio-numeros'].includes(page);
   const active = isLearningDetail ? 'aprender' : page;
   const content = isLesson
     ? (unit?.[3][step] ? (page === 'leccion' ? lesson : practice)(unit, index, step) : learning())
@@ -419,6 +467,14 @@ app.addEventListener('click', event => {
 
 app.addEventListener('submit', event => {
   event.preventDefault();
+  if (event.target.id === 'number-exercise') {
+    const answers = new FormData(event.target);
+    const correct = numberCards.filter((number, index) => answers.get(`answer-${index}`) === String(number)).length;
+    event.target.querySelector('.feedback').textContent = correct === numberCards.length
+      ? '¡Ejercicio completado! Identificaste las tres señas.'
+      : `${correct} de ${numberCards.length} respuestas correctas. Revisa tus opciones y vuelve a intentar.`;
+    return;
+  }
   if (event.target.id === 'alphabet-exercise') {
     const answers = new FormData(event.target);
     const correct = exerciseCards.filter((letter, index) => answers.get(`answer-${index}`) === letter).length;
