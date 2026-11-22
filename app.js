@@ -2,10 +2,17 @@ const alphabetLetters = [...'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'];
 const motionLetters = new Set(['J', 'Ñ', 'P', 'Q', 'X', 'Z']);
 const numberSigns = Array.from({ length: 10 }, (_, index) => String(index + 1));
 const numberDemos = typeof numberReferences === 'undefined' ? {} : numberReferences;
+const greetings = ['Hola', 'Buenos días', 'Hasta luego'];
+const greetingDemos = typeof greetingReferences === 'undefined' ? {} : greetingReferences;
+const greetingSituations = [
+  ['Llegas a clase por la mañana y quieres desearle un buen día al grupo.', 'Buenos días'],
+  ['Te despides de una persona a quien esperas volver a ver.', 'Hasta luego'],
+  ['Te encuentras con alguien y quieres iniciar un saludo que sirva a cualquier hora.', 'Hola'],
+];
 const units = [
   ['Abecedario', 'Explora el alfabeto manual y su uso para deletrear.', 0, alphabetLetters.map(letter => `Letra ${letter}`)],
   ['Números', 'Practica las señas del 1 al 10.', 0, numberSigns.map(number => `Número ${number}`)],
-  ['Saludos básicos', 'Empieza a saludar y despedirte.', 0, ['Hola', 'Buenos días', 'Hasta luego']],
+  ['Saludos básicos', 'Aprende a saludar y despedirte en LSM.', 0, greetings],
   ['Expresiones cotidianas', 'Amplía tu repertorio de expresiones de uso diario.', 0, ['Gracias', 'Por favor', 'Disculpa']],
   ['Frases y comunicación básica', 'Explora situaciones sencillas de conversación.', 0, ['Presentarse', 'Pedir ayuda', 'Invitar a participar']],
 ];
@@ -129,6 +136,39 @@ function numberIndex() {
     <article>${numberGrid(numberProgress?.snapshot(), 'leccion')}</article>`;
 }
 
+function greetingsIndex() {
+  return `<a class="back" href="#aprender">← Ruta de aprendizaje</a>
+    ${heading('Aprender', 'Saludos básicos', 'Elige un saludo para ver cómo se hace y cuándo usarlo.')}
+    <article><ul class="actions greeting-links">${greetings.map((greeting, step) =>
+      `<li>${link(`leccion/2/${step}`, greeting, true)}</li>`).join('')}</ul>
+    <div class="actions">${link('ejercicio-saludos', 'Repasar los saludos')}</div></article>`;
+}
+
+function greetingDemo(greeting) {
+  const reference = greetingDemos[greeting];
+  if (!reference) return '<p>No se pudo cargar la referencia de este saludo. Vuelve a cargar la página.</p>';
+  const { description, cue, images, videoUrl, source, credit, license } = reference;
+  const imagesMarkup = images.length ? `<div class="greeting-poses">${images.map((src, index) =>
+    `<img class="alphabet-photo" src="${src}" alt="Posición ${index + 1} de ${images.length} para ${greeting}"
+      width="400" height="352">`).join('')}</div>` : '';
+  const videoLink = videoUrl
+    ? `<a class="button secondary" href="${videoUrl}" target="_blank" rel="noopener">Ver video en YouTube (otra pestaña)</a>` : '';
+  return `<figure class="alphabet-demo">${imagesMarkup}${videoLink}<figcaption>${description}</figcaption></figure>
+    <p>${cue}</p><p class="media-credit">${credit} <a href="${source.url}">${source.name}</a>
+    ${license ? `· <a href="${license.url}">${license.name}</a>` : ''}</p>`;
+}
+
+function greetingExercise() {
+  return `<a class="back" href="#saludos">← Saludos básicos</a>
+    ${heading('Saludos básicos', 'Repaso de saludos', 'Selecciona el saludo adecuado para cada situación.')}
+    <article><form id="greeting-exercise"><div class="exercise-grid">${greetingSituations.map(([prompt], index) => `<fieldset>
+      <legend>${prompt}</legend><div class="choices">${greetings.map((greeting, option) =>
+        `<label><input type="radio" name="answer-${index}" value="${greeting}" ${option === 0 ? 'required' : ''}> ${greeting}</label>`
+      ).join('')}</div></fieldset>`).join('')}</div>
+      <div class="actions"><button>Comprobar respuestas</button>${link('saludos', 'Volver a las fichas', true)}</div>
+      <p class="feedback" role="status"></p></form></article>`;
+}
+
 const brand = 'LinguaPlay <small>LSM</small>';
 const media = (label, note) => `<div class="media"><span aria-hidden="true">▣</span><strong>${label}</strong><span>${note}</span></div>`;
 const link = (href, label, secondary = false) =>
@@ -162,10 +202,12 @@ function learning() {
   const progressSummaries = [
     alphabetMasterySummary(letterProgress?.snapshot()),
     numberMasterySummary(numberProgress?.snapshot()),
+    'Fichas y repaso',
   ];
   const unitLinks = [
     link('abecedario', 'Explorar abecedario'),
     link('numeros', 'Explorar números'),
+    link('saludos', 'Explorar saludos'),
   ];
   return `${heading('Aprender', 'Ruta de aprendizaje', 'Avanza desde el alfabeto manual hasta situaciones cotidianas.')}
     <div class="units">${units.map(([title, description, progress], index) => `<article class="unit">
@@ -173,7 +215,7 @@ function learning() {
       <div><p class="eyebrow">${progressSummaries[index] ?? 'Vista previa disponible'}</p>
       <h2>${title}</h2><p>${description}</p>${index === 0
         ? (alphabetCompleted ? '<p>Ejercicio de A, B y C completado.</p>' : '')
-        : (index > 1 ? meter('Progreso de la unidad', progress) : '')}</div>
+        : (index > 2 ? meter('Progreso de la unidad', progress) : '')}</div>
       ${unitLinks[index] ?? link(`leccion/${index}/0`, 'Ver unidad', true)}
     </article>`).join('')}</div>`;
 }
@@ -182,7 +224,10 @@ function lesson(unit, index, step) {
   const [title, description, , topics] = unit;
   const letter = index === 0 ? alphabetLetters[step] : null;
   const number = index === 1 ? numberSigns[step] : null;
-  const indexPage = letter ? ['abecedario', 'Abecedario'] : number ? ['numeros', 'Números'] : ['aprender', 'Ruta de aprendizaje'];
+  const greeting = index === 2 ? greetings[step] : null;
+  const indexPage = [
+    ['abecedario', 'Abecedario'], ['numeros', 'Números'], ['saludos', 'Saludos básicos'],
+  ][index] ?? ['aprender', 'Ruta de aprendizaje'];
   let demonstration = `${media('Demostración', 'Material en LSM pendiente de incorporar')}<p>Este espacio mostrará una demostración y su explicación.</p>`;
   if (letter) {
     demonstration = alphabetDemo(letter);
@@ -190,20 +235,25 @@ function lesson(unit, index, step) {
   if (number) {
     demonstration = numberDemo(number);
   }
+  if (greeting) {
+    demonstration = greetingDemo(greeting);
+  }
   return `<a class="back" href="#${indexPage[0]}">← ${indexPage[1]}</a>
     ${heading(title, topics[step], number ? 'Observa la referencia y practica la seña con la cámara.' : description)}
     <article>${meter(`Paso ${step + 1} de ${topics.length}`, Math.round((step + 1) / topics.length * 100))}
       ${demonstration}
       <div class="actions">${letter === 'C' ? link('ejercicio', 'Ejercicio de A, B y C') : ''}
-        ${link(`practica/${index}/${step}`, 'Ir a práctica con cámara', true)}</div>
+        ${greeting ? link('ejercicio-saludos', 'Repasar los saludos')
+          : link(`practica/${index}/${step}`, 'Ir a práctica con cámara', true)}</div>
     </article><div class="between actions">
       ${step > 0 ? link(`leccion/${index}/${step - 1}`, 'Anterior', true) : '<button class="secondary" disabled>Anterior</button>'}
       ${step + 1 < topics.length ? link(`leccion/${index}/${step + 1}`, 'Siguiente')
-        : link(indexPage[0], ['Volver al abecedario', 'Volver a Números'][index] ?? 'Volver a la ruta')}
+        : link(indexPage[0], ['Volver al abecedario', 'Volver a Números', 'Volver a Saludos básicos'][index] ?? 'Volver a la ruta')}
     </div>`;
 }
 
 function practice(unit, index, step) {
+  if (index === 2) return greetingExercise();
   const isNumber = index === 1;
   const sign = isNumber ? numberSigns[step] : index === 0 ? alphabetLetters[step] : null;
   const reference = isNumber ? numberDemos[sign] : null;
@@ -449,7 +499,7 @@ function profile() {
     <article class="practice-progress"><h2>Dominio de números</h2>
       <p>${numberMasterySummary(numbers)}. Selecciona un número para practicar.</p>
       ${numberGrid(numbers, 'practica')}<p>${practiceStorageMessage(numbers)}</p></article>
-    <div class="grid practice-progress"><article><h2>Otras unidades</h2>${units.slice(2).map(([title, , percent]) => meter(title, percent)).join('')}</article>
+    <div class="grid practice-progress"><article><h2>Otras unidades</h2>${units.slice(3).map(([title, , percent]) => meter(title, percent)).join('')}</article>
     <article><h2>Calendario de práctica</h2><p>Semana de ejemplo</p><ol class="calendar">${['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, index) =>
       `<li><span>${day}</span><span class="${index < 4 ? 'checked' : ''}" aria-label="${index < 4 ? 'Práctica completada' : 'Sin práctica'}">${index < 4 ? '✓' : '·'}</span></li>`).join('')}</ol>
       <h2>Logros</h2><p>Primer paso · Primera lección completada</p><h2>Actividad reciente</h2><p>Abecedario · Practicaste la letra A</p></article></div>`;
@@ -457,7 +507,8 @@ function profile() {
 
 const pages = {
   inicio: dashboard, aprender: learning, abecedario: alphabetIndex, ejercicio: alphabetExercise,
-  numeros: numberIndex, 'ejercicio-numeros': numberIndex, traductor: translator, progreso: profile,
+  numeros: numberIndex, 'ejercicio-numeros': numberIndex, saludos: greetingsIndex,
+  'ejercicio-saludos': greetingExercise, traductor: translator, progreso: profile,
 };
 const nav = [['inicio', '⌂', 'Inicio'], ['aprender', '▤', 'Aprender'], ['traductor', '⇄', 'Traductor'], ['progreso', '◉', 'Progreso']];
 
@@ -467,7 +518,7 @@ function render() {
   const step = Number(stepParam);
   const unit = units[index];
   const isLesson = page === 'leccion' || page === 'practica';
-  const isLearningDetail = isLesson || ['abecedario', 'ejercicio', 'numeros', 'ejercicio-numeros'].includes(page);
+  const isLearningDetail = isLesson || ['abecedario', 'ejercicio', 'numeros', 'ejercicio-numeros', 'saludos', 'ejercicio-saludos'].includes(page);
   const active = isLearningDetail ? 'aprender' : page;
   const content = isLesson
     ? (unit?.[3][step] ? (page === 'leccion' ? lesson : practice)(unit, index, step) : index === 1 ? numberIndex() : learning())
@@ -500,6 +551,15 @@ app.addEventListener('click', event => {
 
 app.addEventListener('submit', event => {
   event.preventDefault();
+  if (event.target.id === 'greeting-exercise') {
+    const answers = new FormData(event.target);
+    const correct = greetingSituations.filter(([, answer], index) => answers.get(`answer-${index}`) === answer).length;
+    const total = greetingSituations.length;
+    event.target.querySelector('.feedback').textContent = correct === total
+      ? '¡Repaso completado! Elegiste el saludo adecuado en las tres situaciones.'
+      : `${correct} de ${total} respuestas correctas. Revisa tus opciones y vuelve a intentar.`;
+    return;
+  }
   if (event.target.id === 'alphabet-exercise') {
     const answers = new FormData(event.target);
     const correct = exerciseCards.filter((letter, index) => answers.get(`answer-${index}`) === letter).length;
