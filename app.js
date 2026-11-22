@@ -154,7 +154,7 @@ function vocabularyCards() {
 function vocabularyGrid(route, progress) {
   return `<ul class="alphabet-index vocabulary-index">${vocabularyUnits[route].signs.map(({ id, label }) => {
     const entry = progress?.entries[id];
-    return `<li><a class="alphabet-letter ${letterStateClass(entry)}" href="#practica-vocabulario/${route}/${id}">
+    return `<li><a class="${letterStateClass(entry)}" href="#practica-vocabulario/${route}/${id}">
       <strong>${label}</strong><span class="letter-state">${letterState(entry)}</span></a></li>`;
   }).join('')}</ul>`;
 }
