@@ -1,5 +1,11 @@
 # Bitácora de cambios
 
+## 21 de noviembre de 2026 · Pruebas con la asociación en Xalapa
+
+- Un integrante del equipo acudió a la Asociación de Sordos del Estado de Veracruz, en Xalapa, para probar LinguaPlay LSM y recibir retroalimentación.
+- La asociación sugirió agregar operaciones matemáticas, frutas, comida, colores, animales, muebles, lugares y estados, y tiempo.
+- Se registraron las sugerencias y los puntos por aclarar en la [propuesta de solución](docs/PROPUESTA_SOLUCION.md) y en los [pendientes](docs/PENDIENTES.md).
+
 ## Dictado en español
 
 - En `Manuel` (`dadb59a`), Traductor incorpora dictado en español de México. Al finalizar, la transcripción se agrega al texto que ya estaba escrito y se puede corregir antes de consultar.

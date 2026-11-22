@@ -2,6 +2,25 @@
 
 LinguaPlay LSM propone una ruta de estudio y práctica para personas que empiezan a aprender Lengua de Señas Mexicana. El piloto permite consultar y practicar las 27 letras del alfabeto manual y, en un ejercicio breve, comprobar la identificación de A, B y C.
 
+## Pruebas con la asociación en Xalapa
+
+El 21 de noviembre de 2026, un integrante del equipo visitó a la Asociación de Sordos del Estado de Veracruz, en Xalapa, Veracruz, para probar el prototipo de LinguaPlay LSM. Durante la visita recibió propuestas para ampliar los contenidos. El registro se basa en las notas de la visita y deja por documentar las tareas que se probaron y sus resultados.
+
+| Recomendación recibida | Propuesta de incorporación del equipo |
+| --- | --- |
+| Frutas y comida | Crear una unidad de alimentación con frutas como grupo propio. Usar alimentos cotidianos como ejemplos. |
+| Colores | Añadir una actividad para reconocer colores y usarlos al describir alimentos u objetos. |
+| Animales y muebles | Preparar grupos de vocabulario separados. Seleccionar ejemplos conocidos y confirmar las señas con la asociación. |
+| Lugares y estados | Precisar si la unidad debe cubrir lugares de la comunidad, nombres de estados de México o ambos. |
+| Tiempo | Confirmar si se refiere a horas, fechas, clima o una combinación. La selección de ejemplos depende de esa definición. |
+| Operaciones matemáticas | Usar la unidad de Números como base. Acordar qué operaciones y ejemplos introducir primero y cómo expresarlos en LSM. |
+
+El prototipo tiene una unidad de Números en vista previa. Las demás sugerencias amplían el catálogo temático. Para la primera ampliación se propone combinar frutas y colores en un ejercicio de descripción. Ese alcance permite revisar pocas señas y probar una actividad completa antes de producir más material. La agrupación y el orden propuestos quedan por revisar con la asociación.
+
+### Evidencia y seguimiento
+
+Antes de publicar nuevas fichas, confirmar las señas, las variantes pertinentes en Xalapa y el permiso para usar cualquier grabación. Para la siguiente ronda, registrar las tareas realizadas y las observaciones de las personas participantes con su consentimiento. Las notas de esta sesión permiten identificar temas de interés y orientar el trabajo de contenidos.
+
 ## Requisitos y estado
 
 | Requisito | Criterio de comprobación | Estado |

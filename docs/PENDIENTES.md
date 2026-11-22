@@ -10,8 +10,10 @@
 - [x] Incorporar las demostraciones fotográficas del piloto y probar el ejercicio con reintento y finalización.
 - [x] Incorporar el índice de 27 letras de la UABCS, con 21 fotografías, seis videos y créditos del material.
 - [x] Verificar en Edge la carga de las 27 fichas, la reproducción de los seis videos y la adaptación del índice a cinco anchos de pantalla.
-- [ ] Revisar el piloto con personas usuarias de LSM y definir fuentes y objetivos para las demás unidades.
-- [ ] Obtener retroalimentación de personas usuarias y registrar los ajustes derivados de las pruebas.
+- [x] Realizar una primera visita para probar el prototipo y recibir retroalimentación de la asociación de Xalapa el 21 de noviembre de 2026. [Registro y análisis](PROPUESTA_SOLUCION.md#pruebas-con-la-asociación-en-xalapa).
+- [ ] Definir objetivos, ejemplos y fuentes de LSM para frutas, comida, colores, animales y muebles.
+- [ ] Precisar con la asociación el alcance de lugares y estados, tiempo y operaciones matemáticas.
+- [ ] Revisar las señas y variantes locales antes de producir las fichas, y registrar las tareas, los resultados y los ajustes de la siguiente ronda de pruebas.
 
 ## Funciones y pruebas
 
