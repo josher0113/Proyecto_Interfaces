@@ -7,7 +7,6 @@ const { runBrowserTest } = require('./browser-harness.cjs');
 const root = resolve(__dirname, '..');
 const source = readFileSync(resolve(root, 'numbers-reference.js'), 'utf8');
 const references = runInNewContext(source + '\nnumberReferences');
-const repetitions = new Set(['9', '20', '30', '40', '60', '70', '80']);
 
 async function readPoses(paths) {
   const { FilesetResolver, HandLandmarker } = await import('/vendor/mediapipe/vision_bundle.mjs');
@@ -44,7 +43,7 @@ function formatReferences(poses) {
       return poses[path];
     });
     assert.equal(stages.length > 1, Boolean(sign.motion), `${number}: la secuencia debe corresponder a la seña.`);
-    const sequence = repetitions.has(number) && stages.length === 2
+    const sequence = sign.repetitions === 2 && stages.length === 2
       ? [stages[0], stages[1], stages[0], stages[1]]
       : stages;
     rows.push(`  ${number}: [${sequence.map(pose => JSON.stringify(pose)).join(',\n    ')}],`);

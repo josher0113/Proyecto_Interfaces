@@ -3,11 +3,7 @@ import test from 'node:test';
 import { createNumberClassifier } from '../number-classifier.mjs';
 import { numberGestureReferences as references } from '../number-gesture-references.mjs';
 
-const expectedNumbers = [
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-  20, 30, 40, 50, 60, 70, 80, 90, 100,
-  200, 300, 400, 500, 600, 700, 800, 900, 1000,
-].map(String);
+const expectedNumbers = Array.from({ length: 10 }, (_, index) => String(index + 1));
 
 function alignHands(frame) {
   const order = frame.handedness.map((_, index) => index).sort((a, b) =>
@@ -52,7 +48,7 @@ function simulatedFrames(keyframes) {
 
 const classifier = createNumberClassifier(references);
 
-test('covers all 28 numbers with the reference poses and simulated transitions', () => {
+test('covers numbers from 1 to 10 with the reference poses and simulated transitions', () => {
   assert.deepEqual(Object.keys(references), expectedNumbers);
   for (const number of expectedNumbers) {
     const [keyframes] = references[number].templates;

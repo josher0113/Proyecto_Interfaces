@@ -43,11 +43,7 @@ const cameraFixture = `(() => {
   };
 })()`;
 
-const numerals = [
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-  20, 30, 40, 50, 60, 70, 80, 90,
-  100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
-];
+const numerals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 async function numbersScenario({ send, run, check, navigate, errors, requests }) {
   const goTo = hash => run('location.hash = ' + JSON.stringify(hash));
@@ -65,7 +61,7 @@ async function numbersScenario({ send, run, check, navigate, errors, requests })
   await run('document.querySelector(\'a[href="#numeros"]\').click()');
   await title('Números');
   const groups = await run('Array.from(document.querySelectorAll(".number-index"), list => list.childElementCount)');
-  assert.deepEqual(groups, [10, 9, 9]);
+  assert.deepEqual(groups, [10]);
   assert.deepEqual(await run('Array.from(document.querySelectorAll(".number-card strong"), card => +card.textContent)'), numerals);
   await noOverflow();
 
@@ -76,15 +72,16 @@ async function numbersScenario({ send, run, check, navigate, errors, requests })
     assert.equal(await run(`Boolean(document.querySelector('a[href="#practica/1/${step}"]'))`), true);
   }
   await noOverflow();
-  await run('document.querySelector(\'a[href="#practica/1/27"]\').click()');
-  await check(`document.querySelector('#gesture-status[data-number="1000"][data-hand-count="2"]')`);
-  assert.match(await run('document.querySelector(".page-heading").textContent'), /dos manos/);
-  assert.equal(await run('document.querySelector("#gesture-attempt").disabled'), true);
-  await noOverflow();
+  for (const removed of ['#leccion/1/10', '#practica/1/27']) {
+    await goTo(removed);
+    await title('Números');
+    assert.equal(await run('document.querySelector(".number-index").childElementCount'), 10);
+  }
   assert.equal(requests.some(path => path.includes('mediapipe') || path.endsWith('.task')), false);
 
   await goTo('#practica/1/1');
   await title('Número 2');
+  assert.equal(await run('Boolean(document.querySelector(\'#gesture-status[data-number="2"]:not([data-letter])\'))'), true);
   await run(cameraFixture);
   const gesture = 'document.querySelector("#gesture-status").textContent';
   const state = 'document.querySelector("#practice-letter-state").textContent';
@@ -93,32 +90,47 @@ async function numbersScenario({ send, run, check, navigate, errors, requests })
   const pickSign = number => run('numberCamera.setSign(' + JSON.stringify(number) + ')');
   await pickSign(4);
   await run(toggle);
-  await check(gesture + '.includes("Número 4 detectado. Practica el número 2")', 30000);
+  await check(gesture + '.includes("La seña no coincide con el número 2")', 30000);
   assert.equal(await run(record + '.disabled'), true);
   assert.equal(await run(state), '0/3 días');
   await pickSign(2);
+  await check(gesture + '.includes("Número 2 detectado. Coincide con la referencia.")');
+  assert.equal(requests.some(path => /(?:^|\/)sign-(?:classifier|motion)\.mjs$/.test(path)), false);
   await check('!' + record + '.disabled', 20000);
   await run(record + '.click()');
   await check(state + ' === "1/3 días"');
   assert.equal(await run(record + '.disabled'), true);
   assert.equal(await run(record + '.textContent'), 'Práctica de hoy registrada');
 
+  const currentTrack = 'document.querySelector("#camera-video").srcObject.getVideoTracks()[0]';
+  await run('window.numberTrack = ' + currentTrack);
+  await goTo('#practica/0/22');
+  await title('Letra V');
+  assert.equal(await run('numberTrack.readyState'), 'ended');
+  await run(toggle);
+  await check(gesture + '.includes("Letra V detectada. Coincide con la referencia.")', 30000);
+
+  await run('window.letterTrack = ' + currentTrack);
+  await goTo('#practica/1/1');
+  await title('Número 2');
+  assert.equal(await run('letterTrack.readyState'), 'ended');
+  assert.equal(await run('Boolean(document.querySelector(\'#gesture-status[data-number="2"]:not([data-letter])\'))'), true);
   for (const [day, expected] of [[21, '2/3 días'], [22, 'Aprendido']]) {
-    await run(toggle);
     await run('setPracticeDay(' + day + ')');
     await run(toggle);
-    await check('!' + record + '.disabled', 25000);
+    await check(gesture + '.includes("Número 2 detectado. Coincide con la referencia.")', 25000);
     await run(record + '.click()');
     await check(state + ' === ' + JSON.stringify(expected));
+    if (day === 21) await run(toggle);
   }
   assert.equal(await run(record + '.disabled'), true);
-  assert.equal(await run('numberCamera.requests'), 3);
+  assert.equal(await run('numberCamera.requests'), 4);
   assert.deepEqual(await run('Object.keys(localStorage).filter(key => key.startsWith("linguaplay:number")).sort()'), [
     'linguaplay:number-practice:v1:2:2026-11-19',
     'linguaplay:number-practice:v1:2:2026-11-21',
     'linguaplay:number-practice:v1:2:2026-11-22',
   ]);
-  await run('window.lastCameraTrack = document.querySelector("#camera-video").srcObject.getVideoTracks()[0]');
+  await run('window.lastCameraTrack = ' + currentTrack);
   await goTo('#progreso');
   await title('Progreso');
   assert.equal(await run('lastCameraTrack.readyState'), 'ended');
@@ -131,21 +143,34 @@ async function numbersScenario({ send, run, check, navigate, errors, requests })
   await send('Page.reload');
   await check('performance.timeOrigin !== ' + origin + ' && !!' + learned);
 
-  await goTo('#practica/1/27');
-  await title('Número 1000');
   await run(cameraFixture);
-  await pickSign('1000-1');
-  await run(toggle);
-  await check(gesture + '.includes("Manos detectadas")', 25000);
-  await run('document.querySelector("#gesture-attempt").click()');
-  await check('document.querySelector("#gesture-attempt").textContent === "Evaluando…"');
-  await check('document.querySelector("#gesture-attempt").textContent === "Evaluar otro intento"');
-  assert.equal(await run(record + '.disabled'), true);
+  for (const number of [9, 10]) {
+    await goTo('#practica/1/' + (number - 1));
+    await title('Número ' + number);
+    await pickSign(number + '-1');
+    await run(toggle);
+    await check(gesture + '.includes("Mano detectada")', 25000);
+    await run('document.querySelector("#gesture-attempt").click()');
+    await check('document.querySelector("#gesture-attempt").textContent === "Evaluando…"');
+    await check('document.querySelector("#gesture-attempt").textContent === "Evaluar otro intento"');
+    assert.equal(await run(record + '.disabled'), true);
+    assert.match(await run(gesture), /No se pudo identificar el movimiento/);
+  }
+  assert.equal(await run(`(async () => {
+    const { startHandPractice, startNumberPractice } = await import('./hand-practice.mjs');
+    try { startHandPractice({ letter: '2', kind: 'number' }); } catch (error) {
+      if (!(error instanceof RangeError)) throw error;
+      try { startNumberPractice({ number: '20' }); } catch (numberError) {
+        return numberError instanceof RangeError;
+      }
+    }
+    return false;
+  })()`), true);
   assert.deepEqual(errors, []);
 }
 
 runBrowserTest(numbersScenario, ['--use-angle=swiftshader', '--enable-unsafe-swiftshader']).then(() => {
-  console.log('Edge: 28 fichas, diseño a 320 px, práctica del 2 en tres fechas, rechazo de un 1000 inmóvil y progreso tras recargar.');
+  console.log('Edge: 10 fichas, cambio de práctica entre 2 y V, tres fechas de progreso y rechazo de 9 y 10 inmóviles.');
 }).catch(error => {
   console.error(error);
   process.exitCode = 1;

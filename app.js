@@ -1,15 +1,10 @@
 const alphabetLetters = [...'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'];
 const motionLetters = new Set(['J', 'Ñ', 'P', 'Q', 'X', 'Z']);
-const numberGroups = [
-  ['Del 1 al 10', Array.from({ length: 10 }, (_, index) => String(index + 1))],
-  ['Decenas hasta el 100', Array.from({ length: 9 }, (_, index) => String((index + 2) * 10))],
-  ['Centenas hasta el 1000', Array.from({ length: 9 }, (_, index) => String((index + 2) * 100))],
-];
-const numberSigns = numberGroups.flatMap(([, numbers]) => numbers);
+const numberSigns = Array.from({ length: 10 }, (_, index) => String(index + 1));
 const numberDemos = typeof numberReferences === 'undefined' ? {} : numberReferences;
 const units = [
   ['Abecedario', 'Explora el alfabeto manual y su uso para deletrear.', 0, alphabetLetters.map(letter => `Letra ${letter}`)],
-  ['Números', 'Practica las señas del 1 al 10, las decenas y las centenas hasta el 1000.', 0, numberSigns.map(number => `Número ${number}`)],
+  ['Números', 'Practica las señas del 1 al 10.', 0, numberSigns.map(number => `Número ${number}`)],
   ['Saludos básicos', 'Empieza a saludar y despedirte.', 0, ['Hola', 'Buenos días', 'Hasta luego']],
   ['Expresiones cotidianas', 'Amplía tu repertorio de expresiones de uso diario.', 0, ['Gracias', 'Por favor', 'Disculpa']],
   ['Frases y comunicación básica', 'Explora situaciones sencillas de conversación.', 0, ['Presentarse', 'Pedir ayuda', 'Invitar a participar']],
@@ -62,18 +57,14 @@ function numberMasterySummary(progress) {
 }
 
 function numberGrid(progress, destination) {
-  const groupHeading = destination === 'practica' ? 'h3' : 'h2';
-  return numberGroups.map(([title, numbers]) => `<section class="number-group">
-    <${groupHeading}>${title}</${groupHeading}>
-    <ul class="alphabet-index number-index">${numbers.map(number => {
-      const step = numberSigns.indexOf(number);
-      const entry = progress?.letters[number];
-      const mediaType = numberDemos[number]?.motion ? 'Movimiento' : 'Foto';
-      const state = practiceState(entry, true);
-      return `<li><a class="number-card ${practiceStateClass(entry)}" href="#${destination}/1/${step}"
-        aria-label="Número ${number}, ${mediaType}, ${state}">
-        <strong>${number}</strong><span>${mediaType}</span><span class="letter-state">${state}</span></a></li>`;
-    }).join('')}</ul></section>`).join('');
+  return `<ul class="alphabet-index number-index">${numberSigns.map((number, step) => {
+    const entry = progress?.letters[number];
+    const mediaType = numberDemos[number]?.motion ? 'Movimiento' : 'Foto';
+    const state = practiceState(entry, true);
+    return `<li><a class="number-card ${practiceStateClass(entry)}" href="#${destination}/1/${step}"
+      aria-label="Número ${number}, ${mediaType}, ${state}">
+      <strong>${number}</strong><span>${mediaType}</span><span class="letter-state">${state}</span></a></li>`;
+  }).join('')}</ul>`;
 }
 
 const alphabetPhoto = (letter, description) =>
@@ -225,7 +216,7 @@ function practice(unit, index, step) {
   const framing = handCount === 2 ? 'Coloca las dos manos dentro del encuadre' : 'Coloca la mano dentro del encuadre';
   const demonstration = isNumber ? numberDemo(sign) : sign ? alphabetDemo(sign) : media('Ejemplo', 'Demostración pendiente');
   return `<a class="back" href="#leccion/${index}/${step}">← Volver a la lección</a>
-    ${heading('Práctica con cámara', unit[3][step], `${framing} y busca buena iluminación.`)}
+    ${heading(isNumber ? 'Práctica de números con cámara' : 'Práctica con cámara', unit[3][step], `${framing} y busca buena iluminación.`)}
     <div class="grid"><article><h2>Referencia</h2>${demonstration}</article>
     <article><h2>Vista de cámara</h2>
       <div class="camera-preview">
@@ -349,14 +340,12 @@ async function startRecognition(session) {
   }
   view.gesture.textContent = view.isNumber ? 'Cargando reconocimiento de números…' : 'Cargando reconocimiento del abecedario…';
   try {
-    const { startHandPractice } = await import('./hand-practice.mjs');
+    const { startHandPractice, startNumberPractice } = await import('./hand-practice.mjs');
     if (cameraSession === session) {
-      session.stopRecognition = startHandPractice({
+      const options = {
         video: view.video,
         canvas: view.canvas,
         status: view.gesture,
-        letter: view.sign,
-        kind: view.isNumber ? 'number' : 'letter',
         handCount: view.handCount,
         motionButton: view.attempt,
         onMatch: () => {
@@ -369,11 +358,14 @@ async function startRecognition(session) {
           session.matchedAt = null;
           refreshPracticeProgress(view);
         },
-      });
+      };
+      session.stopRecognition = view.isNumber
+        ? startNumberPractice({ ...options, number: view.sign })
+        : startHandPractice({ ...options, letter: view.sign });
     }
   } catch {
     if (cameraSession === session) {
-      view.gesture.textContent = 'No se pudo cargar el reconocimiento. Puedes usar la vista de cámara o volver a intentar.';
+      view.gesture.textContent = 'No se pudo cargar el reconocimiento. Recarga la página y vuelve a activar la cámara.';
     }
   }
 }
@@ -478,7 +470,7 @@ function render() {
   const isLearningDetail = isLesson || ['abecedario', 'ejercicio', 'numeros', 'ejercicio-numeros'].includes(page);
   const active = isLearningDetail ? 'aprender' : page;
   const content = isLesson
-    ? (unit?.[3][step] ? (page === 'leccion' ? lesson : practice)(unit, index, step) : learning())
+    ? (unit?.[3][step] ? (page === 'leccion' ? lesson : practice)(unit, index, step) : index === 1 ? numberIndex() : learning())
     : (Object.hasOwn(pages, page) ? pages[page]() : null);
   app.innerHTML = content ? `<aside><a class="brand" href="#bienvenida">${brand}</a>
     <nav aria-label="Navegación principal">${nav.map(([href, icon, label]) => `<a href="#${href}" ${href === active ? `aria-current="${isLearningDetail ? 'true' : 'page'}"` : ''}>

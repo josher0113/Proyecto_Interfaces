@@ -1,6 +1,3 @@
-import { classifySign } from './sign-classifier.mjs';
-import { classifyMotion } from './sign-motion.mjs';
-
 const stableSamples = 3;
 const maxSampleGap = 600;
 const motionLeadTime = 900;
@@ -38,15 +35,30 @@ function drawHands(canvas, video, hands, connections) {
   }
 }
 
-export function startHandPractice({
-  video, canvas, status, letter, motionButton, onMatch, onAttempt, kind = 'letter', handCount = 1,
-}) {
-  const numberPractice = kind === 'number';
+function isLetterSign(value) {
+  return typeof value === 'string' && /^[A-ZÑ]$/u.test(value);
+}
+
+function isNumberSign(value) {
+  return typeof value === 'string' && /^(?:[1-9]|10)$/u.test(value);
+}
+
+export function startHandPractice({ letter, ...options }) {
+  if (!isLetterSign(letter)) throw new RangeError('La práctica requiere una letra del abecedario.');
+  return startPractice(options, letter, false);
+}
+
+export function startNumberPractice({ number, ...options }) {
+  if (!isNumberSign(number)) throw new RangeError('La práctica requiere un número del 1 al 10.');
+  return startPractice(options, number, true);
+}
+
+function startPractice({ video, canvas, status, motionButton, onMatch, onAttempt, handCount = 1 }, sign, numberPractice) {
   const subject = numberPractice ? 'número' : 'letra';
-  const title = numberPractice ? 'Número' : 'Letra';
+  const accepts = numberPractice ? isNumberSign : isLetterSign;
   const framing = handCount === 2 ? 'ambas manos' : 'una sola mano';
   const frameInterval = motionButton ? 65 : 100;
-  let numberClassifier;
+  let classify;
   let worker;
   let timer;
   let motionTimer;
@@ -113,10 +125,14 @@ export function startHandPractice({
   }
 
   function showPrediction(prediction) {
-    if (prediction === letter) {
-      show(`${title} ${prediction} ${numberPractice ? 'detectado' : 'detectada'}. Coincide con la referencia.`);
+    if (numberPractice) {
+      show(prediction === sign
+        ? `Número ${sign} detectado. Coincide con la referencia.`
+        : `La seña no coincide con el número ${sign}. Revisa la referencia y vuelve a intentar.`);
+    } else if (prediction === sign) {
+      show(`Letra ${prediction} detectada. Coincide con la referencia.`);
     } else {
-      show(`${title} ${prediction} ${numberPractice ? 'detectado' : 'detectada'}. Practica ${numberPractice ? 'el' : 'la'} ${subject} ${letter} de esta ficha.`);
+      show(`Letra ${prediction} detectada. Practica la letra ${sign} de esta ficha.`);
     }
   }
 
@@ -131,15 +147,15 @@ export function startHandPractice({
       return;
     }
     const aspect = video.videoWidth / video.videoHeight;
-    const prediction = numberPractice
-      ? numberClassifier.classifyMotion(frames, aspect)
-      : classifyMotion(frames, aspect);
-    if (!prediction) {
-      show('No se pudo identificar el movimiento. Revisa el video y vuelve a intentar.');
+    const prediction = classify(frames, aspect);
+    if (!accepts(prediction)) {
+      show(numberPractice
+        ? 'No se pudo identificar el movimiento. Revisa la referencia y vuelve a intentar.'
+        : 'No se pudo identificar el movimiento. Revisa el video y vuelve a intentar.');
       return;
     }
     showPrediction(prediction);
-    if (prediction === letter) onMatch();
+    if (prediction === sign) onMatch();
   }
 
   function startMotionAttempt() {
@@ -173,11 +189,10 @@ export function startHandPractice({
     }
   }
 
-  function updateStaticResult(frame, hand, worldHand) {
+  function updateStaticResult(frame, hand) {
     const aspect = video.videoWidth / video.videoHeight;
-    const prediction = hand
-      ? (numberPractice ? numberClassifier.classifyStatic(frame, aspect) : classifySign(hand, worldHand, aspect))
-      : null;
+    const result = hand ? classify(frame, aspect) : null;
+    const prediction = accepts(result) ? result : null;
     const now = performance.now();
     samples = prediction && prediction === candidate && now - lastResultAt <= maxSampleGap ? samples + 1 : 1;
     candidate = prediction;
@@ -193,7 +208,7 @@ export function startHandPractice({
       show('Mano detectada. Mantén la seña un momento.');
     } else {
       showPrediction(prediction);
-      if (prediction === letter && samples === stableSamples) onMatch();
+      if (prediction === sign && samples === stableSamples) onMatch();
     }
   }
 
@@ -202,7 +217,7 @@ export function startHandPractice({
     const hand = landmarks.length === 1 ? landmarks[0] : null;
     drawHands(canvas, video, numberPractice ? landmarks : hand ? [hand] : [], connections);
     if (motionButton) updateMotionResult(frame, hand, worldLandmarks[0]);
-    else updateStaticResult(frame, hand, worldLandmarks[0]);
+    else updateStaticResult(frame, hand);
   }
 
   async function initialize() {
@@ -210,9 +225,16 @@ export function startHandPractice({
       const [{ createNumberClassifier }, { numberGestureReferences }] = await Promise.all([
         import('./number-classifier.mjs'), import('./number-gesture-references.mjs'),
       ]);
-      numberClassifier = createNumberClassifier(numberGestureReferences);
-      if (stopped) return;
+      const activeReferences = Object.fromEntries(Object.entries(numberGestureReferences).filter(([key]) => isNumberSign(key)));
+      const classifier = createNumberClassifier(activeReferences);
+      classify = motionButton ? classifier.classifyMotion : classifier.classifyStatic;
+    } else if (motionButton) {
+      ({ classifyMotion: classify } = await import('./sign-motion.mjs'));
+    } else {
+      const { classifySign } = await import('./sign-classifier.mjs');
+      classify = ({ landmarks, worldLandmarks }, aspect) => classifySign(landmarks[0], worldLandmarks[0], aspect);
     }
+    if (stopped) return;
     worker = new Worker(new URL('./hand-worker.js', import.meta.url));
     worker.addEventListener('error', event => {
       event.preventDefault();
