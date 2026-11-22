@@ -1,5 +1,11 @@
 # Bitácora de cambios
 
+## Primer ejercicio de Números y alcance de la entrega
+
+- En `Manuel`, se retiraron Frutas y Colores de Aprender y Progreso (`07f5917`). Las prácticas separadas, sus videos y el criterio de tres días consecutivos quedan en el historial y en [Pendientes](docs/PENDIENTES.md) para una próxima actualización.
+- La unidad de Números incorpora las señas del 1 al 3 con fotografías del glosario de la Universidad de Guadalajara y un ejercicio de identificación con retroalimentación y reintento.
+- En Edge se verificaron la carga de las tres fichas, el formulario, la finalización y el diseño a 320 píxeles. Pasaron las 14 pruebas unitarias del abecedario.
+
 ## Prácticas separadas de Frutas y Colores
 
 - En `Manuel` (`4a5dc90`), Frutas y Colores tienen accesos y fichas propias. Cada ficha incluye un video local de Wikisigns y evaluación del movimiento con cámara.

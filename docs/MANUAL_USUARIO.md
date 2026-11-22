@@ -6,13 +6,13 @@ Este borrador describe el prototipo de LinguaPlay LSM en `Manuel`, incluido el d
 | --- | --- |
 | Bienvenida | Selecciona **Comenzar** para entrar a Inicio. |
 | Inicio | Usa **Explorar abecedario** para entrar al índice o **Abrir traductor** para ir a la consulta. |
-| Aprender | Abre **Frutas** o **Colores** para practicar cada tema por separado. Usa **Explorar abecedario** para consultar las letras. |
+| Aprender | Abre **Números** para estudiar las señas del 1 al 3. Usa **Explorar abecedario** para consultar las letras. |
 | Abecedario | Elige cualquiera de las 27 letras. La etiqueta **Foto** o **Video** indica el tipo de demostración. Desde el índice también puedes abrir el **Ejercicio de A, B y C**. |
 | Lección | Usa **Anterior** y **Siguiente** para pasar de una letra a otra. Las fichas con video tienen controles de reproducción integrados. Para volver al índice, selecciona **Abecedario**. |
 | Ejercicio | Selecciona una letra por cada configuración de la mano y pulsa **Comprobar respuestas**. Puedes corregir tus opciones o usar **Repasar desde A**. |
 | Práctica | Consulta la referencia junto a tu cámara y registra un acierto en cualquiera de las 27 letras. Usa **Volver a la lección** para regresar a la ficha. |
 | Traductor | Escribe o dicta una frase en español. Revisa el texto y pulsa **Traducir** para ver el estado de la consulta de demostración. |
-| Progreso | Consulta el avance por letra y las señas aprendidas en Frutas y Colores. Selecciona una ficha para volver a practicar. Las estadísticas generales son de ejemplo. |
+| Progreso | Consulta el avance por letra. Selecciona una ficha para volver a practicar. Las estadísticas generales son de ejemplo. |
 
 En escritorio, los apartados principales aparecen en la barra lateral. En móvil, aparecen en la barra inferior. Usa **Tab** y **Mayús + Tab** para recorrer los controles. Al principio de la página, **Saltar al contenido** lleva al área principal. Al cambiar de pantalla, el foco pasa al contenido de la nueva vista.
 
@@ -30,13 +30,13 @@ En Edge se comprobaron la carga de las tres fotos, la validación de respuestas 
 
 Se comprobó además que se abren las 27 fichas desde el índice, cargan las 21 fotografías y se reproducen los videos de J, Ñ, P, Q, X y Z en Edge.
 
-## Practicar Frutas o Colores
+## Practicar los números del 1 al 3
 
-1. En **Aprender**, abre **Frutas** o **Colores** y elige una seña. Cada ficha incluye un video de referencia que puedes volver a reproducir.
-2. Pulsa **Activar cámara**, concede el permiso y coloca la mano o ambas manos como indica la muestra. Pulsa **Evaluar movimiento** y haz la seña cuando aparezca **Evaluando…**.
-3. Si se confirma la coincidencia, pulsa **Registrar práctica**. Cuando el resultado sea incierto, reproduce la muestra y vuelve a intentar.
+1. En **Aprender**, busca **Números** y pulsa **Ver unidad**. Cada ficha muestra la foto de la seña y describe cómo colocar la mano. Usa **Anterior** y **Siguiente** para recorrerlas.
+2. Pulsa **Practicar del 1 al 3** en cualquier ficha. Elige el número que corresponde a cada seña y pulsa **Comprobar respuestas**.
+3. Revisa cuántas respuestas acertaste. Puedes cambiar tus opciones y volver a comprobarlas o usar **Repasar las señas** para regresar a las fichas.
 
-Cuenta un registro por seña y fecha local. Tras dos fechas consecutivas se muestra **2/3 días**. La tercera convierte la ficha en **Aprendida** y la muestra en verde dentro de su unidad y en **Progreso**. Si se omite un día antes de llegar a verde, el siguiente acierto inicia una nueva racha. El estado aprendido se conserva al recargar.
+Puedes hacer el ejercicio directamente desde `index.html` o desde el sitio. La comprobación de respuestas es local y el resultado corresponde al intento actual. En Edge se comprobó la carga de las tres fichas, el formulario, el reintento y el uso a 320 píxeles de ancho.
 
 ## Probar la cámara
 

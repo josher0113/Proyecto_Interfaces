@@ -1,6 +1,6 @@
 # Propuesta de solución · Borrador del reporte
 
-LinguaPlay LSM propone una ruta de estudio y práctica para personas que empiezan a aprender Lengua de Señas Mexicana. El piloto permite consultar y practicar las 27 letras del alfabeto manual y, en un ejercicio breve, comprobar la identificación de A, B y C.
+LinguaPlay LSM propone una ruta de estudio y práctica para personas que empiezan a aprender Lengua de Señas Mexicana. El piloto permite consultar y practicar las 27 letras del alfabeto manual. Incluye un ejercicio de identificación para A, B y C y otro para los números del 1 al 3.
 
 ## Pruebas con la asociación en Xalapa
 
@@ -8,22 +8,26 @@ El 21 de noviembre de 2026, un integrante del equipo visitó a la Asociación de
 
 | Recomendación recibida | Propuesta de incorporación del equipo |
 | --- | --- |
-| Frutas y comida | Crear una unidad de alimentación con frutas como grupo propio. Usar alimentos cotidianos como ejemplos. |
-| Colores | Añadir una actividad para reconocer colores y usarlos al describir alimentos u objetos. |
+| Frutas y comida | Preparar una práctica independiente para Frutas en una próxima actualización y definir los contenidos de Comida. |
+| Colores | Preparar una práctica independiente para Colores en una próxima actualización. |
 | Animales y muebles | Preparar grupos de vocabulario separados. Seleccionar ejemplos conocidos y confirmar las señas con la asociación. |
 | Lugares y estados | Tema sugerido durante la visita y retirado del alcance por decisión del equipo. |
 | Tiempo | El equipo precisó que se refiere a las horas del reloj. La unidad abordará cómo preguntar y decir la hora. |
 | Operaciones matemáticas | Usar la unidad de Números como base. Acordar qué operaciones y ejemplos introducir primero y cómo expresarlos en LSM. |
 
-El prototipo tiene una unidad de Números en vista previa que puede servir de base para Horas y Operaciones matemáticas.
+### Primera práctica de Números
 
-### Prácticas de Frutas y Colores
+Por el tiempo disponible, se priorizó una actividad breve para reconocer los números del 1 al 3. Cada ficha muestra la configuración de la mano y el ejercicio pide asociar tres señas con sus números. Las fotos se sirven localmente. El formulario comprueba las respuestas en el dispositivo y permite reintentar. Esta actividad introduce contenidos que luego servirán para Horas y Operaciones matemáticas. El reconocimiento de señas numéricas con cámara queda fuera de esta primera actividad.
 
-En la revisión `4a5dc90` de `Manuel`, Frutas presenta manzana, plátano y pera. Colores presenta rojo, amarillo y verde. Cada ficha incluye una demostración en video de Wikisigns, su crédito y una evaluación con cámara. [Diccionario Wikisigns de LSM](https://www.wikisigns.org/list/es/lsm)
+Se usaron recortes de las fotografías de Servando Alvarado Cisneros en las páginas 65 y 66 del glosario, bajo CC BY-NC-SA 4.0. Se conserva el crédito en cada ficha y en el ejercicio. [Glosario universitario de Lengua de Señas Mexicana](https://riudg.udg.mx/handle/20.500.12104/111344) · [Licencia](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-La evaluación toma una secuencia de puntos de una o ambas manos con MediaPipe. El comparador contrasta la trayectoria y las distancias entre articulaciones con el video de referencia, y devuelve una coincidencia solo si el resultado es suficientemente claro. El modelo usa ejemplos de Wikisigns. Queda pendiente medir su precisión con otras personas y corroborar con la asociación las variantes que se emplean en Xalapa.
+En `Manuel`, `node tests/numbers-browser.cjs` comprueba en Edge el recorrido de las fichas, la carga de las tres fotos, las respuestas obligatorias, el reintento, la finalización y el ancho de 320 píxeles. También comprueba que Frutas y Colores queden fuera de Aprender y Progreso.
 
-El primer acierto confirmado y registrado en cada fecha cuenta para la seña correspondiente. Se exige una racha de tres fechas locales consecutivas, independiente por seña. El historial usa el almacenamiento del navegador y el color verde va acompañado de la etiqueta **Aprendida**. Las pruebas unitarias comprueban los saltos de día, el cambio de mes, los registros duplicados y la conservación del estado aprendido. En Manuel, el comando `node tests/vocabulary-browser.cjs` prueba las seis muestras en Edge con cámara simulada, una seña distinta a la ficha y el paso a verde en la tercera fecha.
+### Frutas y Colores en una próxima actualización
+
+El alcance de la entrega actual retira ambas prácticas de Aprender y Progreso. El prototipo de Frutas (manzana, plátano y pera) y Colores (rojo, amarillo y verde) queda registrado en `4a5dc90` y `b5550bf` de `Manuel`. [Diccionario Wikisigns de LSM](https://www.wikisigns.org/list/es/lsm)
+
+Para reincorporarlas, cada tema tendrá su propia práctica, con una muestra en video por seña y evaluación con cámara. El estado **Aprendida** se marcará en verde después de registrar un acierto por seña en cada uno de tres días consecutivos. Queda pendiente confirmar las variantes con la asociación y medir el reconocimiento con distintas personas y cámaras físicas.
 
 ### Evidencia y seguimiento
 
@@ -34,7 +38,7 @@ Antes de publicar nuevas fichas, confirmar las señas, las variantes pertinentes
 | Requisito | Criterio de comprobación | Estado |
 | --- | --- | --- |
 | Consultar demostraciones del abecedario | Cada una de las 27 fichas muestra una foto o un video local y el crédito de la fuente. | Implementado. |
-| Recibir retroalimentación | El ejercicio solicita tres respuestas, comunica los aciertos, permite reintentar y confirma la finalización. | Implementado en el piloto. |
+| Recibir retroalimentación | La actividad solicita tres respuestas, comunica los aciertos, permite reintentar y confirma la finalización. | Implementado en los ejercicios de A, B y C y de números del 1 al 3. |
 | Retomar y consultar el avance | La aplicación recupera las fechas registradas por letra después de recargar. La tercera fecha distinta marca la letra como aprendida. | Implementado para el abecedario. |
 | Introducir una consulta mediante voz | La frase se añade en español de México al campo editable, con estados para permisos, errores y cancelación. | Implementado y probado con reconocimiento simulado. Validación con micrófono físico pendiente. |
 | Practicar con una interacción gestual | El sistema sigue la mano y ofrece retroalimentación para las 27 letras estáticas y con movimiento. | Implementado y probado con cámara simulada. Validación con participantes pendiente. |
