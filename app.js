@@ -17,6 +17,23 @@ const exerciseDescriptions = {
   C: 'Dedos curvados, con el pulgar separado y una abertura entre las puntas.',
 };
 const exerciseCards = ['B', 'C', 'A'];
+const fruitColorCases = [
+  {
+    prompt: 'Una fruta tiene cáscara amarilla y se pela antes de comer. ¿Qué par buscarías?',
+    options: ['Plátano y verde', 'Plátano y amarillo', 'Manzana y amarillo'],
+    answer: 1,
+  },
+  {
+    prompt: 'En el mercado eliges una manzana de cáscara roja. ¿Qué par buscarías?',
+    options: ['Manzana y rojo', 'Manzana y verde', 'Pera y rojo'],
+    answer: 0,
+  },
+  {
+    prompt: 'Quieres señalar una pera de cáscara verde. ¿Qué par buscarías?',
+    options: ['Pera y rojo', 'Manzana y verde', 'Pera y verde'],
+    answer: 2,
+  },
+];
 const gesturePrompt = 'Mantén una sola mano dentro del encuadre.';
 let alphabetCompleted = false;
 let cameraSession = null;
@@ -122,6 +139,8 @@ function dashboard() {
 function learning() {
   const progressSummary = alphabetMasterySummary(letterProgress?.snapshot());
   return `${heading('Aprender', 'Ruta de aprendizaje', 'Avanza desde el alfabeto manual hasta situaciones cotidianas.')}
+    <article class="quick vocabulary-unit"><div><h2>Frutas y colores</h2><p>Consulta señas de referencia y practica cómo elegir vocabulario para describir una fruta.</p></div>
+      ${link('frutas-y-colores', 'Abrir unidad')}</article>
     <div class="units">${units.map(([title, description, progress], index) => `<article class="unit">
       <span class="unit-number" aria-label="Unidad ${index + 1}">${index + 1}</span>
       <div><p class="eyebrow">${index === 0 ? progressSummary : 'Vista previa disponible'}</p>
@@ -130,6 +149,52 @@ function learning() {
         : meter('Progreso de la unidad', progress)}</div>
       ${index === 0 ? link('abecedario', 'Explorar abecedario') : link(`leccion/${index}/0`, 'Ver unidad', true)}
     </article>`).join('')}</div>`;
+}
+
+function fruitColors() {
+  return `<a class="back" href="#aprender">← Ruta de aprendizaje</a>
+    ${heading('Vocabulario', 'Frutas y colores', 'Consulta las señas de las frutas y los colores. Después elige qué vocabulario usarías en cada situación.')}
+    <div class="grid vocabulary-references">
+      <article><h2>Frutas</h2>
+        <ul class="vocabulary-terms"><li>Manzana</li><li>Plátano</li><li>Pera</li></ul>
+        <p>Busca las tres señas en las páginas impresas 167 a 169 del diccionario ilustrado <cite>Manos con voz</cite>.</p>
+        <div class="actions"><a class="button secondary" href="https://educacionespecial.sep.gob.mx/storage/recursos/2023/05/xzrfl019nV-4Diccionario_lengua_%20Senas.pdf" target="_blank" rel="noopener">Abrir diccionario (PDF, nueva pestaña)</a></div>
+      </article>
+      <article><h2>Colores</h2>
+        <ul class="vocabulary-terms"><li><span class="swatch swatch-red" aria-hidden="true"></span>Rojo</li>
+          <li><span class="swatch swatch-yellow" aria-hidden="true"></span>Amarillo</li>
+          <li><span class="swatch swatch-green" aria-hidden="true"></span>Verde</li></ul>
+        <p>En la Biblioteca de México, abre el video «Colores en LSM».</p>
+        <div class="actions"><a class="button secondary" href="https://www.bibliotecademexico.gob.mx/bmvirtual/pda.php?cat=2&amp;idcat=11&amp;page=2&amp;subcat=2" target="_blank" rel="noopener">Consultar colores (nueva pestaña)</a></div>
+      </article>
+    </div>
+    <article class="vocabulary-practice"><h2>Elige el vocabulario</h2>
+      <p>Selecciona un par por situación. El ejercicio comprueba qué palabras buscarías para comunicar la idea en LSM.</p>
+      <form id="fruit-color-exercise">
+        ${fruitColorCases.map(({ prompt, options }, index) => `<fieldset>
+          <legend>${prompt}</legend><div class="vocabulary-choices">
+          ${options.map((option, choice) => `<label><input type="radio" name="case-${index}" value="${choice}" required> ${option}</label>`).join('')}
+          </div><p class="vocabulary-result"></p>
+        </fieldset>`).join('')}
+        <div class="actions"><button>Comprobar respuestas</button></div>
+        <p class="feedback" role="status"></p>
+      </form>
+    </article>`;
+}
+
+function checkFruitColors(form) {
+  const answers = new FormData(form);
+  const feedback = form.querySelectorAll('.vocabulary-result');
+  const score = fruitColorCases.reduce((count, { options, answer }, index) => {
+    const correct = answers.get(`case-${index}`) === String(answer);
+    feedback[index].textContent = correct ? 'Correcto.' : `Revisa este par en las referencias: ${options[answer].toLowerCase()}.`;
+    return count + Number(correct);
+  }, 0);
+  const total = fruitColorCases.length;
+  const message = score === total
+    ? 'Completaste el repaso de frutas y colores.'
+    : 'Puedes cambiar tus respuestas y volver a comprobarlas.';
+  form.querySelector('.feedback').textContent = `${score} de ${total} aciertos. ${message}`;
 }
 
 function lesson(unit, index, step) {
@@ -377,7 +442,7 @@ function profile() {
       <h2>Logros</h2><p>Primer paso · Primera lección completada</p><h2>Actividad reciente</h2><p>Abecedario · Practicaste la letra A</p></article></div>`;
 }
 
-const pages = { inicio: dashboard, aprender: learning, abecedario: alphabetIndex, ejercicio: alphabetExercise, traductor: translator, progreso: profile };
+const pages = { inicio: dashboard, aprender: learning, abecedario: alphabetIndex, ejercicio: alphabetExercise, 'frutas-y-colores': fruitColors, traductor: translator, progreso: profile };
 const nav = [['inicio', '⌂', 'Inicio'], ['aprender', '▤', 'Aprender'], ['traductor', '⇄', 'Traductor'], ['progreso', '◉', 'Progreso']];
 
 function render() {
@@ -386,7 +451,7 @@ function render() {
   const step = Number(stepParam);
   const unit = units[index];
   const isLesson = page === 'leccion' || page === 'practica';
-  const isLearningDetail = isLesson || page === 'ejercicio' || page === 'abecedario';
+  const isLearningDetail = isLesson || page === 'ejercicio' || page === 'abecedario' || page === 'frutas-y-colores';
   const active = isLearningDetail ? 'aprender' : page;
   const content = isLesson
     ? (unit?.[3][step] ? (page === 'leccion' ? lesson : practice)(unit, index, step) : learning())
@@ -419,6 +484,10 @@ app.addEventListener('click', event => {
 
 app.addEventListener('submit', event => {
   event.preventDefault();
+  if (event.target.id === 'fruit-color-exercise') {
+    checkFruitColors(event.target);
+    return;
+  }
   if (event.target.id === 'alphabet-exercise') {
     const answers = new FormData(event.target);
     const correct = exerciseCards.filter((letter, index) => answers.get(`answer-${index}`) === letter).length;

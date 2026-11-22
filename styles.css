@@ -89,6 +89,20 @@ progress::-moz-progress-bar { background: var(--wine); }
 .practice-progress { margin-top: 1rem; }
 .practice-progress .alphabet-index { margin-top: 1rem; }
 .practice-progress-heading { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
+.vocabulary-unit { margin-bottom: .85rem; }
+.vocabulary-terms { display: flex; flex-wrap: wrap; gap: .5rem; padding: 0; list-style: none; }
+.vocabulary-terms li { display: inline-flex; align-items: center; gap: .45rem; padding: .35rem .65rem; border-radius: 6px; background: var(--cream); }
+.swatch { width: .85rem; height: .85rem; border: 1px solid #3a2d3140; border-radius: 50%; }
+.swatch-red { background: #983b50; }
+.swatch-yellow { background: #ddba52; }
+.swatch-green { background: #467353; }
+.vocabulary-practice { margin-top: 1rem; }
+.vocabulary-practice fieldset { min-width: 0; margin: 1rem 0 0; padding: .7rem 1rem; border: 1px solid var(--line); border-radius: 12px; }
+.vocabulary-practice legend { padding: 0 .25rem; font-weight: 600; }
+.vocabulary-choices { display: flex; flex-wrap: wrap; gap: .4rem 1rem; }
+.vocabulary-choices label { display: inline-flex; align-items: center; gap: .35rem; min-height: 44px; cursor: pointer; }
+.vocabulary-choices input { accent-color: var(--wine); }
+.vocabulary-result:empty { margin: 0; }
 .practice-progress button:disabled { background: var(--cream); }
 .media-credit { font-size: .8rem; }
 .exercise-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
