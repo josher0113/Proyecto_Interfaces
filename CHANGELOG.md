@@ -1,5 +1,10 @@
 # Bitácora de cambios
 
+## Traductor de glosas de LSM
+
+- El Traductor consulta 13 expresiones del catálogo y muestra su glosa escrita. Cada resultado lleva a la ficha de práctica dentro de Conecta LSM.
+- Se incorporaron ejemplos de consulta, variantes de escritura y un aviso para expresiones pendientes. En Edge se verificó el flujo a 320 píxeles.
+
 ## Cambio de nombre a Conecta LSM
 
 - La aplicación adopta el nombre **Conecta LSM** en el encabezado, la pestaña, los avisos y la documentación vigente. El historial de práctica sigue disponible en el mismo navegador y dirección.

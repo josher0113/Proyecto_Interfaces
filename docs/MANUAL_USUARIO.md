@@ -11,7 +11,7 @@ Este borrador describe el prototipo de Conecta LSM en `Manuel`, incluido el dict
 | Lección | Usa **Anterior** y **Siguiente** para cambiar de ficha. El enlace situado arriba del título vuelve al índice de su unidad. |
 | Ejercicio | Selecciona una letra por cada configuración de la mano y pulsa **Comprobar respuestas**. Puedes corregir tus opciones o usar **Repasar desde A**. |
 | Práctica | Consulta la referencia junto a tu cámara. En Abecedario y Números, registra un acierto cuando la seña coincida. En Saludos, Expresiones y Frases, usa la cámara como espejo para comparar tu ejecución. Selecciona **Volver a la lección** para regresar a la ficha. |
-| Traductor | Escribe o dicta una frase en español. Revisa el texto y pulsa **Traducir** para ver el estado de la consulta de demostración. |
+| Traductor | Escribe o dicta una frase en español. Revisa el texto y pulsa **Traducir** para ver la glosa de una expresión del catálogo. |
 | Progreso | Consulta el avance del abecedario y de Números. Selecciona una ficha para volver a practicar. Las estadísticas generales son de ejemplo. |
 
 En escritorio, los apartados principales aparecen en la barra lateral. En móvil, aparecen en la barra inferior. Usa **Tab** y **Mayús + Tab** para recorrer los controles. Al principio de la página, **Saltar al contenido** lleva al área principal. Al cambiar de pantalla, el foco pasa al contenido de la nueva vista.
@@ -78,10 +78,18 @@ Se registra como máximo un acierto por letra y fecha local. Tras el primer o se
 
 El avance se guarda en el mismo navegador y desde la misma dirección del sitio. Por ejemplo, `localhost` y `127.0.0.1` mantienen historiales separados. Si el navegador bloquea el almacenamiento, la pantalla avisa que la práctica queda en la visita actual.
 
+## Consultar una glosa en el traductor
+
+1. En **Traductor**, escribe una expresión en español y selecciona **Traducir**. Abre **Expresiones disponibles** para elegir directamente una ficha del catálogo.
+2. Lee el recuadro **Glosa de LSM**. Por ejemplo, «Buenos días» muestra **BUENO + DÍA**. El signo **+** indica que la seña se compone de esas partes. Un guion, como en **POR-FAVOR**, agrupa las palabras que identifican una sola seña.
+3. Selecciona **Ver ficha de práctica** para consultar las fotos y el movimiento. Si la consulta queda fuera del catálogo, el traductor te avisa y puedes probar una de las expresiones disponibles.
+
+La búsqueda por texto funciona también si abres `index.html` directamente. Los movimientos, la orientación de las manos y los rasgos faciales se trabajan con las referencias de la ficha.
+
 ## Dictar una frase en el traductor
 
 1. Abre Conecta LSM en HTTPS o desde `localhost`. En **Traductor**, pulsa **Dictar en español** y permite el micrófono cuando el navegador lo solicite.
 2. Cuando aparezca **Escuchando**, di una frase corta. Puedes pulsar **Detener dictado** para pedir que se procese lo dicho. Mientras esperas el acceso al micrófono, **Cancelar dictado** interrumpe la solicitud.
-3. El texto dictado se añade al final del campo. Puedes editarlo y pulsar **Traducir** cuando esté listo. El área de resultados sigue en modo de demostración.
+3. El texto dictado se añade al final del campo. Puedes editarlo y pulsar **Traducir** cuando esté listo. Si la expresión está en el catálogo, verás su glosa y el acceso a la ficha de práctica.
 
 Si el servicio no está disponible, puedes escribir en el mismo campo. Salir de Traductor cancela la escucha. Conecta LSM recibe el texto y el navegador puede enviar audio a su proveedor de reconocimiento. [API de reconocimiento de voz](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition)
