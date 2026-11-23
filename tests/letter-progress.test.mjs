@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createLetterProgress, createNumberProgress, isLetterPracticeStorageKey, LETTER_PRACTICE_GOAL } from '../letter-progress.mjs';
+import {
+  createLetterProgress, createNumberProgress, isLetterPracticeStorageKey,
+  LETTER_PRACTICE_GOAL, summarizePracticeStreak,
+} from '../letter-progress.mjs';
 
 process.env.TZ = 'America/Mexico_City';
 
@@ -61,6 +64,8 @@ test('separates guest and profile histories for letters and numbers', () => {
 
   assert.equal(firstLetters.snapshot(date).letters.A.days, 0);
   assert.equal(firstNumbers.snapshot(date).letters['2'].days, 0);
+  assert.deepEqual(summarizePracticeStreak(firstLetters.snapshot(date), firstNumbers.snapshot(date), date),
+    { days: 0, practicedToday: false });
   assert.equal(firstLetters.record('A', date).credited, true);
   assert.equal(firstNumbers.record(2, date).credited, true);
   firstLetters.record('B', date);
@@ -74,6 +79,38 @@ test('separates guest and profile histories for letters and numbers', () => {
   assert.equal(createNumberProgress([1, 2], storage, 'first-profile').snapshot(date).letters['1'].days, 1);
   assert.equal(createLetterProgress(storage, 'second-profile').snapshot(date).letters.A.days, 0);
   assert.equal(createNumberProgress([1, 2], storage, 'second-profile').snapshot(date).letters['2'].days, 0);
+});
+
+test('counts consecutive practice dates across letters and numbers', () => {
+  const storage = createStorage();
+  const letters = createLetterProgress(storage);
+  const numbers = createNumberProgress([2], storage);
+  const streakAt = date => summarizePracticeStreak(letters.snapshot(date), numbers.snapshot(date), date);
+
+  assert.deepEqual(streakAt(localDate(17)), { days: 0, practicedToday: false });
+  letters.record('A', localDate(17, 23));
+  assert.deepEqual(streakAt(localDate(17, 23)), { days: 1, practicedToday: true });
+  numbers.record(2, localDate(18, 0));
+  numbers.record(2, localDate(19));
+  letters.record('B', localDate(19));
+  letters.record('A', localDate(19));
+  letters.record('A', localDate(22));
+
+  assert.deepEqual(letters.snapshot(localDate(19)).practiceDates, ['2026-11-17', '2026-11-19']);
+  assert.deepEqual(numbers.snapshot(localDate(19)).practiceDates, ['2026-11-18', '2026-11-19']);
+  assert.deepEqual(streakAt(localDate(19)), { days: 3, practicedToday: true });
+  assert.deepEqual(streakAt(localDate(20)), { days: 3, practicedToday: false });
+  assert.deepEqual(streakAt(localDate(21)), { days: 0, practicedToday: false });
+  assert.deepEqual(streakAt(localDate(22)), { days: 1, practicedToday: true });
+});
+
+test('keeps the streak across a local daylight-saving transition', () => {
+  const progress = createLetterProgress(createStorage());
+  progress.record('A', new Date(2021, 3, 3, 23));
+  progress.record('B', new Date(2021, 3, 4, 23));
+  const date = new Date(2021, 3, 5, 0);
+  assert.deepEqual(summarizePracticeStreak(progress.snapshot(date), null, date),
+    { days: 2, practicedToday: false });
 });
 
 test('marks the third distinct date as mastery and restores it on reload', () => {

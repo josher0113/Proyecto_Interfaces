@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
 const { runBrowserTest } = require('./browser-harness.cjs');
 
-async function accountScenario({ send, run, check, navigate, errors }) {
+async function accountScenario({ send, run, check, navigate, errors, requests }) {
   const displayName = 'María de Prueba';
   const username = 'maria.prueba';
   const password = 'conecta-prueba-123';
@@ -12,6 +12,8 @@ async function accountScenario({ send, run, check, navigate, errors }) {
   const heading = name => check(`document.querySelector('h1')?.textContent === ${JSON.stringify(name)}`);
   const progress = (unit, index) => run(`document
     .querySelector('a[href="#practica/${unit}/${index}"] .letter-state')?.textContent.trim()`);
+  const expectStreak = days => check(`document.querySelector('#practice-streak [data-streak-days]')
+    ?.dataset.streakDays === '${days}'`);
   const openProgress = async name => {
     await click('nav a[href="#progreso"]');
     await heading('Progreso');
@@ -31,6 +33,7 @@ async function accountScenario({ send, run, check, navigate, errors }) {
   });
   await navigate();
   await check('!!document.querySelector(\'a[href="#sesion"]\')');
+  // Fixture data in a temporary browser profile represents saved successful practices.
   assert.deepEqual(await run(`(async () => {
     const { createLetterProgress, createNumberProgress } = await import('./letter-progress.mjs');
     return [createLetterProgress().record('A').persistent, createNumberProgress(['1']).record('1').persistent];
@@ -44,7 +47,9 @@ async function accountScenario({ send, run, check, navigate, errors }) {
     'El formulario de registro debe caber en 320 px.');
   await submit(signUp, { displayName, username, password });
   await heading(`Hola, ${displayName}`);
+  await expectStreak(0);
   await openProgress(displayName);
+  await expectStreak(0);
   assert.deepEqual(await Promise.all([progress(0, 0), progress(1, 0)]), ['0/3 días', '0/3 días']);
 
   assert.deepEqual(await run(`(async () => {
@@ -56,9 +61,20 @@ async function accountScenario({ send, run, check, navigate, errors }) {
   })()`), [true, true]);
   assert.equal(await run(`JSON.stringify(Object.values(localStorage)).includes(${JSON.stringify(password)})`), false,
     'La contraseña de prueba no debe quedar en el almacenamiento local.');
+  await click('nav a[href="#inicio"]');
+  await heading(`Hola, ${displayName}`);
+  await expectStreak(1);
+  assert.equal(await run(`(async () => {
+    const { createLocalProfiles } = await import('./local-profiles.mjs');
+    const { createLetterProgress } = await import('./letter-progress.mjs');
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return createLetterProgress(undefined, createLocalProfiles().current().id).record('C', yesterday).persistent;
+  })()`), true);
   await navigate('?recarga=1#progreso');
   await heading('Progreso');
   await check(`!!document.querySelector('${signOut}')`);
+  await expectStreak(2);
   assert.deepEqual(await Promise.all([progress(0, 1), progress(1, 1)]), ['1/3 días', '1/3 días']);
 
   await click(signOut);
@@ -69,7 +85,9 @@ async function accountScenario({ send, run, check, navigate, errors }) {
 
   await run('location.hash = "#inicio"');
   await heading('Te damos la bienvenida');
+  await expectStreak(1);
   await openProgress('Modo invitado');
+  await expectStreak(1);
   assert.deepEqual(await Promise.all([progress(0, 0), progress(1, 0)]), ['1/3 días', '1/3 días']);
   assert.deepEqual(await Promise.all([progress(0, 1), progress(1, 1)]), ['0/3 días', '0/3 días']);
 
@@ -77,13 +95,27 @@ async function accountScenario({ send, run, check, navigate, errors }) {
   await check(`!!document.querySelector('${signIn}')`);
   await submit(signIn, { username: username.toUpperCase(), password });
   await heading(`Hola, ${displayName}`);
+  await expectStreak(2);
   await openProgress(displayName);
+  await expectStreak(2);
   assert.deepEqual(await Promise.all([progress(0, 1), progress(1, 1)]), ['1/3 días', '1/3 días']);
+
+  await run('location.hash = "#leccion/0/0"');
+  await heading('Letra A');
+  await check(`(() => {
+    const photo = document.querySelector('img.alphabet-photo[src="assets/abecedario/A.jpg"]');
+    if (!photo?.complete || !photo.naturalWidth) return false;
+    const bounds = photo.getBoundingClientRect();
+    return getComputedStyle(photo).visibility === 'visible'
+      && bounds.width > 0 && bounds.height > 0 && bounds.top < innerHeight && bounds.bottom > 0;
+  })()`);
+  assert.ok(requests.includes('assets/abecedario/A.jpg'), 'La ficha debe cargar la foto real de la letra A.');
+  assert.equal(await run('!!document.querySelector("#camera-toggle")'), false);
   assert.deepEqual(errors, []);
 }
 
 runBrowserTest(accountScenario).then(() => {
-  console.log('Edge: registro a 320 px, sesión tras recarga, cierre y reingreso, contraseña incorrecta e historial separado.');
+  console.log('Edge: sesiones, historial separado, rachas de 0 a 2 días y foto de la A antes de practicar con cámara.');
 }).catch(error => {
   console.error(error);
   process.exitCode = 1;

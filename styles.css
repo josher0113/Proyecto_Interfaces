@@ -99,6 +99,10 @@ progress::-moz-progress-bar { background: var(--wine); }
 .alphabet-index .letter-mastered { border-color: #87ac94; color: #235438; background: #edf6ef; }
 .alphabet-index .letter-mastered:hover { background: #dfefe4; }
 .practice-progress { margin-top: 1rem; }
+main > article + .streak-card { margin-top: 1rem; }
+.streak-count { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem; }
+.streak-count strong { color: var(--deep); font: 3rem/1.1 Georgia, serif; }
+.streak-count span { color: var(--deep); font-weight: 650; }
 .practice-progress .alphabet-index { margin-top: 1rem; }
 .practice-progress-heading { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
 .practice-progress button:disabled { background: var(--cream); }

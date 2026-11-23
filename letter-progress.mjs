@@ -54,6 +54,24 @@ export function createNumberProgress(numbers, storage = getBrowserStorage(), pro
   return createPracticeProgress(numbers.map(String), prefix, 'Número de práctica fuera de la unidad.', storage);
 }
 
+export function summarizePracticeStreak(letterSnapshot, numberSnapshot, date = new Date()) {
+  const dates = new Set([
+    ...(letterSnapshot?.practiceDates ?? []),
+    ...(numberSnapshot?.practiceDates ?? []),
+  ]);
+  const today = localDateKey(date);
+  const practicedToday = dates.has(today);
+  // Use UTC to step between local calendar labels regardless of daylight saving.
+  const cursor = new Date(`${today}T00:00:00Z`);
+  if (!practicedToday) cursor.setUTCDate(cursor.getUTCDate() - 1);
+  let days = 0;
+  while (dates.has(cursor.toISOString().slice(0, 10))) {
+    days++;
+    cursor.setUTCDate(cursor.getUTCDate() - 1);
+  }
+  return { days, practicedToday };
+}
+
 function createPracticeProgress(signs, keyPrefix, unknownSign, storage) {
   const validSigns = new Set(signs);
   let saved = new Set();
@@ -98,15 +116,17 @@ function createPracticeProgress(signs, keyPrefix, unknownSign, storage) {
     const bySign = Object.fromEntries(signs.map(sign => [
       sign, { days: 0, mastered: false, practicedToday: false },
     ]));
+    const dates = new Set();
     for (const token of new Set([...saved, ...pending])) {
       const [sign, day] = token.split(':');
+      if (day <= today) dates.add(day);
       const entry = bySign[sign];
       entry.days++;
       entry.mastered = entry.days >= LETTER_PRACTICE_GOAL;
       if (day === today) entry.practicedToday = true;
     }
     const masteredCount = Object.values(bySign).filter(entry => entry.mastered).length;
-    return { letters: bySign, masteredCount, persistent };
+    return { letters: bySign, masteredCount, persistent, practiceDates: [...dates].sort() };
   }
 
   return {

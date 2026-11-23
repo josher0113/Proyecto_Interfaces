@@ -238,13 +238,31 @@ function accountPage(isRegistration) {
     </article></div>`;
 }
 
+function streakCard(letters, numbers, date, showProgressLink = false) {
+  const streak = progressModule?.summarizePracticeStreak?.(letters, numbers, date);
+  if (!streak) {
+    return `<article id="practice-streak" class="streak-card"><h2>Racha de práctica</h2>
+      <p>${practiceStorageMessage(null)}</p></article>`;
+  }
+  const unit = streak.days === 1 ? 'día seguido' : 'días seguidos';
+  const reminder = streak.practicedToday ? 'Ya registraste una práctica hoy.'
+    : streak.days ? 'Registra un acierto hoy para mantener tu racha.'
+    : 'Registra un acierto con cámara en Abecedario o Números para empezar.';
+  return `<article id="practice-streak" class="streak-card"><h2>Racha de práctica</h2>
+    <p class="streak-count" data-streak-days="${streak.days}"><strong>${streak.days}</strong> <span>${unit}</span></p>
+    <p>${reminder}</p>
+    ${showProgressLink ? `<div class="actions">${link('progreso', 'Ver mi progreso', true)}</div>` : ''}</article>`;
+}
+
 function dashboard() {
   const greeting = activeProfile ? `Hola, ${escapeText(activeProfile.displayName)}` : 'Te damos la bienvenida';
+  const date = new Date();
+  const letters = letterProgress?.snapshot(date);
+  const numbers = numberProgress?.snapshot(date);
   return `${heading('Tu espacio de aprendizaje', greeting, 'Continúa con tu ruta de Lengua de Señas Mexicana.')}
     <div class="grid"><article class="feature"><p class="eyebrow">Alfabeto manual</p><h2>Abecedario</h2>
-      <p>${alphabetMasterySummary(letterProgress?.snapshot())}.</p>${link('abecedario', 'Explorar abecedario')}</article>
-      <article><h2>Tu avance</h2><p>${numberMasterySummary(numberProgress?.snapshot())}.</p>
-        <div class="actions">${link('progreso', 'Ver mi progreso', true)}</div></article>
+      <p>${alphabetMasterySummary(letters)}.</p>${link('abecedario', 'Explorar abecedario')}</article>
+      ${streakCard(letters, numbers, date, true)}
     </div><article class="quick"><div><h2>Deletreador LSM</h2><p>Deletrea palabras y nombres con el abecedario de SignWriting para LSM.</p></div>
       ${link('traductor', 'Abrir deletreador', true)}</article>`;
 }
@@ -344,7 +362,7 @@ function practice(unit, index, step) {
       <div class="practice-progress-heading"><h2>Progreso ${label}</h2>
         <span id="practice-letter-state" class="letter-state ${practiceStateClass(entry)}">${practiceState(entry, isNumber)}</span></div>
       <p>${isNumber ? 'El número' : 'La letra'} pasa a verde tras ${practiceGoal} prácticas correctas en días distintos.</p>
-      <div class="actions"><button type="button" id="practice-record" disabled>${practiceRecordLabel(entry, isNumber)}</button></div>
+      <div class="actions"><button type="button" id="practice-record" disabled>${practiceRecordLabel(entry)}</button></div>
       <p id="practice-record-status" role="status"></p>
       <p id="practice-storage-status">${practiceStorageMessage(progress)}</p>
     </article>` : ''}
@@ -353,8 +371,7 @@ function practice(unit, index, step) {
       : link(guide.route, `Volver a ${title}`)}</div>` : ''}`;
 }
 
-function practiceRecordLabel(entry, isNumber) {
-  if (entry?.mastered) return isNumber ? 'Número aprendido' : 'Letra aprendida';
+function practiceRecordLabel(entry) {
   return entry?.practicedToday ? 'Práctica de hoy registrada' : 'Registrar práctica';
 }
 
@@ -380,9 +397,9 @@ function refreshPracticeProgress(view, message) {
   if (!view.recordButton) return;
   const progress = (view.isNumber ? numberProgress : letterProgress)?.snapshot();
   const entry = progress?.letters[view.sign];
-  const canRecord = Boolean(entry && matchedToday(cameraSession) && !entry.mastered && !entry.practicedToday);
+  const canRecord = Boolean(entry && matchedToday(cameraSession) && !entry.practicedToday);
   view.recordButton.disabled = !canRecord;
-  view.recordButton.textContent = practiceRecordLabel(entry, view.isNumber);
+  view.recordButton.textContent = practiceRecordLabel(entry);
   view.letterState.textContent = practiceState(entry, view.isNumber);
   view.letterState.className = `letter-state ${practiceStateClass(entry)}`;
   view.storageStatus.textContent = practiceStorageMessage(progress);
@@ -398,7 +415,7 @@ function recordPractice() {
   const entry = progress.record(view.sign, date);
   const subject = view.isNumber ? 'Este número' : 'Esta letra';
   const message = entry.credited
-    ? (entry.mastered ? `Práctica registrada. ${subject} ya aparece en verde.` : 'Práctica registrada. Vuelve otro día para seguir avanzando.')
+    ? (entry.days === practiceGoal ? `Práctica registrada. ${subject} ya aparece en verde.` : 'Práctica registrada. Vuelve otro día para continuar tu racha.')
     : 'La práctica de hoy ya está registrada.';
   refreshPracticeProgress(view, message);
 }
@@ -574,8 +591,9 @@ function showSignWriting(phrase) {
 }
 
 function profile() {
-  const progress = letterProgress?.snapshot();
-  const numbers = numberProgress?.snapshot();
+  const date = new Date();
+  const progress = letterProgress?.snapshot(date);
+  const numbers = numberProgress?.snapshot(date);
   const name = activeProfile?.displayName ?? 'Modo invitado';
   const initial = escapeText([...name][0].toUpperCase());
   const description = activeProfile ? `@${escapeText(activeProfile.username)}` : 'Tu avance de invitado se guarda por separado.';
@@ -587,6 +605,7 @@ function profile() {
           : link('sesion', 'Iniciar sesión', true)}</div>
       <p id="account-status" class="feedback" role="status"></p>
     </article>
+    ${streakCard(progress, numbers, date)}
     <article class="practice-progress"><h2>Dominio del abecedario</h2>
       <p>${alphabetMasterySummary(progress)}. Selecciona una letra para practicar.</p>
       ${alphabetGrid(progress, 'practica')}<p>${practiceStorageMessage(progress)}</p></article>

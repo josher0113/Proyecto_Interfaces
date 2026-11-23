@@ -87,6 +87,7 @@ async function numbersScenario({ send, run, check, navigate, errors, requests })
   const state = 'document.querySelector("#practice-letter-state").textContent';
   const record = 'document.querySelector("#practice-record")';
   const toggle = 'document.querySelector("#camera-toggle").click()';
+  const streak = 'document.querySelector("#practice-streak [data-streak-days]")?.dataset.streakDays';
   const pickSign = number => run('numberCamera.setSign(' + JSON.stringify(number) + ')');
   await pickSign(4);
   await run(toggle);
@@ -125,14 +126,33 @@ async function numbersScenario({ send, run, check, navigate, errors, requests })
   }
   assert.equal(await run(record + '.disabled'), true);
   assert.equal(await run('numberCamera.requests'), 4);
+  await run('window.masteryTrack = ' + currentTrack);
+  await goTo('#progreso');
+  await title('Progreso');
+  assert.equal(await run('masteryTrack.readyState'), 'ended');
+  await check(streak + ' === "2"');
+
+  await run('setPracticeDay(23)');
+  await goTo('#practica/1/1');
+  await title('Número 2');
+  assert.equal(await run(state), 'Aprendido');
+  assert.equal(await run(record + '.disabled'), true);
+  await run(toggle);
+  await check(gesture + '.includes("Número 2 detectado. Coincide con la referencia.")', 25000);
+  await check('!' + record + '.disabled');
+  await run(record + '.click()');
+  await check(record + '.disabled');
+  assert.equal(await run(state), 'Aprendido');
   assert.deepEqual(await run('Object.keys(localStorage).filter(key => key.startsWith("linguaplay:number")).sort()'), [
     'linguaplay:number-practice:v1:2:2026-11-19',
     'linguaplay:number-practice:v1:2:2026-11-21',
     'linguaplay:number-practice:v1:2:2026-11-22',
+    'linguaplay:number-practice:v1:2:2026-11-23',
   ]);
   await run('window.lastCameraTrack = ' + currentTrack);
   await goTo('#progreso');
   await title('Progreso');
+  await check(streak + ' === "3"');
   assert.equal(await run('lastCameraTrack.readyState'), 'ended');
   const learned = 'document.querySelector(\'a.number-card.letter-mastered[href="#practica/1/1"]\')';
   assert.match(await run(learned + '.textContent'), /Aprendido/);
@@ -170,7 +190,7 @@ async function numbersScenario({ send, run, check, navigate, errors, requests })
 }
 
 runBrowserTest(numbersScenario, ['--use-angle=swiftshader', '--enable-unsafe-swiftshader']).then(() => {
-  console.log('Edge: 10 fichas, cambio de práctica entre 2 y V, tres fechas de progreso y rechazo de 9 y 10 inmóviles.');
+  console.log('Edge: 10 fichas, distinción entre 2 y V, racha extendida tras aprender el 2 y rechazo de 9 y 10 inmóviles.');
 }).catch(error => {
   console.error(error);
   process.exitCode = 1;
