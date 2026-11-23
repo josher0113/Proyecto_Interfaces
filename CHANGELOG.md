@@ -1,5 +1,11 @@
 # Bitácora de cambios
 
+## Inicio de sesión y progreso por perfil
+
+- Se habilitaron el registro, el inicio y el cierre de sesión en el navegador. Sigue disponible el modo invitado.
+- El inicio muestra el nombre de la cuenta y **Progreso** muestra el historial de letras y números del perfil activo. Los datos de ejemplo se retiraron y se conservó el historial de invitado.
+- En Edge se verificaron el registro en ancho móvil, la sesión tras recargar, el cierre y el reingreso, la contraseña incorrecta y la separación del progreso.
+
 ## Material de demostración para el foro
 
 - Se preparó un ejecutable de Windows que abre en el navegador el prototipo de la rama `Manuel` (`eb18390`). Los medios y los modelos de cámara y dictado están incluidos.

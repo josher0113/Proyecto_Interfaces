@@ -4,9 +4,9 @@ Conecta LSM es un proyecto educativo para empezar a aprender Lengua de Señas Me
 
 ## Probar el prototipo
 
-Para probar la versión actual, cambia a `Manuel`. Puedes abrir `index.html` directamente para recorrer el prototipo. Sirve esa misma carpeta mediante `localhost` o HTTPS para probar la cámara y el dictado. Los pasos están en el [manual](docs/MANUAL_USUARIO.md).
+Para probar la versión actual, cambia a `Manuel`. Puedes abrir `index.html` directamente para recorrer el prototipo. Sirve esa misma carpeta mediante `localhost` o HTTPS para usar las cuentas locales, la cámara y el dictado. Los pasos están en el [manual](docs/MANUAL_USUARIO.md).
 
-1. En la bienvenida, selecciona **Comenzar** para entrar al inicio.
+1. En la bienvenida, selecciona **Comenzar** para practicar como invitado o **Iniciar sesión → Crear cuenta** para mantener un historial por perfil en el mismo navegador.
 2. En **Aprender**, selecciona **Explorar números** para practicar del 1 al 10 con cámara o abre **Abecedario** para practicar sus 27 letras. Selecciona **Explorar saludos**, **Explorar expresiones** o **Explorar frases** para practicar frente a la cámara en espejo.
 3. En **Deletrear**, escribe o dicta una palabra o un nombre. Selecciona **Deletrear** para mostrar sus letras en SignWriting, con el abecedario manual de LSM.
 4. En **Progreso**, consulta tu avance por letra y por número. Cada seña pasa a verde después de registrar un acierto en cada uno de tres días distintos.

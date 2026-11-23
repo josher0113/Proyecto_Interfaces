@@ -59,7 +59,7 @@
 - [x] Incorporar las 27 letras del abecedario manual de LSM en SignWriting en el deletreador y en sus fichas. Verificar las imágenes locales, la Ñ y el ajuste en móvil.
 - [ ] Revisar con personas usuarias de LSM las variantes de las letras en SignPuddle y su correspondencia con las referencias de práctica de la UABCS.
 - [ ] Guardar el avance de las otras unidades, las lecciones completadas y los logros. Calcular la racha a partir de actividades completadas en días consecutivos.
-- [ ] Definir cómo se integrarán las cuentas y el perfil del usuario.
+- [x] Habilitar cuentas locales, inicio y cierre de sesión y avance separado por perfil e invitado.
 
 ## Entrega académica
 

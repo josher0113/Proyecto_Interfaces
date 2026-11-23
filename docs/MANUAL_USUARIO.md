@@ -4,7 +4,8 @@ Este borrador describe el prototipo de Conecta LSM en `Manuel`.
 
 | Pantalla | Cómo usarla |
 | --- | --- |
-| Bienvenida | Selecciona **Comenzar** para entrar a Inicio. |
+| Bienvenida | Selecciona **Comenzar** para practicar como invitado o **Iniciar sesión** para usar una cuenta local. |
+| Iniciar sesión | Escribe tu usuario y contraseña. Selecciona **Crear cuenta** si es tu primera visita. |
 | Inicio | Usa **Explorar abecedario** para entrar al índice o **Abrir deletreador** para escribir palabras con el abecedario SignWriting. |
 | Aprender | Selecciona **Explorar números** para consultar las fichas del 1 al 10 o **Explorar abecedario** para consultar las letras. Selecciona **Explorar saludos**, **Explorar expresiones** o **Explorar frases** para ver las fichas y practicar. |
 | Abecedario | Elige cualquiera de las 27 letras. La etiqueta **Foto** o **Video** indica el tipo de demostración. Cada ficha muestra también la letra en SignWriting. Desde el índice también puedes abrir el **Ejercicio de A, B y C**. |
@@ -12,9 +13,17 @@ Este borrador describe el prototipo de Conecta LSM en `Manuel`.
 | Ejercicio | Selecciona una letra por cada configuración de la mano y pulsa **Comprobar respuestas**. Puedes corregir tus opciones o usar **Repasar desde A**. |
 | Práctica | Consulta la referencia junto a tu cámara. En Abecedario y Números, registra un acierto cuando la seña coincida. En Saludos, Expresiones y Frases, usa la cámara como espejo para comparar tu ejecución. Selecciona **Volver a la lección** para regresar a la ficha. |
 | Deletreador | Escribe o dicta un texto en español y pulsa **Deletrear** para mostrar una grafía por letra del abecedario manual de LSM. |
-| Progreso | Consulta el avance del abecedario y de Números. Selecciona una ficha para volver a practicar. Las estadísticas generales son de ejemplo. |
+| Progreso | Consulta el avance del abecedario y de Números. Selecciona una ficha para volver a practicar. Aquí también puedes iniciar o cerrar la sesión. |
 
 En escritorio, los apartados principales aparecen en la barra lateral. En móvil, aparecen en la barra inferior. Usa **Tab** y **Mayús + Tab** para recorrer los controles. Al principio de la página, **Saltar al contenido** lleva al área principal. Al cambiar de pantalla, el foco pasa al contenido de la nueva vista.
+
+## Crear una cuenta local
+
+1. Abre Conecta LSM con el ejecutable, por HTTPS o desde `localhost`.
+2. En **Iniciar sesión**, selecciona **Crear cuenta**. Escribe el nombre que quieras ver en Inicio, elige un usuario y una contraseña de al menos ocho caracteres.
+3. Para volver al mismo historial en próximas visitas, usa la misma dirección de Conecta LSM y el mismo navegador. Elige **Cerrar sesión** en **Progreso** cuando compartas el equipo.
+
+El historial de invitado y el de cada cuenta se conservan por separado. En la HP y en el Galaxy se crea una cuenta independiente si deseas usar ambas instalaciones. Borrar los datos del sitio en el navegador elimina las cuentas y su historial guardado en ese navegador.
 
 ## Comprobación de navegación
 

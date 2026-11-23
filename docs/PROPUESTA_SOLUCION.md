@@ -61,6 +61,7 @@ Antes de publicar nuevas fichas, confirmar las señas, las variantes pertinentes
 | --- | --- | --- |
 | Consultar demostraciones de las señas | Cada ficha presenta una referencia visual y el crédito de la fuente. | Implementado en Abecedario, Números, Saludos básicos, Expresiones cotidianas y Frases y comunicación básica. |
 | Recibir retroalimentación | La práctica con cámara comunica la coincidencia o pide reintentar. El ejercicio de A, B y C muestra el número de aciertos. | Implementado. |
+| Iniciar sesión y separar el historial | Cada cuenta recupera su propio progreso al volver a entrar. Se conserva el avance de invitado. | Implementado y comprobado en Edge. |
 | Retomar y consultar el avance | La aplicación recupera los aciertos por seña después de recargar. La tercera fecha distinta marca la ficha aprendida en verde. | Implementado en Abecedario y Números. |
 | Deletrear con SignWriting de LSM | Cada letra del texto se muestra con su grafía local y se conserva la separación por palabras. | Implementado para las 27 letras. |
 | Introducir una consulta mediante voz | El dictado local añade la frase en español al campo editable, con avisos para permisos, errores y cancelación. | Implementado. Pruebas funcionales con un archivo de audio y con micrófonos físicos en un Galaxy A57 y una HP ProBook 445 G8. |
@@ -71,6 +72,12 @@ Antes de publicar nuevas fichas, confirmar las señas, las variantes pertinentes
 El piloto usa HTML, CSS, JavaScript y archivos multimedia locales. La navegación por fragmentos de URL abre cada ficha y su práctica en un navegador de escritorio o móvil. El ejercicio piloto de A, B y C comprueba las respuestas en el dispositivo. El prototipo incluye las fotos y los videos del abecedario y las fotos de Números, Saludos básicos, Expresiones cotidianas y Frases y comunicación básica.
 
 El prototipo incorpora dos modalidades adicionales a la interfaz gráfica. El **dictado** usa un micrófono para introducir consultas en español y la **práctica gestual** usa la cámara para ensayar letras, números del 1 al 10, saludos, expresiones cotidianas y situaciones de conversación. El 23 de noviembre de 2026, un integrante del equipo confirmó el funcionamiento del dictado y de la práctica con cámara del abecedario en un Samsung Galaxy A57 con Chrome para Android. El teléfono accedió al servidor de la computadora por USB mediante ADB. El equipo realizó también una prueba local de dictado y práctica con cámara en una HP ProBook 445 G8. Queda pendiente evaluar la precisión de ambas modalidades con participantes.
+
+### Cuenta y progreso local
+
+El inicio de sesión permite elegir un perfil para guardar los aciertos de letras y números de cada persona. La aplicación persiste la sesión y el identificador del perfil en el almacenamiento del navegador. Web Crypto deriva un verificador de contraseña con PBKDF2 y una sal aleatoria por cuenta. Se conservaron las claves de progreso anteriores para el modo invitado. Las cuentas y el avance abarcan el mismo navegador y la misma dirección de la aplicación.
+
+La prueba `node tests/profile-browser.cjs` comprobó en Edge el registro a 320 píxeles, la sesión tras recargar, el cierre y el reingreso, el rechazo de una contraseña incorrecta y la separación entre los historiales del invitado y la cuenta.
 
 ### Deletreador del abecedario en SignWriting
 
