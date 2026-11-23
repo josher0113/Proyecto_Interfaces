@@ -13,6 +13,7 @@ const mediaTypes = new Map(Object.entries({
   '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript',
   '.mjs': 'text/javascript', '.wasm': 'application/wasm', '.task': 'application/octet-stream',
   '.jpg': 'image/jpeg', '.png': 'image/png', '.mp4': 'video/mp4', '.json': 'application/json', '.txt': 'text/plain',
+  '.gz': 'application/gzip',
 }));
 
 function getBrowserPort(browser) {

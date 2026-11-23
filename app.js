@@ -480,7 +480,7 @@ async function toggleCamera() {
 function translator() {
   const voiceAvailable = dictation.available();
   const voiceNote = voiceAvailable
-    ? 'El navegador puede enviar audio a su servicio de voz. Conecta LSM recibe el texto.'
+    ? 'El audio se procesa en este dispositivo. La primera vez puede tardar en cargar el modelo de español.'
     : (location.protocol === 'file:' || !window.isSecureContext
       ? 'Abre Conecta LSM en HTTPS o localhost para usar el dictado. También puedes escribir la frase.'
       : 'Dictado no disponible en este navegador. Puedes escribir la frase.');

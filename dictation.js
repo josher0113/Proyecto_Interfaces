@@ -1,137 +1,148 @@
 function createDictation() {
   const defaultLabel = 'Dictar en español';
-  const errors = {
-    'not-allowed': 'No se concedió el permiso del micrófono. Revisa los permisos del sitio e inténtalo de nuevo.',
-    'service-not-allowed': 'El navegador bloqueó el servicio de voz. Revisa la configuración o escribe la frase.',
-    'audio-capture': 'El navegador no pudo usar el micrófono. Revisa si está conectado o escribe la frase.',
-    'no-speech': 'No se detectó voz. Inténtalo de nuevo o escribe la frase.',
-    network: 'No hubo conexión con el servicio de voz. Inténtalo de nuevo o escribe la frase.',
-    'language-not-supported': 'El servicio de voz no ofrece español de México en este navegador. Puedes escribir la frase.',
-    'language-unavailable': 'El español de México no está disponible en el servicio de voz. Puedes escribir la frase.',
+  const missingPermission = 'No se concedió el permiso del micrófono. Revisa los permisos del sitio o escribe la frase.';
+  const audioErrors = {
+    NotAllowedError: missingPermission,
+    SecurityError: missingPermission,
+    NotFoundError: 'No se encontró un micrófono. Revisa si hay uno conectado o escribe la frase.',
+    NotReadableError: 'No se pudo usar el micrófono. Revisa si otra aplicación lo está usando.',
   };
-  const startError = 'No se pudo iniciar el dictado. Revisa el micrófono o escribe la frase.';
+  const captureError = 'No se pudo terminar el dictado. Puedes intentarlo de nuevo o escribir la frase.';
   let current = null;
 
-  function recognitionConstructor() {
-    if (!window.isSecureContext || location.protocol === 'file:') return null;
-    const Recognition = window.SpeechRecognition ?? window.webkitSpeechRecognition;
-    return typeof Recognition === 'function' ? Recognition : null;
+  function available() {
+    return window.isSecureContext && location.protocol !== 'file:'
+      && typeof navigator.mediaDevices?.getUserMedia === 'function'
+      && typeof AudioContext === 'function'
+      && typeof AudioWorkletNode === 'function'
+      && typeof Worker === 'function'
+      && typeof WebAssembly === 'object';
+  }
+
+  function releaseMicrophone(session) {
+    session.stream?.getTracks().forEach(track => track.stop());
+    session.stream = null;
   }
 
   function finish(session, message) {
-    if (current !== session) return false;
+    if (current !== session) return;
     current = null;
     clearTimeout(session.timeout);
+    session.controller.abort();
+    releaseMicrophone(session);
+    if (session.context && session.context.state !== 'closed') {
+      void session.context.close().catch(() => {});
+    }
     session.button.disabled = false;
     session.label.textContent = defaultLabel;
     session.status.textContent = message;
-    return true;
   }
 
   function cancel(message = '') {
-    const session = current;
-    if (!session || !finish(session, message)) return;
-    try {
-      session.recognition.abort();
-    } catch {
-      // A service that already disconnected can reject cancellation.
-    }
+    if (current) finish(current, message);
   }
 
-  function appendTranscript(session) {
-    const { field, results } = session;
-    const transcript = results.join(' ').trim();
-    if (!transcript) return 'No se detectó voz. Inténtalo de nuevo o escribe la frase.';
+  function appendTranscript(field, transcript) {
+    const text = transcript.trim();
+    if (!text) return 'No se detectó voz. Inténtalo de nuevo o escribe la frase.';
     const separator = !field.value || /\s$/.test(field.value) ? '' : ' ';
     const available = Math.max(0, field.maxLength - field.value.length - separator.length);
-    const addition = transcript.slice(0, available).replace(/[\uD800-\uDBFF]$/, '').trimEnd();
-    if (!addition) return `Quedó poco espacio en el campo. El límite es de ${field.maxLength} caracteres.`;
+    const addition = text.slice(0, available).replace(/[\uD800-\uDBFF]$/, '').trimEnd();
+    if (!addition) return 'El campo ya está lleno. Puedes editar el texto para hacer espacio.';
     field.value += separator + addition;
-    return addition.length < transcript.length
-      ? `Texto añadido hasta el límite de ${field.maxLength} caracteres. Puedes editarlo antes de consultar.`
+    return addition.length < text.length
+      ? 'Texto añadido hasta el límite de 300 caracteres. Puedes editarlo antes de consultar.'
       : 'Texto añadido. Puedes editarlo antes de consultar.';
   }
 
-  function stop() {
-    const session = current;
-    if (!session.started) {
-      cancel('Dictado cancelado.');
+  function stop(session) {
+    if (!session.capture) {
+      finish(session, 'Dictado cancelado.');
       return;
     }
+    clearTimeout(session.timeout);
     session.button.disabled = true;
     session.label.textContent = 'Procesando…';
-    session.status.textContent = 'Procesando el dictado…';
+    session.status.textContent = 'Procesando el dictado en este dispositivo…';
     try {
-      session.recognition.stop();
+      session.capture.stop();
+      releaseMicrophone(session);
+      session.timeout = setTimeout(() => finish(session, captureError), 8000);
     } catch {
-      cancel('Se interrumpió el dictado. Puedes intentarlo de nuevo o escribir la frase.');
+      finish(session, captureError);
     }
+  }
+
+  async function prepare(session) {
+    try {
+      session.context = new AudioContext();
+      const streamRequest = navigator.mediaDevices.getUserMedia({
+        video: false,
+        audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true },
+      }).then(stream => {
+        if (current === session) {
+          session.stream = stream;
+        } else {
+          stream.getTracks().forEach(track => track.stop());
+        }
+        return stream;
+      });
+      await Promise.all([streamRequest, session.context.resume()]);
+      if (current !== session) return;
+    } catch (error) {
+      finish(session, Object.hasOwn(audioErrors, error.name) ? audioErrors[error.name] : 'No se pudo iniciar el micrófono. Puedes escribir la frase.');
+      return;
+    }
+
+    for (const track of session.stream.getAudioTracks()) {
+      track.addEventListener('ended', () => finish(session, 'El micrófono se desconectó. Puedes escribir la frase.'), { once: true });
+    }
+    session.status.textContent = 'Cargando el reconocimiento local de español…';
+    try {
+      const { connectLocalSpeech } = await import('./local-speech.mjs');
+      if (current !== session) return;
+      const capture = await connectLocalSpeech(session.context, session.stream, {
+        signal: session.controller.signal,
+        onResult: transcript => {
+          if (current === session) finish(session, appendTranscript(session.field, transcript));
+        },
+        onError: () => finish(session, captureError),
+      });
+      if (current !== session) return;
+      session.capture = capture;
+    } catch {
+      finish(session, 'No se pudo cargar el reconocimiento local. Recarga Conecta LSM o escribe la frase.');
+      return;
+    }
+
+    clearTimeout(session.timeout);
+    session.label.textContent = 'Detener dictado';
+    session.status.textContent = 'Escuchando. Di una frase corta y pulsa Detener dictado.';
+    session.timeout = setTimeout(() => stop(session), 20000);
   }
 
   function toggle(form) {
     if (current) {
-      stop();
+      stop(current);
       return;
     }
-    const Recognition = recognitionConstructor();
-    if (!Recognition) return;
-    const status = form.querySelector('#dictation-status');
-
-    let recognition;
-    try {
-      recognition = new Recognition();
-    } catch {
-      status.textContent = startError;
-      return;
-    }
-    recognition.lang = 'es-MX';
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+    if (!available()) return;
     const session = {
-      recognition,
+      controller: new AbortController(),
       field: form.querySelector('#phrase'),
       button: form.querySelector('#dictation-toggle'),
       label: form.querySelector('#dictation-label'),
-      status,
-      started: false,
-      results: [],
+      status: form.querySelector('#dictation-status'),
+      capture: null,
     };
     current = session;
-
-    recognition.addEventListener('start', () => {
-      if (current !== session) return;
-      session.started = true;
-      session.label.textContent = 'Detener dictado';
-      status.textContent = 'Escuchando. Di una frase corta en español.';
-    });
-    recognition.addEventListener('result', event => {
-      if (current !== session) return;
-      for (let index = event.resultIndex; index < event.results.length; index++) {
-        const result = event.results[index];
-        if (result.isFinal) session.results[index] = result[0]?.transcript.trim() ?? '';
-      }
-    });
-    recognition.addEventListener('error', event => {
-      const message = Object.hasOwn(errors, event.error) ? errors[event.error] : 'Se interrumpió el dictado. Puedes intentarlo de nuevo o escribir la frase.';
-      finish(session, message);
-    });
-    recognition.addEventListener('end', () => {
-      if (current === session) finish(session, appendTranscript(session));
-    });
-
     session.label.textContent = 'Cancelar dictado';
-    status.textContent = 'Esperando el micrófono…';
+    session.status.textContent = 'Esperando el micrófono…';
     session.timeout = setTimeout(() => {
-      cancel('Terminó el tiempo de dictado. Intenta con una frase corta o usa el campo de texto.');
-    }, 45000);
-    try {
-      recognition.start();
-    } catch (error) {
-      const permissionDenied = error.name === 'NotAllowedError' || error.name === 'SecurityError';
-      finish(session, permissionDenied ? errors['not-allowed'] : startError);
-    }
+      finish(session, 'Terminó la espera del micrófono o del modelo local. Intenta otra vez o escribe la frase.');
+    }, 60000);
+    void prepare(session);
   }
 
-  return { available: () => Boolean(recognitionConstructor()), toggle, cancel };
+  return { available, toggle, cancel };
 }

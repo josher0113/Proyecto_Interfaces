@@ -1,179 +1,168 @@
 const assert = require('node:assert/strict');
+const { readFileSync } = require('node:fs');
 const { runBrowserTest } = require('./browser-harness.cjs');
 
-function configureRecognition() {
-  const api = new URLSearchParams(location.search).get('api');
-  const sessions = [];
-  let startError = null;
-  class FakeRecognition extends EventTarget {
+function configureMicrophone(waveData) {
+  const microphone = {
+    calls: 0,
+    remoteCalls: 0,
+    error: null,
+    defer: false,
+    track: null,
+    streams: 0,
+    ended: false,
+    async open() {
+      this.calls++;
+      if (this.error) throw new DOMException('Error simulado', this.error);
+      if (this.defer) await new Promise(resolve => { this.release = resolve; });
+
+      const context = new AudioContext({ sampleRate: 16000 });
+      const destination = context.createMediaStreamDestination();
+      const source = context.createBufferSource();
+      source.buffer = waveData
+        ? await context.decodeAudioData(Uint8Array.from(atob(waveData), value => value.charCodeAt(0)).buffer)
+        : context.createBuffer(1, 8000, context.sampleRate);
+      source.connect(destination);
+      this.ended = false;
+      source.onended = () => { this.ended = true; };
+      await context.resume();
+      this.track = destination.stream.getAudioTracks()[0];
+      this.streams++;
+      const stopTrack = this.track.stop.bind(this.track);
+      this.track.stop = () => {
+        stopTrack();
+        void context.close();
+      };
+      this.play = () => source.start();
+      return destination.stream;
+    },
+  };
+
+  class ForbiddenBrowserSpeech {
     constructor() {
-      super();
-      sessions.push(this);
-      this.started = 0;
-      this.stopped = 0;
-      this.aborted = 0;
-    }
-
-    start() {
-      this.started++;
-      if (startError) {
-        const name = startError;
-        startError = null;
-        throw new DOMException('Fallo simulado al iniciar', name);
-      }
-    }
-
-    stop() { this.stopped++; }
-    abort() { this.aborted++; }
-
-    emit(type, properties = {}) {
-      this.dispatchEvent(Object.assign(new Event(type), properties));
-    }
-
-    result(resultIndex, entries) {
-      const results = entries.map(([transcript, isFinal = true]) => Object.assign([{ transcript }], { isFinal }));
-      this.emit('result', { resultIndex, results });
+      microphone.remoteCalls++;
+      throw Error('Se intentó abrir el servicio remoto');
     }
   }
-
-  Object.defineProperty(window, 'SpeechRecognition', { value: api === 'standard' ? FakeRecognition : undefined });
-  Object.defineProperty(window, 'webkitSpeechRecognition', { value: api === 'webkit' ? FakeRecognition : undefined });
-  window.speechFixture = { sessions, failNextStart: name => { startError = name; } };
+  Object.defineProperty(window, 'SpeechRecognition', { value: ForbiddenBrowserSpeech });
+  Object.defineProperty(window, 'webkitSpeechRecognition', { value: ForbiddenBrowserSpeech });
+  const unsupported = new URLSearchParams(location.search).get('mic') === 'unsupported';
+  Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+    value: unsupported ? undefined : microphone.open.bind(microphone),
+  });
+  window.dictationFixture = microphone;
 }
 
-async function integration({ send, run, check, navigate, errors }) {
+// Optional WAV with the phrase "Buenos días, esto es una prueba de dictado".
+const wavePath = process.argv[2];
+const waveData = wavePath ? readFileSync(wavePath).toString('base64') : null;
+
+async function integration({ send, run, check, navigate, errors, requests, blockRequests }) {
   const field = 'document.querySelector("#phrase")';
   const toggle = 'document.querySelector("#dictation-toggle")';
   const label = 'document.querySelector("#dictation-label").textContent.trim()';
   const status = 'document.querySelector("#dictation-status").textContent';
-  const consultation = 'document.querySelector("#traductor .feedback, main .feedback").textContent';
-  const session = 'speechFixture.sessions.at(-1)';
+  const consultation = 'main .feedback';
   const click = () => run(toggle + '.click()');
   const type = value => run(field + '.value = ' + JSON.stringify(value));
-  const expectLabel = value => check(label + ' === ' + JSON.stringify(value));
-  const runText = () => run(field + '.value');
-  const speak = (startingAt, entries) => run(session + '.result(' + startingAt + ', ' + JSON.stringify(entries) + ')');
-  const emit = (event, details = {}) => run(session + '.emit(' + JSON.stringify(event) + ', ' + JSON.stringify(details) + ')');
-  const open = async api => {
-    await navigate('?api=' + api + '#traductor');
+  const readText = () => run(field + '.value');
+  const expectLabel = value => check(label + ' === ' + JSON.stringify(value), 90000);
+  const open = async (query = '') => {
+    await navigate(query + '#traductor');
     await check('!!' + toggle);
   };
 
   await send('Page.enable');
-  await send('Page.addScriptToEvaluateOnNewDocument', { source: '(' + configureRecognition.toString() + ')();' });
-  await open('standard');
-  await expectLabel('Dictar en español');
-  assert.equal(await run('speechFixture.sessions.length'), 0);
-  assert.match(await run('document.querySelector("#dictation-note").textContent'), /navegador|servicio/i);
-  await type('Hola');
+  await send('Page.addScriptToEvaluateOnNewDocument', {
+    source: '(' + configureMicrophone.toString() + ')(' + JSON.stringify(waveData) + ');',
+  });
+  await open();
+  assert.equal(await run('dictationFixture.calls'), 0);
+  assert.equal(requests.some(path => path.startsWith('vendor/vosk/')), false);
+  assert.match(await run('document.querySelector("#dictation-note").textContent'), /local|dispositivo/i);
+
+  await type('Prueba inicial');
+  const initialConsultation = await run('document.querySelector(' + JSON.stringify(consultation) + ').textContent');
   await click();
-  await expectLabel('Cancelar dictado');
-  const config = await run('(({ lang, continuous, interimResults, maxAlternatives, started }) => ({ lang, continuous, interimResults, maxAlternatives, started }))(' + session + ')');
-  assert.deepEqual(config, { lang: 'es-MX', continuous: false, interimResults: false, maxAlternatives: 1, started: 1 });
-  await emit('start');
   await expectLabel('Detener dictado');
-  await speak(0, [['luego', false]]);
-  assert.equal(await runText(), 'Hola');
-  await speak(0, [[' mundo ']]);
-  await speak(1, [['mundo'], ['qué tal']]);
-  assert.equal(await runText(), 'Hola');
-  const initialConsultation = await run(consultation);
+  assert.ok(requests.includes('vendor/vosk/model-es.tar.gz'));
+  await run('dictationFixture.play()');
+  await check('dictationFixture.ended');
   await click();
-  await expectLabel('Procesando…');
-  assert.equal(await run(session + '.stopped'), 1);
-  assert.equal(await run(session + '.aborted'), 0);
-  await emit('end');
   await expectLabel('Dictar en español');
-  assert.equal(await runText(), 'Hola mundo qué tal');
-  assert.match(await run(status), /añadid/i);
-  assert.equal(await run(consultation), initialConsultation);
+  assert.equal(await run('dictationFixture.track.readyState'), 'ended');
+  assert.equal(await run('dictationFixture.remoteCalls'), 0);
+  assert.equal(await run('document.querySelector(' + JSON.stringify(consultation) + ').textContent'), initialConsultation);
+  if (waveData) {
+    assert.match(await readText(), /^Prueba inicial /);
+    assert.match(await readText(), /buenos d[ií]as.*prueba de dictado/i);
+  } else {
+    assert.equal(await readText(), 'Prueba inicial');
+    assert.match(await run(status), /voz|audio|frase/i);
+  }
 
   await run(field + '.focus(); ' + field + '.setSelectionRange(0, ' + field + '.value.length)');
   await send('Input.insertText', { text: 'Buenos días' });
-  assert.equal(await runText(), 'Buenos días');
+  assert.equal(await readText(), 'Buenos días');
   await run('document.querySelector("#translate").requestSubmit()');
-  assert.match(await run(consultation), /Buenos días/);
+  assert.match(await run('document.querySelector(' + JSON.stringify(consultation) + ').textContent'), /Buenos días/);
 
-  for (const [error, description] of [
-    ['not-allowed', /permiso/i], ['network', /conexión/i], ['no-speech', /voz/i],
-  ]) {
-    await click();
-    await emit('error', { error });
-    await emit('end');
-    await expectLabel('Dictar en español');
-    assert.match(await run(status), description);
-    assert.equal(await runText(), 'Buenos días');
-  }
-
-  await run('speechFixture.failNextStart("NotAllowedError")');
+  await run('dictationFixture.error = "NotAllowedError"');
   await click();
+  await check('/permiso/i.test(' + status + ')');
   await expectLabel('Dictar en español');
-  assert.match(await run(status), /permiso/i);
-  assert.equal(await runText(), 'Buenos días');
+  assert.equal(await readText(), 'Buenos días');
+  await run('dictationFixture.error = "NotFoundError"');
+  await click();
+  await check('/micrófono/i.test(' + status + ')');
+  await expectLabel('Dictar en español');
+  assert.equal(await readText(), 'Buenos días');
 
+  await run('dictationFixture.error = null; dictationFixture.defer = true');
+  const previousStreams = await run('dictationFixture.streams');
   await click();
   await expectLabel('Cancelar dictado');
+  await check('!!dictationFixture.release');
   await click();
-  assert.equal(await run(session + '.aborted'), 1);
-  await speak(0, [['frase cancelada']]);
-  await emit('end');
   await expectLabel('Dictar en español');
-  assert.equal(await runText(), 'Buenos días');
+  await run('dictationFixture.release(); dictationFixture.defer = false');
+  await check('dictationFixture.streams > ' + previousStreams + ' && dictationFixture.track.readyState === "ended"');
+  assert.equal(await readText(), 'Buenos días');
 
   await click();
-  await emit('start');
-  await run('window.oldSpeech = ' + session + '; location.hash = "#inicio"');
-  await check('!' + toggle + ' && oldSpeech.aborted === 1');
+  await expectLabel('Detener dictado');
+  await run('window.oldTrack = dictationFixture.track; location.hash = "#inicio"');
+  await check('!' + toggle + ' && oldTrack.readyState === "ended"');
   await run('location.hash = "#traductor"');
   await check('!!' + toggle);
-  await type('Borrador nuevo');
   await click();
-  await emit('start');
-  await run('oldSpeech.result(0, [["resultado tardío"]]); oldSpeech.emit("end")');
   await expectLabel('Detener dictado');
-  assert.equal(await runText(), 'Borrador nuevo');
-  await speak(0, [['actual']]);
-  await emit('end');
-  assert.equal(await runText(), 'Borrador nuevo actual');
-
-  const longDraft = 'a'.repeat(298);
-  await type(longDraft);
-  await click();
-  await emit('start');
-  await speak(0, [['mucho texto']]);
-  await emit('end');
-  assert.ok((await runText()).startsWith(longDraft));
-  assert.ok((await runText()).length <= 300);
-
-  await click();
-  await emit('start');
   await run('window.dispatchEvent(new PageTransitionEvent("pagehide"))');
-  assert.equal(await run(session + '.aborted'), 1);
-  const beforeLateResult = await runText();
-  await speak(0, [['resultado tardío']]);
-  await emit('end');
-  assert.equal(await runText(), beforeLateResult);
-
-  await open('webkit');
+  await check('dictationFixture.track?.readyState === "ended"');
   await expectLabel('Dictar en español');
-  await click();
-  assert.equal(await run(session + '.lang'), 'es-MX');
-  await emit('start');
-  await speak(0, [['Hola']]);
-  await emit('end');
-  assert.equal(await runText(), 'Hola');
 
-  await open('unavailable');
+  await open('?mic=unsupported');
   assert.equal(await run(toggle + '.disabled'), true);
   await run(field + '.focus()');
   await send('Input.insertText', { text: 'Puedo escribir' });
   await run('document.querySelector("#translate").requestSubmit()');
-  assert.match(await run(consultation), /Puedo escribir/);
+  assert.match(await run('document.querySelector(' + JSON.stringify(consultation) + ').textContent'), /Puedo escribir/);
+  assert.equal(await run('dictationFixture.remoteCalls'), 0);
+
+  blockRequests(/\/vosk\.js$/);
+  await open('?model=missing');
+  await type('Mi borrador');
+  await click();
+  await check('/no se pudo/i.test(' + status + ')', 90000);
+  assert.equal(await readText(), 'Mi borrador');
+  await expectLabel('Dictar en español');
+  assert.equal(await run('dictationFixture.remoteCalls'), 0);
   assert.deepEqual(errors, []);
-  console.log('Edge con dictado simulado: es-MX, revisión y envío manual, límite de texto, errores, cancelación, navegación y escritura sin micrófono.');
+  console.log('Edge con Vosk local: captura, cancelación, cierre, permisos, motor indisponible y escritura manual verificados.' +
+    (waveData ? ' El WAV en español se transcribió correctamente.' : ' El silencio conservó el borrador.'));
 }
 
-runBrowserTest(integration).catch(error => {
+runBrowserTest(integration, ['--autoplay-policy=no-user-gesture-required']).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });
