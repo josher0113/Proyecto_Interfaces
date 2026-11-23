@@ -1,5 +1,10 @@
 # Pendientes del proyecto
 
+## Alcance de la presentación
+
+- La presentación usará la HP ProBook 445 G8 y el Samsung Galaxy A57. En ambos ya se realizó la prueba funcional de dictado y práctica con cámara.
+- Las pruebas adicionales quedan para después de la presentación. Las tareas de **Entrega académica** son la prioridad actual.
+
 ## Interfaz y contenidos
 
 - [x] Comprobar las siete pantallas en Edge a 320, 390, 800, 801 y 1280 px y verificar que no haya desplazamiento horizontal.

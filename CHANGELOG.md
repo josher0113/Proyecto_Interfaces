@@ -1,5 +1,9 @@
 # Bitácora de cambios
 
+## Alcance de las pruebas para la presentación
+
+- Se acordó usar la HP ProBook 445 G8 y el Samsung Galaxy A57, con la cámara y el dictado ya probados en ambos equipos. Las pruebas adicionales se retoman después de la presentación.
+
 ## Prueba local en HP ProBook 445 G8
 
 - Un integrante del equipo completó la prueba local del dictado en **Deletrear** y de la práctica con cámara en una HP ProBook 445 G8.
