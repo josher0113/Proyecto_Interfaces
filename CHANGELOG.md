@@ -1,5 +1,11 @@
 # Bitácora de cambios
 
+## Escritura en SignWriting para el traductor
+
+- El Traductor muestra seis grafías de LSM tomadas del diccionario de SignPuddle Online. Se incluyen como imágenes locales acreditadas.
+- Se reemplazó el resultado de glosas por la escritura en SignWriting. Las expresiones sin grafía documentada quedan pendientes en el catálogo.
+- En Edge se verificaron a 320 píxeles las imágenes, el aviso sin coincidencia y la navegación a las prácticas relacionadas.
+
 ## Traductor de glosas de LSM
 
 - El Traductor consulta 13 expresiones del catálogo y muestra su glosa escrita. Cada resultado lleva a la ficha de práctica dentro de Conecta LSM.

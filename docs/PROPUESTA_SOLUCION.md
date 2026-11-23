@@ -62,7 +62,7 @@ Antes de publicar nuevas fichas, confirmar las señas, las variantes pertinentes
 | Consultar demostraciones de las señas | Cada ficha presenta una referencia visual y el crédito de la fuente. | Implementado en Abecedario, Números, Saludos básicos, Expresiones cotidianas y Frases y comunicación básica. |
 | Recibir retroalimentación | La práctica con cámara comunica la coincidencia o pide reintentar. El ejercicio de A, B y C muestra el número de aciertos. | Implementado. |
 | Retomar y consultar el avance | La aplicación recupera los aciertos por seña después de recargar. La tercera fecha distinta marca la ficha aprendida en verde. | Implementado en Abecedario y Números. |
-| Consultar glosas de LSM | Una expresión del catálogo muestra la glosa y su referencia local. Una consulta sin coincidencia recibe un aviso. | Implementado para 13 expresiones. |
+| Consultar SignWriting de LSM | Una expresión del catálogo muestra su grafía local. Una consulta sin coincidencia recibe un aviso. | Implementado para seis expresiones. |
 | Introducir una consulta mediante voz | La frase se añade en español de México al campo editable, con estados para permisos, errores y cancelación. | Implementado y probado con reconocimiento simulado. Validación con micrófono físico pendiente. |
 | Practicar con la cámara | La aplicación muestra la referencia junto a la imagen de la persona. Abecedario y Números ofrecen reconocimiento experimental. Saludos, Expresiones y Frases permiten comparar la ejecución en espejo. | Implementado. Validación con participantes pendiente. |
 
@@ -72,15 +72,13 @@ El piloto usa HTML, CSS, JavaScript y archivos multimedia locales. La navegació
 
 El prototipo incorpora dos modalidades adicionales a la interfaz gráfica. El **dictado** usa un micrófono para introducir consultas en español y la **práctica gestual** usa la cámara para ensayar letras, números del 1 al 10, saludos, expresiones cotidianas y situaciones de conversación. Las pruebas con participantes y dispositivos físicos se harán por separado.
 
-### Traductor educativo por glosas
+### Traductor educativo en SignWriting
 
-El prototipo incorpora 13 expresiones de Saludos básicos, Expresiones cotidianas y Frases y comunicación básica. El catálogo local asocia cada entrada en español y sus variantes admitidas con una glosa y la ruta de una ficha. La búsqueda tolera diferencias de mayúsculas, acentos, espacio y signos de puntuación alrededor de la entrada. Conserva la ñ como letra distinta. Cuando la expresión no figura en el catálogo, el resultado ofrece un aviso y ejemplos disponibles.
+El catálogo asocia cada entrada en español con una grafía documentada de LSM y una práctica relacionada. Incluye **Hola**, **Buenos días**, **¿Cómo estás?**, **Adiós**, **Gracias** y **Perdón**. La búsqueda tolera variaciones de mayúsculas, acentos, espacios y puntuación alrededor de la consulta. La ñ se conserva como letra independiente. Las expresiones sin grafía registrada reciben un aviso.
 
-Las glosas son etiquetas didácticas para identificar las señas. Se usan mayúsculas, guiones para etiquetas de una sola seña y el signo **+** para señalar los componentes de una seña compuesta. Por ejemplo, **BUENO + DÍA** sigue la composición descrita para «Buenos días» en el *Glosario universitario de Lengua de Señas Mexicana* (pp. 158 y 204). Cada resultado enlaza a los materiales locales para observar la ejecución. Queda pendiente revisar con personas usuarias de LSM las glosas, las variantes y la cobertura de frases más largas.
+La salida usa recortes de la escritura del *Diccionario de Lengua de Señas Mexicana* de SignPuddle Online. El recorte conserva la disposición de los símbolos. Las imágenes PNG se incluyen con la aplicación para poder consultarlas sin servicios externos. Cada resultado muestra la fuente y la página. Los créditos y la licencia CC BY-SA 3.0 de los recortes se registran en `assets/signwriting/README.md` de `Manuel`. La escritura corresponde a la variante documentada en el diccionario.
 
-Se tomó como referencia el apéndice de convenios de transcripción del *Diccionario de Lengua de Señas Mexicana* (`https://www.itaipbc.org.mx/files/LSM/Dic_LSM.pdf`). El catálogo se basa en las fichas locales y el glosario de la UdeG (`https://hdl.handle.net/20.500.12104/111344`).
-
-En Edge, `node tests/gloss-browser.cjs` comprobó las variantes de escritura, la consulta sin coincidencia, la selección de ejemplos y el acceso a la referencia interna a 320 píxeles.
+En Edge, `node tests/signwriting-browser.cjs` comprobó la carga de las seis grafías locales, las variantes de entrada, la consulta sin coincidencia y el acceso a la práctica relacionada a 320 píxeles.
 
 ### Decisión técnica para el dictado
 

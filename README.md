@@ -8,7 +8,7 @@ Para probar la versión actual, cambia a `Manuel`. Puedes abrir `index.html` dir
 
 1. En la bienvenida, selecciona **Comenzar** para entrar al inicio.
 2. En **Aprender**, selecciona **Explorar números** para practicar del 1 al 10 con cámara o abre **Abecedario** para practicar sus 27 letras. Selecciona **Explorar saludos**, **Explorar expresiones** o **Explorar frases** para practicar frente a la cámara en espejo.
-3. En **Traductor**, escribe o dicta una expresión en español y selecciona **Traducir**. Puedes consultar la glosa de 13 expresiones y abrir sus fichas de práctica dentro de la app.
+3. En **Traductor**, escribe o dicta una expresión en español y selecciona **Traducir**. Puedes consultar seis expresiones escritas en SignWriting y abrir sus prácticas relacionadas dentro de la app.
 4. En **Progreso**, consulta tu avance por letra y por número. Cada seña pasa a verde después de registrar un acierto en cada uno de tres días distintos.
 
 ## Métodos de trabajo
@@ -16,7 +16,7 @@ Para probar la versión actual, cambia a `Manuel`. Puedes abrir `index.html` dir
 - **Prototipado por etapas.** La primera versión reúne siete pantallas enlazadas para revisar el recorrido, la claridad de los controles y la retroalimentación. El diseño usa navegación lateral en escritorio y navegación inferior en móvil.
 - **Implementación web estática.** HTML define la entrada, CSS adapta el diseño a distintos tamaños y JavaScript organiza las vistas, reutiliza componentes y gestiona la navegación mediante el fragmento de URL.
 - **Práctica por seña.** Números, Saludos básicos y Expresiones cotidianas usan fichas de referencia y práctica directa. Frases y comunicación básica reúne señas de apoyo para presentarse, pedir ayuda e invitar a participar. Los materiales se incluyen en la app para que cada actividad se complete dentro de Conecta LSM. Este será el formato de las próximas unidades.
-- **Contenido educativo validado.** Las demostraciones se incorporan después de revisar sus fuentes. El traductor consulta un catálogo local de glosas que identifican las señas y su orden cuando la fuente describe una secuencia. Las expresiones se revisarán con personas usuarias de LSM.
+- **Contenido educativo validado.** Las demostraciones se incorporan después de revisar sus fuentes. El traductor muestra grafías de LSM documentadas en SignPuddle Online. Las grafías se incluyen como imágenes locales y sus variantes se revisarán con personas usuarias de LSM.
 - **Interacción por voz y gestos.** Traductor usa el servicio de voz del navegador para introducir texto en español de México. Práctica usa MediaPipe para seguir las manos en el navegador. Un clasificador experimental compara las posturas y los movimientos del abecedario y de Números, y el avance se registra por días. La validación con participantes y dispositivos físicos sigue pendiente.
 
 ## Archivos y seguimiento

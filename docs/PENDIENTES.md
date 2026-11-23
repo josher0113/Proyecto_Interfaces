@@ -47,8 +47,8 @@
 - [x] Guardar el avance del abecedario por fecha en el navegador. Verificar que los reintentos del mismo día no sumen y que la tercera fecha marque la letra en verde incluso después de recargar.
 - [ ] Validar las 27 letras con diferentes personas usuarias de LSM y cámaras físicas. Registrar aciertos, confusiones y abstenciones con distintas condiciones de luz, encuadre y velocidad.
 - [ ] Revisar con el equipo si conservar el criterio de tres fechas o ajustar la frecuencia de práctica.
-- [x] Incorporar un catálogo local de 13 expresiones con glosas, acceso a la ficha de práctica y aviso para consultas sin coincidencia.
-- [ ] Validar las glosas y sus variantes con personas usuarias de LSM. Ampliar el catálogo con expresiones completas verificadas.
+- [x] Incorporar seis grafías locales de SignWriting para LSM con créditos, práctica relacionada y aviso para consultas sin coincidencia.
+- [ ] Incorporar grafías verificadas para Buenas tardes, Buenas noches, Por favor, De nada, Con permiso, ¿Cómo te llamas? y Mucho gusto. Revisar las variantes del catálogo con personas usuarias de LSM.
 - [ ] Guardar el avance de las otras unidades, las lecciones completadas y los logros. Calcular la racha a partir de actividades completadas en días consecutivos.
 - [ ] Definir cómo se integrarán las cuentas y el perfil del usuario.
 
