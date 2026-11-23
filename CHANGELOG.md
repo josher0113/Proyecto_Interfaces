@@ -1,5 +1,12 @@
 # Bitácora de cambios
 
+## Primeras expresiones cotidianas y referencias locales
+
+- Se retiró «Hasta luego» de Saludos básicos hasta contar con fotos reutilizables dentro de la app. Los enlaces anteriores de esa ficha abren el índice.
+- Se quitaron los enlaces externos de las fichas. Los créditos de las fotos y su licencia se muestran como texto.
+- Se añadieron **Gracias**, **Por favor**, **Perdón**, **De nada** y **Con permiso** con fotos de la UdeG y práctica con cámara en espejo.
+- La prueba en Edge recorrió las seis fichas de Saludos y las cinco de Expresiones a 320 píxeles. Verificó la carga de fotos, la ausencia de enlaces externos y el apagado de la cámara al cambiar de ficha.
+
 ## Ampliación de Saludos y práctica directa
 
 - Saludos básicos incorpora **¿Cómo estás?**, **Buenas tardes**, **Buenas noches** y **Adiós** con referencias del glosario de la UdeG.

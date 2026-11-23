@@ -1,6 +1,6 @@
 # Propuesta de solución · Borrador del reporte
 
-LinguaPlay LSM propone una ruta de estudio y práctica para personas que empiezan a aprender Lengua de Señas Mexicana. El piloto permite consultar y practicar con cámara las 27 letras del alfabeto manual, los números del 1 al 10 y siete expresiones de Saludos básicos en LSM. El abecedario también incluye un ejercicio de identificación de A, B y C.
+LinguaPlay LSM propone una ruta de estudio y práctica para personas que empiezan a aprender Lengua de Señas Mexicana. El piloto permite consultar y practicar con cámara las 27 letras del alfabeto manual, los números del 1 al 10, seis fichas de Saludos básicos y cinco de Expresiones cotidianas en LSM. El abecedario también incluye un ejercicio de identificación de A, B y C.
 
 ## Pruebas con la asociación en Xalapa
 
@@ -27,15 +27,15 @@ Las pruebas unitarias usaron posturas y transiciones de referencia para comproba
 
 Las decenas del 20 al 100 y las centenas del 200 al 1000 quedan para una próxima actualización. Sus fichas y referencias permanecen en el historial de `Manuel` (`bca086d`). Se conservan los registros previos que ya tuviera el navegador.
 
-### Saludos básicos
+### Saludos básicos y Expresiones cotidianas
 
-La unidad presenta **Hola**, **¿Cómo estás?**, **Buenos días**, **Buenas tardes**, **Buenas noches**, **Adiós** y **Hasta luego**. Las seis fichas con fotografías usan recortes del glosario de la UdeG, con licencia CC BY-NC-SA 4.0. **Hasta luego** enlaza al video de Carlos Gonzalez publicado para Wikisigns. Cada ficha incluye indicaciones sobre el movimiento o cómo observar la referencia. [Glosario de la UdeG](https://riudg.udg.mx/handle/20.500.12104/111344) · [Hasta luego en Wikisigns](https://www.wikisigns.org/es/lsm/hasta%20luego)
+Saludos básicos incluye **Hola**, **Buenos días**, **Buenas tardes**, **Buenas noches**, **¿Cómo estás?** y **Adiós**. Se retiró «Hasta luego» hasta disponer de una secuencia fotográfica que se pueda incorporar a la aplicación. Expresiones cotidianas comienza con **Gracias**, **Por favor**, **Perdón**, **De nada** y **Con permiso**. Las cinco fichas de esta unidad usan ocho recortes de las páginas 155 a 157 del glosario de la UdeG. Las fichas de ambas unidades conservan los créditos y la licencia CC BY-NC-SA 4.0.
 
-La práctica guiada muestra la referencia junto a la vista en espejo. La persona activa la cámara, compara su ejecución con la seña y repite el movimiento a su ritmo. La evaluación automática y la validación con personas usuarias de LSM quedan pendientes. El enlace anterior al repaso abre el índice de Saludos básicos.
+Cada práctica muestra las fotos, las indicaciones y la vista en espejo. La persona activa la cámara, compara su ejecución con la seña y repite a su ritmo. Las dos unidades comparten la misma vista. La evaluación automática y la validación con personas usuarias de LSM quedan pendientes.
 
-Saludos básicos y Números adoptan el formato de ficha de referencia y práctica directa de cada seña. Las próximas unidades seguirán el mismo formato.
+Los materiales de las fichas se incluyen en la aplicación. Los créditos se muestran en texto y la documentación de los archivos conserva las referencias de origen. Las próximas unidades seguirán el formato de referencia local y práctica directa.
 
-En Edge, `node tests/greetings-browser.cjs` comprobó las siete fichas, la carga de las 19 fotografías, el enlace al video y el recorrido desde los enlaces anteriores. Con una cámara simulada a 320 píxeles, verificó la vista en espejo, la activación voluntaria, la captura exclusiva de video y la liberación al detenerla o pasar a otro saludo. También comprobó el acceso directo a la práctica en Números.
+En Edge, `node tests/greetings-browser.cjs` recorrió las 11 fichas y sus prácticas a 320 píxeles. Comprobó la carga de las fotos, la navegación interna, la ausencia de cuestionarios, el regreso al índice desde las rutas retiradas y la liberación de la cámara al cambiar de expresión.
 
 ### Frutas y Colores en una próxima actualización
 
@@ -51,17 +51,17 @@ Antes de publicar nuevas fichas, confirmar las señas, las variantes pertinentes
 
 | Requisito | Criterio de comprobación | Estado |
 | --- | --- | --- |
-| Consultar demostraciones de las señas | Cada ficha presenta una referencia visual y el crédito de la fuente. | Implementado en Abecedario, Números y Saludos básicos. |
+| Consultar demostraciones de las señas | Cada ficha presenta una referencia visual y el crédito de la fuente. | Implementado en Abecedario, Números, Saludos básicos y Expresiones cotidianas. |
 | Recibir retroalimentación | La práctica con cámara comunica la coincidencia o pide reintentar. El ejercicio de A, B y C muestra el número de aciertos. | Implementado. |
 | Retomar y consultar el avance | La aplicación recupera los aciertos por seña después de recargar. La tercera fecha distinta marca la ficha aprendida en verde. | Implementado en Abecedario y Números. |
 | Introducir una consulta mediante voz | La frase se añade en español de México al campo editable, con estados para permisos, errores y cancelación. | Implementado y probado con reconocimiento simulado. Validación con micrófono físico pendiente. |
-| Practicar con la cámara | La aplicación muestra la referencia junto a la imagen de la persona. Abecedario y Números ofrecen reconocimiento experimental. Saludos básicos permite comparar la ejecución en espejo. | Implementado. Validación con participantes pendiente. |
+| Practicar con la cámara | La aplicación muestra la referencia junto a la imagen de la persona. Abecedario y Números ofrecen reconocimiento experimental. Saludos básicos y Expresiones cotidianas permiten comparar la ejecución en espejo. | Implementado. Validación con participantes pendiente. |
 
 ## Arquitectura e infraestructura
 
-El piloto usa HTML, CSS, JavaScript y archivos multimedia locales. La navegación por fragmentos de URL abre cada ficha y su práctica en un navegador de escritorio o móvil. El ejercicio piloto de A, B y C comprueba las respuestas en el dispositivo. El prototipo incluye las fotos y los videos del abecedario y las fotos de Números y Saludos básicos. El video de Hasta luego se consulta en su sitio de origen.
+El piloto usa HTML, CSS, JavaScript y archivos multimedia locales. La navegación por fragmentos de URL abre cada ficha y su práctica en un navegador de escritorio o móvil. El ejercicio piloto de A, B y C comprueba las respuestas en el dispositivo. El prototipo incluye las fotos y los videos del abecedario y las fotos de Números, Saludos básicos y Expresiones cotidianas.
 
-El prototipo incorpora dos modalidades adicionales a la interfaz gráfica. El **dictado** usa un micrófono para introducir consultas en español y la **práctica gestual** usa la cámara para ensayar letras, números del 1 al 10 y los saludos. Las pruebas con participantes y dispositivos físicos se harán por separado.
+El prototipo incorpora dos modalidades adicionales a la interfaz gráfica. El **dictado** usa un micrófono para introducir consultas en español y la **práctica gestual** usa la cámara para ensayar letras, números del 1 al 10, saludos y expresiones cotidianas. Las pruebas con participantes y dispositivos físicos se harán por separado.
 
 ### Decisión técnica para el dictado
 

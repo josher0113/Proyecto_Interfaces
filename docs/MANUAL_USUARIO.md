@@ -6,11 +6,11 @@ Este borrador describe el prototipo de LinguaPlay LSM en `Manuel`, incluido el d
 | --- | --- |
 | Bienvenida | Selecciona **Comenzar** para entrar a Inicio. |
 | Inicio | Usa **Explorar abecedario** para entrar al índice o **Abrir traductor** para ir a la consulta. |
-| Aprender | Selecciona **Explorar números** para consultar las fichas del 1 al 10 o **Explorar abecedario** para consultar las letras. Selecciona **Explorar saludos** para observar y practicar siete saludos y despedidas. |
+| Aprender | Selecciona **Explorar números** para consultar las fichas del 1 al 10 o **Explorar abecedario** para consultar las letras. Selecciona **Explorar saludos** o **Explorar expresiones** para ver las fichas y practicar las señas. |
 | Abecedario | Elige cualquiera de las 27 letras. La etiqueta **Foto** o **Video** indica el tipo de demostración. Desde el índice también puedes abrir el **Ejercicio de A, B y C**. |
 | Lección | Usa **Anterior** y **Siguiente** para cambiar de ficha. El enlace situado arriba del título vuelve al índice de su unidad. |
 | Ejercicio | Selecciona una letra por cada configuración de la mano y pulsa **Comprobar respuestas**. Puedes corregir tus opciones o usar **Repasar desde A**. |
-| Práctica | Consulta la referencia junto a tu cámara. En Abecedario y Números, registra un acierto cuando la seña coincida. En Saludos básicos, usa la cámara como espejo para comparar tu ejecución. Selecciona **Volver a la lección** para regresar a la ficha. |
+| Práctica | Consulta la referencia junto a tu cámara. En Abecedario y Números, registra un acierto cuando la seña coincida. En Saludos básicos y Expresiones cotidianas, usa la cámara como espejo para comparar tu ejecución. Selecciona **Volver a la lección** para regresar a la ficha. |
 | Traductor | Escribe o dicta una frase en español. Revisa el texto y pulsa **Traducir** para ver el estado de la consulta de demostración. |
 | Progreso | Consulta el avance del abecedario y de Números. Selecciona una ficha para volver a practicar. Las estadísticas generales son de ejemplo. |
 
@@ -38,14 +38,14 @@ Se comprobó además que se abren las 27 fichas desde el índice, cargan las 21 
 
 El verde **Aprendido** se obtiene al registrar un acierto por número en tres fechas locales distintas. Puedes saltarte días. La práctica se guarda en ese navegador y dirección. Puedes consultar las fotos al abrir `index.html` directamente. Usa HTTPS o `localhost` para activar el reconocimiento y guardar el progreso.
 
-## Practicar Saludos básicos con la cámara
+## Practicar Saludos y Expresiones con la cámara
 
 Para usar la cámara, abre el prototipo desde HTTPS o `localhost`.
 
-1. En **Aprender**, selecciona **Explorar saludos** y elige una ficha. Están disponibles **Hola**, **¿Cómo estás?**, **Buenos días**, **Buenas tardes**, **Buenas noches**, **Adiós** y **Hasta luego**.
-2. Lee las indicaciones y observa las fotos en orden. En **Hasta luego**, abre el video de referencia en su sitio de origen. Para ese video necesitas conexión.
+1. En **Aprender**, selecciona **Explorar saludos** para practicar **Hola**, **Buenos días**, **Buenas tardes**, **Buenas noches**, **¿Cómo estás?** y **Adiós**. En **Explorar expresiones** encontrarás **Gracias**, **Por favor**, **Perdón**, **De nada** y **Con permiso**.
+2. Lee las indicaciones y observa las fotos de referencia en orden. Cada ficha incluye su material dentro de la aplicación.
 3. Selecciona **Ir a práctica con cámara**, pulsa **Activar cámara** y acepta el permiso. Repite la seña a tu ritmo y compara tu imagen en espejo con la referencia. Ajusta la posición y el movimiento antes de volver a intentarlo.
-4. Selecciona **Practicar siguiente seña** para continuar. En la última ficha, **Volver a Saludos básicos** abre el índice. Puedes usar **Detener cámara** en cualquier momento. La cámara se apaga al salir de la práctica.
+4. Selecciona **Practicar siguiente seña** para continuar. En la última ficha puedes volver al índice de la unidad. Usa **Detener cámara** en cualquier momento. La cámara se apaga al salir de la práctica.
 
 ## Probar la cámara
 
