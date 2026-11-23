@@ -162,7 +162,6 @@ function guidedDemo(reference) {
 }
 
 const brand = 'Conecta <small>LSM</small>';
-const media = (label, note) => `<div class="media"><span aria-hidden="true">▣</span><strong>${label}</strong><span>${note}</span></div>`;
 const link = (href, label, secondary = false) =>
   `<a class="button ${secondary ? 'secondary' : ''}" href="#${href}">${label}</a>`;
 const meter = (label, value) =>
@@ -186,7 +185,7 @@ function dashboard() {
     <div class="grid"><article class="feature"><p class="eyebrow">Alfabeto manual</p><h2>Abecedario</h2>
       <p>${alphabetMasterySummary(letterProgress?.snapshot())}.</p>${link('abecedario', 'Explorar abecedario')}</article>
       <article><h2>Esta semana</h2>${stats()}${meter('Meta semanal', 60)}</article>
-    </div><article class="quick"><div><h2>Traductor LSM</h2><p>Explora la vista de consulta de expresiones en español.</p></div>
+    </div><article class="quick"><div><h2>Traductor LSM</h2><p>Consulta expresiones en español y lee sus glosas de LSM.</p></div>
       ${link('traductor', 'Abrir traductor', true)}</article>`;
 }
 
@@ -480,16 +479,40 @@ function translator() {
     : (location.protocol === 'file:' || !window.isSecureContext
       ? 'Abre Conecta LSM en HTTPS o localhost para usar el dictado. También puedes escribir la frase.'
       : 'Dictado no disponible en este navegador. Puedes escribir la frase.');
-  return `${heading('Consulta educativa', 'Traductor LSM', 'Explora cómo se consultarán expresiones validadas en Lengua de Señas Mexicana.')}
+  return `${heading('Consulta educativa', 'Traductor LSM', 'Escribe una expresión en español para consultar su glosa de Lengua de Señas Mexicana.')}
   <div class="grid translation"><article><form id="translate">
   <h2><label for="phrase">Escribe en español</label></h2><textarea required maxlength="300" id="phrase" placeholder="Por ejemplo: Buenos días"></textarea>
   <div class="actions"><button type="button" class="secondary" id="dictation-toggle" aria-describedby="dictation-note" ${voiceAvailable ? '' : 'disabled'}>
     <span aria-hidden="true">🎙</span><span id="dictation-label">Dictar en español</span></button>
-    <button>Traducir</button></div>
-    <p id="dictation-status" role="status"></p><p id="dictation-note">${voiceNote}</p></form></article>
-  <article><h2>Resultado en LSM</h2>${media('Vista de demostración', 'Material validado pendiente')}
-  <div class="actions"><button class="secondary" disabled>Reproducir</button><button class="secondary" disabled>Pausar</button><button class="secondary" disabled>Repetir</button></div>
-  <p class="feedback" role="status">Aquí aparecerá una explicación de la expresión cuando haya material disponible.</p></article></div>`;
+    <button type="submit">Traducir</button></div>
+    <p id="dictation-status" role="status"></p><p id="dictation-note">${voiceNote}</p>
+    <details class="translation-examples"><summary>Expresiones disponibles</summary>
+      <div class="actions">${glossCatalog.map(({ spanish }) =>
+        `<button type="button" class="secondary" data-gloss-example="${spanish}">${spanish}</button>`).join('')}</div>
+    </details></form></article>
+  <article><h2>Glosa de LSM</h2>
+    <div role="status" aria-atomic="true">
+      <p class="feedback" id="translation-status">Escribe una expresión o elige un ejemplo del catálogo.</p>
+      <p class="translation-gloss" id="translation-gloss" hidden></p>
+    </div>
+    <p class="translation-help">Las mayúsculas identifican las señas. Un guion une las palabras que nombran una sola seña. El signo + une los componentes de una seña compuesta.</p>
+    <div id="translation-reference" hidden><div class="actions"><a class="button secondary" href="#aprender">Ver ficha de práctica</a></div></div>
+  </article></div>`;
+}
+
+function showGloss(phrase) {
+  const query = normalizeGlossQuery(phrase);
+  const entry = glossBySpanish.get(query);
+  const status = app.querySelector('#translation-status');
+  const gloss = app.querySelector('#translation-gloss');
+  const reference = app.querySelector('#translation-reference');
+  status.textContent = entry ? `Para «${entry.spanish}»`
+    : query ? `«${phrase}» todavía no está en el catálogo. Puedes elegir una expresión de ejemplo.`
+      : 'Escribe una palabra o frase para consultar.';
+  gloss.textContent = entry?.gloss ?? '';
+  gloss.hidden = !entry;
+  reference.hidden = !entry;
+  if (entry) reference.querySelector('a').href = `#${entry.lesson}`;
 }
 
 function profile() {
@@ -538,6 +561,12 @@ function render() {
 }
 
 app.addEventListener('click', event => {
+  const example = event.target.closest('[data-gloss-example]');
+  if (example) {
+    example.form.querySelector('#phrase').value = example.dataset.glossExample;
+    example.form.requestSubmit();
+    return;
+  }
   const dictationButton = event.target.closest('#dictation-toggle');
   if (dictationButton) {
     dictation.toggle(dictationButton.form);
@@ -568,11 +597,10 @@ app.addEventListener('submit', event => {
     event.target.querySelector('#alphabet-completion').hidden = !passed;
     return;
   }
-  dictation.cancel('Dictado cancelado al consultar el texto actual.');
-  const phrase = event.target.querySelector('textarea').value.trim();
-  app.querySelector('.feedback').textContent = phrase
-    ? `La consulta «${phrase}» se registró en la vista de demostración. El material en LSM está pendiente.`
-    : 'Escribe una palabra o frase para consultar.';
+  if (event.target.id === 'translate') {
+    dictation.cancel('Dictado cancelado al consultar el texto actual.');
+    showGloss(event.target.querySelector('#phrase').value.trim());
+  }
 });
 
 function focusContent() {
