@@ -5,6 +5,7 @@
 - Se habilitaron el registro, el inicio y el cierre de sesión en el navegador. Sigue disponible el modo invitado.
 - El inicio muestra el nombre de la cuenta y **Progreso** muestra el historial de letras y números del perfil activo. Los datos de ejemplo se retiraron y se conservó el historial de invitado.
 - En Edge se verificaron el registro en ancho móvil, la sesión tras recargar, el cierre y el reingreso, la contraseña incorrecta y la separación del progreso.
+- Se recompiló el ejecutable del foro con el inicio de sesión y se actualizó el video con navegación real. El MP4 conserva los subtítulos y queda en silencio para que la persona que presenta grabe su propia voz.
 
 ## Material de demostración para el foro
 
