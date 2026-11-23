@@ -185,7 +185,7 @@ function dashboard() {
     <div class="grid"><article class="feature"><p class="eyebrow">Alfabeto manual</p><h2>Abecedario</h2>
       <p>${alphabetMasterySummary(letterProgress?.snapshot())}.</p>${link('abecedario', 'Explorar abecedario')}</article>
       <article><h2>Esta semana</h2>${stats()}${meter('Meta semanal', 60)}</article>
-    </div><article class="quick"><div><h2>Traductor LSM</h2><p>Consulta expresiones en español y lee sus glosas de LSM.</p></div>
+    </div><article class="quick"><div><h2>Traductor LSM</h2><p>Consulta expresiones de LSM escritas en SignWriting.</p></div>
       ${link('traductor', 'Abrir traductor', true)}</article>`;
 }
 
@@ -479,7 +479,7 @@ function translator() {
     : (location.protocol === 'file:' || !window.isSecureContext
       ? 'Abre Conecta LSM en HTTPS o localhost para usar el dictado. También puedes escribir la frase.'
       : 'Dictado no disponible en este navegador. Puedes escribir la frase.');
-  return `${heading('Consulta educativa', 'Traductor LSM', 'Escribe una expresión en español para consultar su glosa de Lengua de Señas Mexicana.')}
+  return `${heading('Consulta educativa', 'Traductor LSM', 'Consulta cómo se escribe en SignWriting una expresión de Lengua de Señas Mexicana.')}
   <div class="grid translation"><article><form id="translate">
   <h2><label for="phrase">Escribe en español</label></h2><textarea required maxlength="300" id="phrase" placeholder="Por ejemplo: Buenos días"></textarea>
   <div class="actions"><button type="button" class="secondary" id="dictation-toggle" aria-describedby="dictation-note" ${voiceAvailable ? '' : 'disabled'}>
@@ -487,32 +487,42 @@ function translator() {
     <button type="submit">Traducir</button></div>
     <p id="dictation-status" role="status"></p><p id="dictation-note">${voiceNote}</p>
     <details class="translation-examples"><summary>Expresiones disponibles</summary>
-      <div class="actions">${glossCatalog.map(({ spanish }) =>
-        `<button type="button" class="secondary" data-gloss-example="${spanish}">${spanish}</button>`).join('')}</div>
+      <div class="actions">${signWritingCatalog.map(({ spanish }) =>
+        `<button type="button" class="secondary" data-signwriting-example="${spanish}">${spanish}</button>`).join('')}</div>
     </details></form></article>
-  <article><h2>Glosa de LSM</h2>
-    <div role="status" aria-atomic="true">
-      <p class="feedback" id="translation-status">Escribe una expresión o elige un ejemplo del catálogo.</p>
-      <p class="translation-gloss" id="translation-gloss" hidden></p>
+  <article><h2>SignWriting</h2>
+    <p class="feedback" id="translation-status" role="status">Escribe una expresión o elige un ejemplo del catálogo.</p>
+    <div id="translation-writing" hidden>
+      <figure class="translation-writing">
+        <img id="translation-writing-image" width="280" height="280" alt="">
+        <figcaption class="media-credit" id="translation-credit"></figcaption>
+      </figure>
+      <div class="actions"><a id="translation-reference" class="button secondary" href="#aprender">Ver práctica relacionada</a></div>
     </div>
-    <p class="translation-help">Las mayúsculas identifican las señas. Un guion une las palabras que nombran una sola seña. El signo + une los componentes de una seña compuesta.</p>
-    <div id="translation-reference" hidden><div class="actions"><a class="button secondary" href="#aprender">Ver ficha de práctica</a></div></div>
   </article></div>`;
 }
 
-function showGloss(phrase) {
-  const query = normalizeGlossQuery(phrase);
-  const entry = glossBySpanish.get(query);
+function showSignWriting(phrase) {
+  const query = normalizeSignWritingQuery(phrase);
+  const entry = signWritingBySpanish.get(query);
   const status = app.querySelector('#translation-status');
-  const gloss = app.querySelector('#translation-gloss');
-  const reference = app.querySelector('#translation-reference');
+  const writing = app.querySelector('#translation-writing');
+  const image = writing.querySelector('#translation-writing-image');
+  const credit = writing.querySelector('#translation-credit');
   status.textContent = entry ? `Para «${entry.spanish}»`
     : query ? `«${phrase}» todavía no está en el catálogo. Puedes elegir una expresión de ejemplo.`
       : 'Escribe una palabra o frase para consultar.';
-  gloss.textContent = entry?.gloss ?? '';
-  gloss.hidden = !entry;
-  reference.hidden = !entry;
-  if (entry) reference.querySelector('a').href = `#${entry.lesson}`;
+  writing.hidden = !entry;
+  if (!entry) {
+    image.removeAttribute('src');
+    image.alt = '';
+    credit.textContent = '';
+    return;
+  }
+  image.src = `assets/signwriting/${entry.image}`;
+  image.alt = `«${entry.spanish}» en SignWriting de Lengua de Señas Mexicana`;
+  credit.textContent = `Diccionario de LSM de SignPuddle Online, p. ${entry.page} · Sutton SignWriting · CC BY-SA 3.0.`;
+  writing.querySelector('#translation-reference').href = `#${entry.lesson}`;
 }
 
 function profile() {
@@ -561,9 +571,9 @@ function render() {
 }
 
 app.addEventListener('click', event => {
-  const example = event.target.closest('[data-gloss-example]');
+  const example = event.target.closest('[data-signwriting-example]');
   if (example) {
-    example.form.querySelector('#phrase').value = example.dataset.glossExample;
+    example.form.querySelector('#phrase').value = example.dataset.signwritingExample;
     example.form.requestSubmit();
     return;
   }
@@ -599,7 +609,7 @@ app.addEventListener('submit', event => {
   }
   if (event.target.id === 'translate') {
     dictation.cancel('Dictado cancelado al consultar el texto actual.');
-    showGloss(event.target.querySelector('#phrase').value.trim());
+    showSignWriting(event.target.querySelector('#phrase').value.trim());
   }
 });
 

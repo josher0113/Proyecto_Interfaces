@@ -76,10 +76,12 @@ progress::-moz-progress-bar { background: var(--wine); }
 .phrase-context { color: var(--ink); font-weight: 650; }
 .phrase-reference-heading { margin-top: 1.25rem; }
 .phrase-sign { margin-top: 1rem; }
-.translation-examples, .translation-gloss, .translation-help { margin-top: 1rem; }
+.translation-examples { margin-top: 1rem; }
 .translation-examples summary { cursor: pointer; }
 #translation-status { overflow-wrap: anywhere; }
-.translation-gloss { padding: .85rem 1rem; border-radius: 8px; background: var(--rose); color: var(--deep); font-size: 1.35rem; font-weight: 750; }
+.translation-writing { margin: 1rem 0 0; }
+.translation-writing img { display: block; width: min(100%, 17.5rem); height: auto; border: 1px solid var(--line); border-radius: 8px; background: white; }
+.translation-writing figcaption { margin-top: .65rem; }
 .alphabet-video { display: block; width: 100%; max-width: 28rem; max-height: 27rem; background: var(--ink); border-radius: 9px; }
 .camera-preview { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 3; margin-top: 1rem; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--rose); }
 .camera-preview p { margin: 0; padding: .75rem; text-align: center; }
