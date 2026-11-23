@@ -2,26 +2,27 @@ const alphabetLetters = [...'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'];
 const motionLetters = new Set(['J', 'Ñ', 'P', 'Q', 'X', 'Z']);
 const numberSigns = Array.from({ length: 10 }, (_, index) => String(index + 1));
 const numberDemos = typeof numberReferences === 'undefined' ? {} : numberReferences;
-const greetingDemos = typeof greetingReferences === 'undefined' ? {} : greetingReferences;
-const greetings = Object.keys(greetingDemos);
+const guidedUnits = {
+  2: { route: 'saludos',
+    references: typeof greetingReferences !== 'undefined' && Array.isArray(greetingReferences) ? greetingReferences : [] },
+  3: { route: 'expresiones', references: typeof expressionReferences === 'undefined' ? [] : expressionReferences },
+};
 const units = [
   ['Abecedario', 'Explora el alfabeto manual y su uso para deletrear.', 0, alphabetLetters.map(letter => `Letra ${letter}`)],
   ['Números', 'Practica las señas del 1 al 10.', 0, numberSigns.map(number => `Número ${number}`)],
-  ['Saludos básicos', 'Aprende a saludar y despedirte en LSM.', 0, greetings],
-  ['Expresiones cotidianas', 'Amplía tu repertorio de expresiones de uso diario.', 0, ['Gracias', 'Por favor', 'Disculpa']],
+  ['Saludos básicos', 'Aprende a saludar y despedirte en LSM.', 0, guidedUnits[2].references.map(reference => reference?.title)],
+  ['Expresiones cotidianas', 'Practica cómo agradecer, pedir algo y disculparte en LSM.', 0, guidedUnits[3].references.map(reference => reference?.title)],
   ['Frases y comunicación básica', 'Explora situaciones sencillas de conversación.', 0, ['Presentarse', 'Pedir ayuda', 'Invitar a participar']],
 ];
 
 const app = document.querySelector('#app');
 const dictation = createDictation();
-const alphabetSource = 'https://biblio.uabcs.mx/recursosedu/lsm/';
 const exerciseDescriptions = {
   A: 'Cuatro dedos flexionados hacia la palma y el pulgar al costado.',
   B: 'Cuatro dedos extendidos y juntos, con el pulgar flexionado.',
   C: 'Dedos curvados, con el pulgar separado y una abertura entre las puntas.',
 };
 const exerciseCards = ['B', 'C', 'A'];
-const numberSource = 'https://riudg.udg.mx/handle/20.500.12104/111344';
 const gesturePrompt = 'Mantén una sola mano dentro del encuadre.';
 let alphabetCompleted = false;
 let cameraSession = null;
@@ -72,8 +73,9 @@ function numberGrid(progress, destination) {
 const alphabetPhoto = (letter, description) =>
   `<img class="alphabet-photo" src="assets/abecedario/${letter}.jpg" alt="${description}" width="480" height="640">`;
 const alphabetCredit = () => `<p class="media-credit">Material de Yahilyn Rodriguez, Michelle Bocanegra y Kenya Sanchez.
-  <a href="${alphabetSource}">Biblioteca Universitaria UABCS</a> ·
-  <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. Imágenes redimensionadas.</p>`;
+  Biblioteca Universitaria UABCS · CC BY-SA 4.0. Imágenes redimensionadas.</p>`;
+const glossaryCredit = page => `<p class="media-credit">Recortes de las fotografías de Servando Alvarado Cisneros,
+  <i>Glosario universitario de Lengua de Señas Mexicana</i>, Universidad de Guadalajara, p. ${page} · CC BY-NC-SA 4.0.</p>`;
 
 function alphabetDemo(letter) {
   const description = exerciseDescriptions[letter];
@@ -119,10 +121,7 @@ function numberDemo(number) {
   return `<figure class="alphabet-demo"><div class="number-poses">${images.map((src, index) => {
     const alt = images.length > 1 ? `Posición ${index + 1} de ${images.length} de la seña para ${number}` : '';
     return `<img class="alphabet-photo" src="${src}" alt="${alt}">`;
-  }).join('')}</div><figcaption>${description}${motion ? `<p>${motion}</p>` : ''}</figcaption></figure>
-  <p class="media-credit">Fotografías de Servando Alvarado Cisneros, recortadas del
-    <a href="${numberSource}">Glosario universitario de Lengua de Señas Mexicana</a> (Universidad de Guadalajara, p. ${page}).
-    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</p>`;
+  }).join('')}</div><figcaption>${description}${motion ? `<p>${motion}</p>` : ''}</figcaption></figure>${glossaryCredit(page)}`;
 }
 
 function numberIndex() {
@@ -131,26 +130,25 @@ function numberIndex() {
     <article>${numberGrid(numberProgress?.snapshot(), 'leccion')}</article>`;
 }
 
-function greetingsIndex() {
-  const links = greetings.map((greeting, step) => `<li>${link(`leccion/2/${step}`, greeting, true)}</li>`).join('');
+function guidedIndex(index) {
+  const [title, , , topics] = units[index];
+  const links = visibleSteps(topics).map(step => `<li>${link(`leccion/${index}/${step}`, topics[step], true)}</li>`).join('');
   return `<a class="back" href="#aprender">← Ruta de aprendizaje</a>
-    ${heading('Aprender', 'Saludos básicos', 'Elige una seña para consultar la referencia y practicarla frente a la cámara.')}
-    <article>${links ? `<ul class="actions greeting-links">${links}</ul>`
-      : '<p>No se pudieron cargar los saludos. Recarga la página para volver a intentar.</p>'}</article>`;
+    ${heading('Aprender', title, 'Elige una seña para consultar la referencia y practicarla frente a la cámara.')}
+    <article>${links ? `<ul class="actions reference-links">${links}</ul>`
+      : '<p>No se pudieron cargar las fichas. Recarga la página para volver a intentar.</p>'}</article>`;
 }
 
-function greetingDemo(greeting) {
-  const reference = greetingDemos[greeting];
-  if (!reference) return '<p>No se pudo cargar la referencia de este saludo. Vuelve a cargar la página.</p>';
-  const { description, cue, images, videoUrl, source, credit, license } = reference;
-  const imagesMarkup = images.length ? `<div class="greeting-poses">${images.map((src, index) =>
-    `<img class="alphabet-photo" src="${src}" alt="Posición ${index + 1} de ${images.length} para ${greeting}"
-      width="400" height="352">`).join('')}</div>` : '';
-  const videoLink = videoUrl
-    ? `<a class="button secondary" href="${videoUrl}" target="_blank" rel="noopener">Ver video en YouTube (otra pestaña)</a>` : '';
-  return `<figure class="alphabet-demo">${imagesMarkup}${videoLink}<figcaption>${description}</figcaption></figure>
-    <p>${cue}</p><p class="media-credit">${credit} <a href="${source.url}">${source.name}</a>
-    ${license ? `· <a href="${license.url}">${license.name}</a>` : ''}</p>`;
+function visibleSteps(topics) {
+  return topics.flatMap((title, step) => title ? [step] : []);
+}
+
+function guidedDemo({ title, description, cue, images, page }) {
+  const photos = images.map((src, index) =>
+    `<img class="alphabet-photo" src="${src}" alt="Posición ${index + 1} de ${images.length} para ${title}"
+      width="400" height="352">`).join('');
+  return `<figure class="alphabet-demo"><div class="reference-poses">${photos}</div>
+    <figcaption>${description}</figcaption></figure><p>${cue}</p>${glossaryCredit(page)}`;
 }
 
 const brand = 'LinguaPlay <small>LSM</small>';
@@ -187,11 +185,13 @@ function learning() {
     alphabetMasterySummary(letterProgress?.snapshot()),
     numberMasterySummary(numberProgress?.snapshot()),
     'Práctica guiada con cámara',
+    'Práctica guiada con cámara',
   ];
   const unitLinks = [
     link('abecedario', 'Explorar abecedario'),
     link('numeros', 'Explorar números'),
     link('saludos', 'Explorar saludos'),
+    link('expresiones', 'Explorar expresiones'),
   ];
   return `${heading('Aprender', 'Ruta de aprendizaje', 'Avanza desde el alfabeto manual hasta situaciones cotidianas.')}
     <div class="units">${units.map(([title, description, progress], index) => `<article class="unit">
@@ -199,7 +199,7 @@ function learning() {
       <div><p class="eyebrow">${progressSummaries[index] ?? 'Vista previa disponible'}</p>
       <h2>${title}</h2><p>${description}</p>${index === 0
         ? (alphabetCompleted ? '<p>Ejercicio de A, B y C completado.</p>' : '')
-        : (index > 2 ? meter('Progreso de la unidad', progress) : '')}</div>
+        : (index > 3 ? meter('Progreso de la unidad', progress) : '')}</div>
       ${unitLinks[index] ?? link(`leccion/${index}/0`, 'Ver unidad', true)}
     </article>`).join('')}</div>`;
 }
@@ -208,10 +208,13 @@ function lesson(unit, index, step) {
   const [title, description, , topics] = unit;
   const letter = index === 0 ? alphabetLetters[step] : null;
   const number = index === 1 ? numberSigns[step] : null;
-  const greeting = index === 2 ? greetings[step] : null;
-  const indexPage = [
-    ['abecedario', 'Abecedario'], ['numeros', 'Números'], ['saludos', 'Saludos básicos'],
-  ][index] ?? ['aprender', 'Ruta de aprendizaje'];
+  const guide = guidedUnits[index];
+  const positionSteps = visibleSteps(topics);
+  const position = positionSteps.indexOf(step);
+  const previous = positionSteps[position - 1];
+  const next = positionSteps[position + 1];
+  const indexPage = guide ? [guide.route, title]
+    : [['abecedario', 'Abecedario'], ['numeros', 'Números']][index] ?? ['aprender', 'Ruta de aprendizaje'];
   let demonstration = `${media('Demostración', 'Material en LSM pendiente de incorporar')}<p>Este espacio mostrará una demostración y su explicación.</p>`;
   if (letter) {
     demonstration = alphabetDemo(letter);
@@ -219,25 +222,28 @@ function lesson(unit, index, step) {
   if (number) {
     demonstration = numberDemo(number);
   }
-  if (greeting) {
-    demonstration = greetingDemo(greeting);
+  if (guide) {
+    demonstration = guidedDemo(guide.references[step]);
   }
   return `<a class="back" href="#${indexPage[0]}">← ${indexPage[1]}</a>
-    ${heading(title, topics[step], number ? 'Observa la referencia y practica la seña con la cámara.' : description)}
-    <article>${meter(`Paso ${step + 1} de ${topics.length}`, Math.round((step + 1) / topics.length * 100))}
+    ${heading(title, topics[step], number || guide ? 'Observa la referencia y practica la seña con la cámara.' : description)}
+    <article>${meter(`Paso ${position + 1} de ${positionSteps.length}`, Math.round((position + 1) / positionSteps.length * 100))}
       ${demonstration}
       <div class="actions">${letter === 'C' ? link('ejercicio', 'Ejercicio de A, B y C') : ''}
         ${link(`practica/${index}/${step}`, 'Ir a práctica con cámara', true)}</div>
     </article><div class="between actions">
-      ${step > 0 ? link(`leccion/${index}/${step - 1}`, 'Anterior', true) : '<button class="secondary" disabled>Anterior</button>'}
-      ${step + 1 < topics.length ? link(`leccion/${index}/${step + 1}`, 'Siguiente')
-        : link(indexPage[0], ['Volver al abecedario', 'Volver a Números', 'Volver a Saludos básicos'][index] ?? 'Volver a la ruta')}
+      ${previous !== undefined ? link(`leccion/${index}/${previous}`, 'Anterior', true) : '<button class="secondary" disabled>Anterior</button>'}
+      ${next !== undefined ? link(`leccion/${index}/${next}`, 'Siguiente')
+        : link(indexPage[0], guide ? `Volver a ${title}`
+          : ['Volver al abecedario', 'Volver a Números'][index] ?? 'Volver a la ruta')}
     </div>`;
 }
 
 function practice(unit, index, step) {
   const isNumber = index === 1;
-  const greeting = index === 2 ? greetings[step] : null;
+  const [title, , , topics] = unit;
+  const guide = guidedUnits[index];
+  const next = guide ? visibleSteps(topics).find(candidate => candidate > step) : undefined;
   const sign = isNumber ? numberSigns[step] : index === 0 ? alphabetLetters[step] : null;
   const reference = isNumber ? numberDemos[sign] : null;
   const canRecognize = Boolean(sign && (!isNumber || reference));
@@ -247,9 +253,9 @@ function practice(unit, index, step) {
   const entry = progress?.letters[sign];
   const label = isNumber ? `del número ${sign}` : `de la letra ${sign}`;
   const framing = handCount === 2 ? 'Coloca las dos manos dentro del encuadre' : 'Coloca la mano dentro del encuadre';
-  const demonstration = greeting ? greetingDemo(greeting)
+  const demonstration = guide ? guidedDemo(guide.references[step])
     : isNumber ? numberDemo(sign) : sign ? alphabetDemo(sign) : media('Ejemplo', 'Demostración pendiente');
-  const description = greeting
+  const description = guide
     ? 'Repite la seña y usa la vista en espejo para comparar la posición de tus manos y el movimiento con la referencia.'
     : `${framing} y busca buena iluminación.`;
   return `<a class="back" href="#leccion/${index}/${step}">← Volver a la lección</a>
@@ -275,9 +281,9 @@ function practice(unit, index, step) {
       <p id="practice-record-status" role="status"></p>
       <p id="practice-storage-status">${practiceStorageMessage(progress)}</p>
     </article>` : ''}
-    ${greeting ? `<div class="actions">${step + 1 < greetings.length
-      ? link(`practica/2/${step + 1}`, 'Practicar siguiente seña')
-      : link('saludos', 'Volver a Saludos básicos')}</div>` : ''}`;
+    ${guide ? `<div class="actions">${next !== undefined
+      ? link(`practica/${index}/${next}`, 'Practicar siguiente seña')
+      : link(guide.route, `Volver a ${title}`)}</div>` : ''}`;
 }
 
 function practiceRecordLabel(entry, isNumber) {
@@ -489,7 +495,7 @@ function profile() {
     <article class="practice-progress"><h2>Dominio de números</h2>
       <p>${numberMasterySummary(numbers)}. Selecciona un número para practicar.</p>
       ${numberGrid(numbers, 'practica')}<p>${practiceStorageMessage(numbers)}</p></article>
-    <div class="grid practice-progress"><article><h2>Otras unidades</h2>${units.slice(3).map(([title, , percent]) => meter(title, percent)).join('')}</article>
+    <div class="grid practice-progress"><article><h2>Otras unidades</h2>${units.slice(4).map(([title, , percent]) => meter(title, percent)).join('')}</article>
     <article><h2>Calendario de práctica</h2><p>Semana de ejemplo</p><ol class="calendar">${['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, index) =>
       `<li><span>${day}</span><span class="${index < 4 ? 'checked' : ''}" aria-label="${index < 4 ? 'Práctica completada' : 'Sin práctica'}">${index < 4 ? '✓' : '·'}</span></li>`).join('')}</ol>
       <h2>Logros</h2><p>Primer paso · Primera lección completada</p><h2>Actividad reciente</h2><p>Abecedario · Practicaste la letra A</p></article></div>`;
@@ -497,8 +503,9 @@ function profile() {
 
 const pages = {
   inicio: dashboard, aprender: learning, abecedario: alphabetIndex, ejercicio: alphabetExercise,
-  numeros: numberIndex, 'ejercicio-numeros': numberIndex, saludos: greetingsIndex,
-  'ejercicio-saludos': greetingsIndex, traductor: translator, progreso: profile,
+  numeros: numberIndex, 'ejercicio-numeros': numberIndex,
+  saludos: () => guidedIndex(2), 'ejercicio-saludos': () => guidedIndex(2), expresiones: () => guidedIndex(3),
+  traductor: translator, progreso: profile,
 };
 const nav = [['inicio', '⌂', 'Inicio'], ['aprender', '▤', 'Aprender'], ['traductor', '⇄', 'Traductor'], ['progreso', '◉', 'Progreso']];
 
@@ -508,11 +515,11 @@ function render() {
   const step = Number(stepParam);
   const unit = units[index];
   const isLesson = page === 'leccion' || page === 'practica';
-  const isLearningDetail = isLesson || ['abecedario', 'ejercicio', 'numeros', 'ejercicio-numeros', 'saludos', 'ejercicio-saludos'].includes(page);
+  const isLearningDetail = isLesson || ['abecedario', 'ejercicio', 'numeros', 'ejercicio-numeros', 'saludos', 'ejercicio-saludos', 'expresiones'].includes(page);
   const active = isLearningDetail ? 'aprender' : page;
   const content = isLesson
     ? (unit?.[3][step] ? (page === 'leccion' ? lesson : practice)(unit, index, step)
-      : index === 1 ? numberIndex() : index === 2 ? greetingsIndex() : learning())
+      : index === 1 ? numberIndex() : guidedUnits[index] ? guidedIndex(index) : learning())
     : (Object.hasOwn(pages, page) ? pages[page]() : null);
   app.innerHTML = content ? `<aside><a class="brand" href="#bienvenida">${brand}</a>
     <nav aria-label="Navegación principal">${nav.map(([href, icon, label]) => `<a href="#${href}" ${href === active ? `aria-current="${isLearningDetail ? 'true' : 'page'}"` : ''}>

@@ -1,8 +1,12 @@
 const assert = require('node:assert/strict');
 const { runBrowserTest } = require('./browser-harness.cjs');
 
-const originalGreetings = ['Hola', 'Buenos días', 'Hasta luego'];
-const externalDemo = 'https://www.youtube.com/watch?v=U40386y9DLQ';
+const guideUnits = [
+  { unit: 2, route: '#saludos', title: 'Saludos básicos', manifest: 'greetingReferences',
+    titles: ['Hola', 'Buenos días', 'Buenas tardes', 'Buenas noches', '¿Cómo estás?', 'Adiós'] },
+  { unit: 3, route: '#expresiones', title: 'Expresiones cotidianas', manifest: 'expressionReferences',
+    titles: ['Gracias', 'Por favor', 'Perdón', 'De nada', 'Con permiso'] },
+];
 const video = 'document.querySelector("#camera-video")';
 const toggle = 'document.querySelector("#camera-toggle")';
 
@@ -35,56 +39,78 @@ async function greetingsScenario({ send, run, check, navigate, errors, requests 
     assert.equal(await run('Boolean(document.querySelector("main form, main input[type=radio]"))'), false);
     assert.equal(await run('Boolean(document.querySelector(\'main a[href^="#ejercicio"]\'))'), false);
   };
+  const noExternal = async () => {
+    const outside = await run(`[...document.querySelectorAll('a[href], img[src], video[src], iframe[src], source[src]')]
+      .map(node => node.href || node.src)
+      .filter(url => url && new URL(url).origin !== location.origin)`);
+    assert.deepEqual(outside, []);
+  };
   const noOverflow = async () => {
     const { scrollWidth, clientWidth } = await run(
       '({ scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth })',
     );
     assert.ok(scrollWidth <= clientWidth, `Desbordamiento horizontal: ${scrollWidth}px en ${clientWidth}px`);
   };
-  const checkReference = async (greeting, reference) => {
-    const photos = 'Array.from(document.querySelectorAll(".greeting-poses img"))';
-    assert.ok(reference.images.length || reference.videoUrl, greeting + ' debe tener una referencia visual.');
+  const checkReference = async reference => {
+    const photos = 'Array.from(document.querySelectorAll(".reference-poses img"))';
+    assert.ok(reference.images.length, reference.title + ' debe tener fotografías locales.');
     assert.deepEqual(await run(photos + '.map(image => image.getAttribute("src"))'), reference.images);
     await check(photos + '.every(image => image.complete && image.naturalWidth > 0)');
-    if (reference.videoUrl) assert.ok(await run('Boolean(' + link(reference.videoUrl) + ')'));
   };
 
   await send('Emulation.setDeviceMetricsOverride', { width: 320, height: 740, deviceScaleFactor: 1, mobile: false });
   await navigate('#aprender');
   await title('Ruta de aprendizaje');
   await run(cameraFixture);
-  await clickLink('#saludos');
-  await title('Saludos básicos');
-  await noQuestions();
-  await noOverflow();
-
-  const manifest = await run('Object.entries(greetingReferences)');
-  assert.ok(manifest.length >= 7, 'La unidad debe ampliar los tres saludos originales.');
-  assert.deepEqual(manifest.slice(0, 3).map(([greeting]) => greeting), originalGreetings);
-  assert.equal(manifest[2][1].videoUrl, externalDemo);
-  const lessonLinks = await run('Array.from(document.querySelectorAll(\'main a[href^="#leccion/2/"]\'), a => a.getAttribute("href"))');
-  assert.deepEqual(lessonLinks.sort(), manifest.map((_, step) => '#leccion/2/' + step).sort());
-
-  for (const [step, [greeting, reference]] of manifest.entries()) {
-    const lesson = '#leccion/2/' + step;
-    await clickLink(lesson);
-    await title(greeting);
-    await checkReference(greeting, reference);
+  for (const guide of guideUnits) {
+    await goTo('#aprender');
+    await title('Ruta de aprendizaje');
+    await clickLink(guide.route);
+    await title(guide.title);
     await noQuestions();
+    await noExternal();
     await noOverflow();
-    await clickLink('#practica/2/' + step);
-    await check('location.hash === "#practica/2/' + step + '" && Boolean(' + toggle + ')');
-    await title(greeting);
-    await checkReference(greeting, reference);
-    await noQuestions();
-    assert.ok(await run(video + '.hidden'));
-    assert.equal(await run('Boolean(document.querySelector("#gesture-status, #gesture-overlay, #practice-record"))'), false);
-    await noOverflow();
-    await clickLink(lesson);
-    await check('location.hash === "#leccion/2/' + step + '" && !' + toggle);
-    await goTo('#saludos');
-    await title('Saludos básicos');
+
+    const manifest = await run(guide.manifest);
+    const available = [...manifest.entries()].filter(([, reference]) => reference);
+    assert.deepEqual(available.map(([, reference]) => reference.title), guide.titles);
+    assert.deepEqual(await run('Array.from(document.querySelectorAll(".reference-links a"), a => a.getAttribute("href"))'),
+      available.map(([step]) => '#leccion/' + guide.unit + '/' + step));
+
+    for (const [step, reference] of available) {
+      const lesson = '#leccion/' + guide.unit + '/' + step;
+      const practice = '#practica/' + guide.unit + '/' + step;
+      await clickLink(lesson);
+      await title(reference.title);
+      await checkReference(reference);
+      await noQuestions();
+      await noExternal();
+      await noOverflow();
+      await clickLink(practice);
+      await check('location.hash === ' + JSON.stringify(practice) + ' && Boolean(' + toggle + ')');
+      await title(reference.title);
+      await checkReference(reference);
+      await noQuestions();
+      await noExternal();
+      assert.ok(await run(video + '.hidden'));
+      assert.equal(await run('Boolean(document.querySelector("#gesture-status, #gesture-overlay, #practice-record"))'), false);
+      await noOverflow();
+      await clickLink(lesson);
+      await check('location.hash === ' + JSON.stringify(lesson) + ' && !' + toggle);
+      await goTo(guide.route);
+      await title(guide.title);
+    }
   }
+
+  for (const retired of ['#leccion/2/2', '#practica/2/2']) {
+    await goTo(retired);
+    await title('Saludos básicos');
+    await check('!!document.querySelector(".reference-links") && !' + toggle);
+  }
+  await goTo('#leccion/2/1');
+  await title('Buenos días');
+  await clickLink('#leccion/2/3');
+  await title('Buenas tardes');
 
   await goTo('#ejercicio-saludos');
   await check('document.querySelector("h1")?.textContent === "Saludos básicos" && !document.querySelector("#greeting-exercise")');
@@ -97,7 +123,7 @@ async function greetingsScenario({ send, run, check, navigate, errors, requests 
     assert.equal(await run('new DOMMatrixReadOnly(getComputedStyle(' + video + ').transform).a'), -1);
   };
 
-  await goTo('#practica/2/0');
+  await goTo('#practica/3/0');
   await check('Boolean(' + toggle + ')');
   await activateCamera();
   assert.equal(await run('cameraTracks[0].readyState'), 'live');
@@ -107,8 +133,8 @@ async function greetingsScenario({ send, run, check, navigate, errors, requests 
 
   await activateCamera();
   assert.equal(await run('cameraTracks[1].readyState'), 'live');
-  await clickLink('#practica/2/1');
-  await title('Buenos días');
+  await clickLink('#practica/3/1');
+  await title('Por favor');
   await check('cameraTracks[1].readyState === "ended" && ' + video + '.hidden');
   assert.equal(await run('cameraRequests.length'), 2);
 
@@ -118,15 +144,23 @@ async function greetingsScenario({ send, run, check, navigate, errors, requests 
   await clickLink('#leccion/1/0');
   await title('Número 1');
   await noQuestions();
+  await noExternal();
   await clickLink('#practica/1/0');
   await check('location.hash === "#practica/1/0" && Boolean(document.querySelector("#gesture-status"))');
   await noQuestions();
+  await noExternal();
+  await goTo('#leccion/0/0');
+  await title('Letra A');
+  await noExternal();
+  await goTo('#leccion/0/9');
+  await title('Letra J');
+  await noExternal();
   assert.equal(requests.some(path => /hand-worker|mediapipe|hand-practice/.test(path)), false);
   assert.deepEqual(errors, []);
 }
 
 runBrowserTest(greetingsScenario).then(() => {
-  console.log('Edge: fichas ampliadas de Saludos, vista de 320 px y práctica con cámara en espejo, sin cuestionario.');
+  console.log('Edge: 6 saludos y 5 expresiones con fotos locales, rutas retiradas, cámara en espejo y navegación interna a 320 px.');
 }).catch(error => {
   console.error(error);
   process.exitCode = 1;
