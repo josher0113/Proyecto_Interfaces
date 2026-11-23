@@ -1,6 +1,6 @@
 # Manual de usuario · Prototipo de interfaces
 
-Este borrador describe el prototipo de LinguaPlay LSM en `Manuel`, incluido el dictado de la revisión `dadb59a`.
+Este borrador describe el prototipo de Conecta LSM en `Manuel`, incluido el dictado de la revisión `dadb59a`.
 
 | Pantalla | Cómo usarla |
 | --- | --- |
@@ -80,8 +80,8 @@ El avance se guarda en el mismo navegador y desde la misma dirección del sitio.
 
 ## Dictar una frase en el traductor
 
-1. Abre LinguaPlay en HTTPS o desde `localhost`. En **Traductor**, pulsa **Dictar en español** y permite el micrófono cuando el navegador lo solicite.
+1. Abre Conecta LSM en HTTPS o desde `localhost`. En **Traductor**, pulsa **Dictar en español** y permite el micrófono cuando el navegador lo solicite.
 2. Cuando aparezca **Escuchando**, di una frase corta. Puedes pulsar **Detener dictado** para pedir que se procese lo dicho. Mientras esperas el acceso al micrófono, **Cancelar dictado** interrumpe la solicitud.
 3. El texto dictado se añade al final del campo. Puedes editarlo y pulsar **Traducir** cuando esté listo. El área de resultados sigue en modo de demostración.
 
-Si el servicio no está disponible, puedes escribir en el mismo campo. Salir de Traductor cancela la escucha. LinguaPlay recibe el texto y el navegador puede enviar audio a su proveedor de reconocimiento. [API de reconocimiento de voz](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition)
+Si el servicio no está disponible, puedes escribir en el mismo campo. Salir de Traductor cancela la escucha. Conecta LSM recibe el texto y el navegador puede enviar audio a su proveedor de reconocimiento. [API de reconocimiento de voz](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition)

@@ -1,6 +1,6 @@
-# LinguaPlay LSM
+# Conecta LSM
 
-LinguaPlay LSM es un proyecto educativo para empezar a aprender Lengua de Señas Mexicana (LSM). Propone una ruta de lecciones breves, práctica guiada y un espacio de consulta de expresiones. El objetivo es facilitar el estudio autónomo y ayudar a que cada persona pueda retomar su avance.
+Conecta LSM es un proyecto educativo para empezar a aprender Lengua de Señas Mexicana (LSM). Propone una ruta de lecciones breves, práctica guiada y un espacio de consulta de expresiones. El objetivo es facilitar el estudio autónomo y ayudar a que cada persona pueda retomar su avance.
 
 ## Probar el prototipo
 
@@ -15,7 +15,7 @@ Para probar la versión actual, cambia a `Manuel`. Puedes abrir `index.html` dir
 
 - **Prototipado por etapas.** La primera versión reúne siete pantallas enlazadas para revisar el recorrido, la claridad de los controles y la retroalimentación. El diseño usa navegación lateral en escritorio y navegación inferior en móvil.
 - **Implementación web estática.** HTML define la entrada, CSS adapta el diseño a distintos tamaños y JavaScript organiza las vistas, reutiliza componentes y gestiona la navegación mediante el fragmento de URL.
-- **Práctica por seña.** Números, Saludos básicos y Expresiones cotidianas usan fichas de referencia y práctica directa. Frases y comunicación básica reúne señas de apoyo para presentarse, pedir ayuda e invitar a participar. Los materiales se incluyen en la app para que cada actividad se complete dentro de LinguaPlay. Este será el formato de las próximas unidades.
+- **Práctica por seña.** Números, Saludos básicos y Expresiones cotidianas usan fichas de referencia y práctica directa. Frases y comunicación básica reúne señas de apoyo para presentarse, pedir ayuda e invitar a participar. Los materiales se incluyen en la app para que cada actividad se complete dentro de Conecta LSM. Este será el formato de las próximas unidades.
 - **Contenido educativo validado.** Las demostraciones de señas se incorporarán después de revisar sus fuentes. El traductor educativo se planteará como un catálogo de expresiones validadas que respete la gramática de la LSM.
 - **Interacción por voz y gestos.** Traductor usa el servicio de voz del navegador para introducir texto en español de México. Práctica usa MediaPipe para seguir las manos en el navegador. Un clasificador experimental compara las posturas y los movimientos del abecedario y de Números, y el avance se registra por días. La validación con participantes y dispositivos físicos sigue pendiente.
 

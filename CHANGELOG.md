@@ -1,5 +1,9 @@
 # Bitácora de cambios
 
+## Cambio de nombre a Conecta LSM
+
+- La aplicación adopta el nombre **Conecta LSM** en el encabezado, la pestaña, los avisos y la documentación vigente. El historial de práctica sigue disponible en el mismo navegador y dirección.
+
 ## Prácticas de frases y comunicación básica
 
 - Se añadieron **Presentarse**, **Pedir ayuda** e **Invitar a participar** con situaciones para ensayar, fotos de las señas de apoyo y cámara en espejo.

@@ -7,7 +7,7 @@ const units = [
 ];
 
 const app = document.querySelector('#app');
-const brand = 'LinguaPlay <small>LSM</small>';
+const brand = 'Conecta <small>LSM</small>';
 const media = (label, note) => `<div class="media"><span aria-hidden="true">▣</span><strong>${label}</strong><span>${note}</span></div>`;
 const link = (href, label, secondary = false) =>
   `<a class="button ${secondary ? 'secondary' : ''}" href="#${href}">${label}</a>`;
@@ -107,7 +107,7 @@ function render() {
       <span aria-hidden="true">${icon}</span>${label}</a>`).join('')}</nav></aside>
     <main id="contenido" tabindex="-1">${content}</main>` :
     `<main id="contenido" class="landing" tabindex="-1">${welcome()}</main>`;
-  document.title = `${app.querySelector('h1').textContent} | LinguaPlay LSM`;
+  document.title = `${app.querySelector('h1').textContent} | Conecta LSM`;
 }
 
 app.addEventListener('click', event => {

@@ -1,10 +1,10 @@
 # Propuesta de solución · Borrador del reporte
 
-LinguaPlay LSM propone una ruta de estudio y práctica para personas que empiezan a aprender Lengua de Señas Mexicana. El piloto permite consultar y practicar con cámara las 27 letras del alfabeto manual, los números del 1 al 10, seis fichas de Saludos básicos, cinco de Expresiones cotidianas y tres prácticas de Frases y comunicación básica en LSM. El abecedario también incluye un ejercicio de identificación de A, B y C.
+Conecta LSM propone una ruta de estudio y práctica para personas que empiezan a aprender Lengua de Señas Mexicana. El piloto permite consultar y practicar con cámara las 27 letras del alfabeto manual, los números del 1 al 10, seis fichas de Saludos básicos, cinco de Expresiones cotidianas y tres prácticas de Frases y comunicación básica en LSM. El abecedario también incluye un ejercicio de identificación de A, B y C.
 
 ## Pruebas con la asociación en Xalapa
 
-El 21 de noviembre de 2026, un integrante del equipo visitó a la Asociación de Sordos del Estado de Veracruz, en Xalapa, Veracruz, para probar el prototipo de LinguaPlay LSM. Durante la visita recibió propuestas para ampliar los contenidos. El registro se basa en las notas de la visita y deja por documentar las tareas que se probaron y sus resultados.
+El 21 de noviembre de 2026, un integrante del equipo visitó a la Asociación de Sordos del Estado de Veracruz, en Xalapa, Veracruz, para probar el prototipo de Conecta LSM. Durante la visita recibió propuestas para ampliar los contenidos. El registro se basa en las notas de la visita y deja por documentar las tareas que se probaron y sus resultados.
 
 | Recomendación recibida | Propuesta de incorporación del equipo |
 | --- | --- |
