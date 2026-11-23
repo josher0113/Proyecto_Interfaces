@@ -5,6 +5,7 @@
 - **Inicio** y **Progreso** muestran la racha de la cuenta o del invitado. El primer acierto registrado inicia la racha. Cada día consecutivo suma una vez, aunque se practiquen varias letras y números.
 - La racha aprovecha las fechas ya guardadas. Las señas aprendidas admiten nuevos aciertos en los días siguientes para mantenerla.
 - Se comprobaron el primer día, el avance de un día consecutivo, el reinicio tras una pausa y la separación entre cuentas.
+- Se recompiló el ejecutable y se acortó el video del foro a 1 min 54 s. Se reemplazó la toma de la letra A por una captura con la foto y la grafía visibles antes de abrir la cámara. El recorrido también muestra el primer día de racha.
 
 ## Inicio de sesión y progreso por perfil
 
