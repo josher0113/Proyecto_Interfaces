@@ -38,11 +38,12 @@
 - [x] Integrar dictado local con Vosk y un modelo de español general. El texto se puede editar antes de deletrear.
 - [x] Transcribir en Edge un WAV en español y verificar permisos, cancelación, liberación del micrófono y escritura manual cuando el motor no está disponible.
 - [x] Comprobar el flujo de dictado con el micrófono físico de un Samsung Galaxy A57 en Chrome para Android.
-- [ ] Probar el dictado con micrófono físico en escritorio. Medir el tiempo de la primera carga y revisar la precisión con hablantes de español de México.
+- [x] Probar el dictado con micrófono físico en una HP ProBook 445 G8.
+- [ ] Medir el tiempo de la primera carga del modelo y revisar la precisión del dictado con hablantes de español de México.
 - [x] Integrar la vista previa de cámara sin audio, con activación por permiso y apagado al salir.
 - [x] Verificar en Edge con una cámara simulada la activación, el rechazo de permiso, la cancelación y la liberación del video al detenerlo o salir.
 - [x] Comprobar el flujo de práctica con la cámara física de un Samsung Galaxy A57 en Chrome para Android.
-- [ ] Comprobar el flujo de práctica con una cámara física de escritorio.
+- [x] Probar la práctica con cámara física en una HP ProBook 445 G8.
 - [x] Incorporar MediaPipe Hand Landmarker localmente y comprobar en Edge el seguimiento de una mano.
 - [x] Implementar el reconocimiento experimental de las 21 letras estáticas y las seis letras con movimiento.
 - [x] Verificar ambos clasificadores y el flujo de cámara simulada en Edge con fotos y videos de la UABCS.

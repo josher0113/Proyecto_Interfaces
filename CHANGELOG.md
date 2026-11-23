@@ -1,9 +1,14 @@
 # Bitácora de cambios
 
+## Prueba local en HP ProBook 445 G8
+
+- Un integrante del equipo completó la prueba local del dictado en **Deletrear** y de la práctica con cámara en una HP ProBook 445 G8.
+- Queda por medir la precisión de ambas funciones y el tiempo de la primera carga del modelo de dictado.
+
 ## 23 de noviembre de 2026 · Prueba móvil en Galaxy A57
 
 - Un integrante del equipo probó el dictado de **Deletrear** y la práctica con cámara del **Abecedario** en Chrome para Android y confirmó que ambas funciones operaron en su Galaxy A57.
-- El prototipo se abrió en `http://localhost:8765` en el teléfono mediante el reenvío USB de ADB hacia la computadora. Queda pendiente repetir la prueba en escritorio y medir la precisión de ambas modalidades.
+- El prototipo se abrió en `http://localhost:8765` en el teléfono mediante el reenvío USB de ADB hacia la computadora.
 
 ## Dictado local en español
 
