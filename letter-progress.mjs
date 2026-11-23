@@ -40,12 +40,18 @@ function isPracticeToken(token, signs) {
   return Number.isFinite(parsed.getTime()) && parsed.toISOString().startsWith(day + 'T');
 }
 
-export function createLetterProgress(storage = getBrowserStorage()) {
-  return createPracticeProgress(letters, letterPrefix, 'Letra de práctica fuera del abecedario.', storage);
+function practiceKeyPrefix(prefix, profileId) {
+  return profileId == null ? prefix : `${prefix}profile:${encodeURIComponent(profileId)}:`;
 }
 
-export function createNumberProgress(numbers, storage = getBrowserStorage()) {
-  return createPracticeProgress(numbers.map(String), numberPrefix, 'Número de práctica fuera de la unidad.', storage);
+export function createLetterProgress(storage = getBrowserStorage(), profileId = null) {
+  const prefix = practiceKeyPrefix(letterPrefix, profileId);
+  return createPracticeProgress(letters, prefix, 'Letra de práctica fuera del abecedario.', storage);
+}
+
+export function createNumberProgress(numbers, storage = getBrowserStorage(), profileId = null) {
+  const prefix = practiceKeyPrefix(numberPrefix, profileId);
+  return createPracticeProgress(numbers.map(String), prefix, 'Número de práctica fuera de la unidad.', storage);
 }
 
 function createPracticeProgress(signs, keyPrefix, unknownSign, storage) {

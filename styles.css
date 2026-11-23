@@ -16,7 +16,7 @@
 * { box-sizing: border-box; }
 body { margin: 0; }
 a { color: var(--wine); }
-button, textarea { font: inherit; }
+button, input, textarea { font: inherit; }
 :focus-visible { outline: 3px solid #966071; outline-offset: 4px; }
 main:focus { outline: none; }
 main:focus-visible > .page-heading h1,
@@ -51,10 +51,7 @@ article { background: var(--paper); border: 1px solid var(--line); border-radius
 .secondary { background: transparent; color: var(--deep); border-color: #bea3ab; }
 button:disabled { color: var(--muted); border-color: var(--line); cursor: default; }
 .actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: 1rem; }
-.stats { display: flex; flex-wrap: wrap; gap: 1.25rem; margin: 1rem 0; }
-.stats article { display: grid; gap: .3rem; background: transparent; border: 0; padding: 0; }
-.stats strong { font: 2rem Georgia, serif; color: var(--deep); }
-.stats span, .meter { font-size: .82rem; color: var(--muted); }
+.meter { font-size: .82rem; color: var(--muted); }
 .meter { display: grid; grid-template-columns: 1fr auto; gap: .35rem 1rem; margin-top: 1rem; }
 progress { grid-column: span 2; appearance: none; width: 100%; height: .43rem; border: 0; border-radius: 10px; background: var(--rose); overflow: hidden; }
 progress::-webkit-progress-bar { background: var(--rose); }
@@ -114,12 +111,21 @@ progress::-moz-progress-bar { background: var(--wine); }
 .choices input { accent-color: var(--wine); }
 textarea { display: block; margin-top: 1rem; resize: vertical; min-height: 14rem; width: 100%; padding: 1rem; border: 1px solid #bea3ab; border-radius: 12px; background: #fffdfa; color: var(--ink); }
 .identity { display: flex; gap: 1rem; align-items: center; }
-.calendar { padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); list-style: none; gap: .25rem; }
-.calendar li { display: grid; justify-items: center; gap: .4rem; font-size: .75rem; }
-.calendar li span + span { display: grid; place-items: center; width: 1.7rem; height: 1.7rem; background: var(--cream); border-radius: 50%; }
-.calendar li .checked { background: var(--wine); color: white; }
-.calendar ~ h2 { margin-top: 1.2rem; }
+.identity .avatar { flex: 0 0 3rem; }
+.identity h2, .page-heading h1 { overflow-wrap: anywhere; }
 .landing { margin: auto; min-height: 100svh; display: grid; align-items: center; }
+.account-layout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; gap: clamp(1.5rem, 5vw, 4rem); width: min(100%, 65rem); margin-inline: auto; }
+.account-layout .brand { display: inline-block; margin-bottom: clamp(1.5rem, 5vh, 3.5rem); }
+.account-layout .page-heading { margin-bottom: 1rem; }
+.account-layout .back { margin: .75rem 0 0; }
+.account-form { display: grid; gap: .45rem; }
+.account-form label { color: var(--ink); font-weight: 650; }
+.account-form label:not(:first-child) { margin-top: .55rem; }
+.account-form input { min-width: 0; min-height: 44px; border: 1px solid #bea3ab; border-radius: 8px; padding: .55rem .8rem; background: #fffdfa; color: var(--ink); }
+.account-form small { color: var(--muted); }
+.account-form button { margin-top: .75rem; }
+.account-form .feedback:empty, #account-status:empty { display: none; }
+.account-switch { margin-top: .9rem; }
 .welcome { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: clamp(2rem, 7vw, 7rem); }
 .welcome .brand { display: inline-block; margin-bottom: clamp(2rem, 8vw, 6rem); }
 .welcome h1 { font-size: clamp(2.8rem, 6.5vw, 5.75rem); }
@@ -142,10 +148,9 @@ textarea { display: block; margin-top: 1rem; resize: vertical; min-height: 14rem
 }
 
 @media (max-width: 560px) {
-  .grid, .welcome { grid-template-columns: 1fr; }
+  .grid, .welcome, .account-layout { grid-template-columns: 1fr; }
   .exercise-grid { grid-template-columns: 1fr; }
   .quick { align-items: flex-start; flex-direction: column; }
   .unit { grid-template-columns: auto minmax(0, 1fr); gap: .75rem; }
   .unit .button { grid-column: 2; justify-self: start; }
-  .calendar li span + span { max-width: 100%; }
 }

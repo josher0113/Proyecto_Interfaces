@@ -48,6 +48,34 @@ test('counts number practice on distinct dates and preserves separate letter rec
   assert.throws(() => numbers.record('25', localDate(20)), RangeError);
 });
 
+test('separates guest and profile histories for letters and numbers', () => {
+  const storage = createStorage();
+  const date = localDate(19);
+  storage.setItem('linguaplay:letter-practice:v1:A:2026-11-19', '1');
+  storage.setItem('linguaplay:number-practice:v1:2:2026-11-19', '1');
+
+  const guestLetters = createLetterProgress(storage);
+  const guestNumbers = createNumberProgress([1, 2], storage);
+  const firstLetters = createLetterProgress(storage, 'first-profile');
+  const firstNumbers = createNumberProgress([1, 2], storage, 'first-profile');
+
+  assert.equal(firstLetters.snapshot(date).letters.A.days, 0);
+  assert.equal(firstNumbers.snapshot(date).letters['2'].days, 0);
+  assert.equal(firstLetters.record('A', date).credited, true);
+  assert.equal(firstNumbers.record(2, date).credited, true);
+  firstLetters.record('B', date);
+  firstNumbers.record(1, date);
+
+  assert.equal(guestLetters.snapshot(date).letters.A.days, 1);
+  assert.equal(guestNumbers.snapshot(date).letters['2'].days, 1);
+  assert.equal(guestLetters.snapshot(date).letters.B.days, 0);
+  assert.equal(guestNumbers.snapshot(date).letters['1'].days, 0);
+  assert.equal(createLetterProgress(storage, 'first-profile').snapshot(date).letters.B.days, 1);
+  assert.equal(createNumberProgress([1, 2], storage, 'first-profile').snapshot(date).letters['1'].days, 1);
+  assert.equal(createLetterProgress(storage, 'second-profile').snapshot(date).letters.A.days, 0);
+  assert.equal(createNumberProgress([1, 2], storage, 'second-profile').snapshot(date).letters['2'].days, 0);
+});
+
 test('marks the third distinct date as mastery and restores it on reload', () => {
   const storage = createStorage();
   const progress = createLetterProgress(storage);

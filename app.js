@@ -25,12 +25,36 @@ const exerciseDescriptions = {
 };
 const exerciseCards = ['B', 'C', 'A'];
 const gesturePrompt = 'Mantén una sola mano dentro del encuadre.';
-let alphabetCompleted = false;
+const completedExercises = new Set();
+const profileProgress = new Map();
+let accountStore = null;
+let accountStorageKey;
+let progressModule = null;
+let activeProfile = null;
 let cameraSession = null;
 let letterProgress = null;
 let numberProgress = null;
 let practiceGoal = 3;
 let appReady = false;
+
+function selectProfile(profile) {
+  activeProfile = profile;
+  if (!progressModule) return;
+  const id = profile?.id ?? null;
+  if (!profileProgress.has(id)) {
+    profileProgress.set(id, {
+      letters: progressModule.createLetterProgress(undefined, id),
+      numbers: progressModule.createNumberProgress(numberSigns, undefined, id),
+    });
+  }
+  const stores = profileProgress.get(id);
+  letterProgress = stores.letters;
+  numberProgress = stores.numbers;
+}
+
+function exerciseCompleted() {
+  return completedExercises.has(activeProfile?.id ?? null);
+}
 
 function practiceState(entry, isNumber = false) {
   if (entry?.mastered) return isNumber ? 'Aprendido' : 'Aprendida';
@@ -98,7 +122,7 @@ function alphabetIndex() {
   return `<a class="back" href="#aprender">← Ruta de aprendizaje</a>
     ${heading('Aprender', 'Abecedario', 'Elige una letra para ver su referencia y practicarla con la cámara.')}
     <article>${alphabetGrid(letterProgress?.snapshot(), 'leccion')}
-      <div class="actions">${link('ejercicio', alphabetCompleted ? 'Repetir ejercicio de A, B y C' : 'Ejercicio de A, B y C')}</div>
+      <div class="actions">${link('ejercicio', exerciseCompleted() ? 'Repetir ejercicio de A, B y C' : 'Ejercicio de A, B y C')}</div>
     </article>`;
 }
 
@@ -173,23 +197,54 @@ const meter = (label, value) =>
   `<div class="meter"><span>${label}</span><span>${value}%</span><progress aria-label="${label}" value="${value}" max="100"></progress></div>`;
 const heading = (label, title, description) => `<header class="page-heading"><p class="eyebrow">${label}</p>
   <h1>${title}</h1><p>${description}</p></header>`;
-const stats = () => `<div class="stats"><article><strong>4</strong><span>días de racha</span></article>
-  <article><strong>6</strong><span>lecciones completadas</span></article></div>`;
+const htmlEntities = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
+const escapeText = text => text.replace(/[&<>]/g, character => htmlEntities[character]);
 
 function welcome() {
   return `<div class="welcome"><section><a class="brand" href="#bienvenida">${brand}</a>
     <p class="eyebrow">Lengua de Señas Mexicana</p><h1>Aprende a comunicarte en LSM.</h1>
     <p>Explora la Lengua de Señas Mexicana con lecciones breves, práctica guiada y un espacio de consulta.</p>
-    <div class="actions">${link('inicio', 'Comenzar')}<button class="secondary" data-note="El inicio de sesión se habilitará en una etapa posterior.">Iniciar sesión</button></div>
-    <p class="feedback" role="status"></p></section>
+    <div class="actions">${link('inicio', 'Comenzar')}${link(activeProfile ? 'progreso' : 'sesion', activeProfile ? 'Mi perfil' : 'Iniciar sesión', true)}</div></section>
     <div class="cover"><div class="bubbles" aria-hidden="true"><span>“</span><span>…”</span></div><p>Lengua de Señas Mexicana</p></div></div>`;
 }
 
+function accountPage(isRegistration) {
+  const title = isRegistration ? 'Crear cuenta' : 'Iniciar sesión';
+  const available = accountStore?.available();
+  const unavailable = location.protocol === 'file:'
+    ? 'Abre Conecta LSM con el ejecutable, HTTPS o localhost para usar una cuenta.'
+    : 'Las cuentas locales requieren un navegador compatible con almacenamiento habilitado.';
+  return `<div class="account-layout"><section>
+    <a class="brand" href="#bienvenida">${brand}</a>
+    ${heading('Cuenta local', title, 'Guarda tu avance por letra y número en este navegador.')}
+    <p>Tu cuenta está disponible en este dispositivo y en la misma dirección de Conecta LSM.</p>
+    <a class="back" href="#inicio">Continuar como invitado</a>
+    </section><article class="account-card">
+    ${available ? `<form id="${isRegistration ? 'account-sign-up' : 'account-sign-in'}" class="account-form">
+      ${isRegistration ? `<label for="account-name">Nombre</label><input id="account-name" name="displayName"
+        autocomplete="nickname" required maxlength="40">` : ''}
+      <label for="account-user">Usuario</label><input id="account-user" name="username" autocomplete="username"
+        autocapitalize="none" spellcheck="false" required maxlength="24" ${isRegistration ? 'aria-describedby="account-user-help"' : ''}>
+      ${isRegistration ? '<small id="account-user-help">De 3 a 24 caracteres. Usa letras sin acentos, números, puntos, guiones o guiones bajos.</small>' : ''}
+      <label for="account-password">Contraseña</label><input id="account-password" name="password" type="password"
+        autocomplete="${isRegistration ? 'new-password' : 'current-password'}" required maxlength="128"
+        ${isRegistration ? 'minlength="8" aria-describedby="account-password-help"' : ''}>
+      ${isRegistration ? '<small id="account-password-help">Usa al menos 8 caracteres.</small>' : ''}
+      <button type="submit">${title}</button>
+      <p id="account-status" class="feedback" role="status"></p>
+    </form>
+    <p class="account-switch">${isRegistration ? '¿Ya tienes cuenta? <a href="#sesion">Inicia sesión</a>.'
+      : '¿Es tu primera vez? <a href="#registro">Crear cuenta</a>.'}</p>` : `<p class="feedback" role="status">${unavailable}</p>`}
+    </article></div>`;
+}
+
 function dashboard() {
-  return `${heading('Tu espacio de aprendizaje', 'Hola, Alex', 'Continúa con tu ruta de Lengua de Señas Mexicana.')}
+  const greeting = activeProfile ? `Hola, ${escapeText(activeProfile.displayName)}` : 'Te damos la bienvenida';
+  return `${heading('Tu espacio de aprendizaje', greeting, 'Continúa con tu ruta de Lengua de Señas Mexicana.')}
     <div class="grid"><article class="feature"><p class="eyebrow">Alfabeto manual</p><h2>Abecedario</h2>
       <p>${alphabetMasterySummary(letterProgress?.snapshot())}.</p>${link('abecedario', 'Explorar abecedario')}</article>
-      <article><h2>Esta semana</h2>${stats()}${meter('Meta semanal', 60)}</article>
+      <article><h2>Tu avance</h2><p>${numberMasterySummary(numberProgress?.snapshot())}.</p>
+        <div class="actions">${link('progreso', 'Ver mi progreso', true)}</div></article>
     </div><article class="quick"><div><h2>Deletreador LSM</h2><p>Deletrea palabras y nombres con el abecedario de SignWriting para LSM.</p></div>
       ${link('traductor', 'Abrir deletreador', true)}</article>`;
 }
@@ -213,7 +268,7 @@ function learning() {
     <div class="units">${units.map(([title, description], index) => `<article class="unit">
       <span class="unit-number" aria-label="Unidad ${index + 1}">${index + 1}</span>
       <div><p class="eyebrow">${progressSummaries[index]}</p>
-      <h2>${title}</h2><p>${description}</p>${index === 0 && alphabetCompleted ? '<p>Ejercicio de A, B y C completado.</p>' : ''}</div>
+      <h2>${title}</h2><p>${description}</p>${index === 0 && exerciseCompleted() ? '<p>Ejercicio de A, B y C completado.</p>' : ''}</div>
       ${unitLinks[index]}
     </article>`).join('')}</div>`;
 }
@@ -521,17 +576,23 @@ function showSignWriting(phrase) {
 function profile() {
   const progress = letterProgress?.snapshot();
   const numbers = numberProgress?.snapshot();
-  return `${heading('Tu perfil', 'Progreso', 'Consulta tus estadísticas de ejemplo y días de práctica.')}
-    <article class="quick"><div class="identity"><span class="avatar" aria-hidden="true">A</span><h2>Alex Rivera</h2></div>${stats()}</article>
+  const name = activeProfile?.displayName ?? 'Modo invitado';
+  const initial = escapeText([...name][0].toUpperCase());
+  const description = activeProfile ? `@${escapeText(activeProfile.username)}` : 'Tu avance de invitado se guarda por separado.';
+  return `${heading('Tu perfil', 'Progreso', 'Consulta los días de práctica y vuelve a las señas que quieras repasar.')}
+    <article>
+      <div class="quick"><div class="identity"><span class="avatar" aria-hidden="true">${initial}</span>
+        <div><h2>${escapeText(name)}</h2><p>${description}</p></div></div>
+        ${activeProfile ? '<button class="secondary" id="account-sign-out" type="button">Cerrar sesión</button>'
+          : link('sesion', 'Iniciar sesión', true)}</div>
+      <p id="account-status" class="feedback" role="status"></p>
+    </article>
     <article class="practice-progress"><h2>Dominio del abecedario</h2>
       <p>${alphabetMasterySummary(progress)}. Selecciona una letra para practicar.</p>
       ${alphabetGrid(progress, 'practica')}<p>${practiceStorageMessage(progress)}</p></article>
     <article class="practice-progress"><h2>Dominio de números</h2>
       <p>${numberMasterySummary(numbers)}. Selecciona un número para practicar.</p>
-      ${numberGrid(numbers, 'practica')}<p>${practiceStorageMessage(numbers)}</p></article>
-    <article class="practice-progress"><h2>Calendario de práctica</h2><p>Semana de ejemplo</p><ol class="calendar">${['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, index) =>
-      `<li><span>${day}</span><span class="${index < 4 ? 'checked' : ''}" aria-label="${index < 4 ? 'Práctica completada' : 'Sin práctica'}">${index < 4 ? '✓' : '·'}</span></li>`).join('')}</ol>
-      <h2>Logros</h2><p>Primer paso · Primera lección completada</p><h2>Actividad reciente</h2><p>Abecedario · Practicaste la letra A</p></article>`;
+      ${numberGrid(numbers, 'practica')}<p>${practiceStorageMessage(numbers)}</p></article>`;
 }
 
 const pages = {
@@ -555,12 +616,59 @@ function render() {
     ? (unit?.[2][step] ? (page === 'leccion' ? lesson : practice)(unit, index, step)
       : index === 1 ? numberIndex() : guidedUnits[index] ? guidedIndex(index) : learning())
     : (Object.hasOwn(pages, page) ? pages[page]() : null);
+  const isAccount = page === 'sesion' || page === 'registro';
   app.innerHTML = content ? `<aside><a class="brand" href="#bienvenida">${brand}</a>
     <nav aria-label="Navegación principal">${nav.map(([href, icon, label]) => `<a href="#${href}" ${href === active ? `aria-current="${isLearningDetail ? 'true' : 'page'}"` : ''}>
       <span aria-hidden="true">${icon}</span>${label}</a>`).join('')}</nav></aside>
     <main id="contenido" tabindex="-1">${content}</main>` :
-    `<main id="contenido" class="landing" tabindex="-1">${welcome()}</main>`;
+    `<main id="contenido" class="landing" tabindex="-1">${isAccount && !activeProfile ? accountPage(page === 'registro') : welcome()}</main>`;
   document.title = `${app.querySelector('h1').textContent} | Conecta LSM`;
+}
+
+function changeProfile(profile, destination) {
+  stopCamera();
+  dictation.cancel();
+  selectProfile(profile);
+  if (destination && location.hash !== `#${destination}`) {
+    location.hash = destination;
+  } else {
+    render();
+    focusContent();
+  }
+}
+
+async function submitAccount(form) {
+  const button = form.querySelector('button[type="submit"]');
+  const status = form.querySelector('#account-status');
+  if (button.disabled) return;
+  button.disabled = true;
+  status.textContent = 'Un momento…';
+  const credentials = Object.fromEntries(new FormData(form));
+  try {
+    const profile = form.id === 'account-sign-up'
+      ? await accountStore.register(credentials)
+      : await accountStore.signIn(credentials);
+    form.reset();
+    changeProfile(profile, form.isConnected ? 'inicio' : undefined);
+  } catch (error) {
+    status.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function closeAccount(button) {
+  if (button.disabled) return;
+  button.disabled = true;
+  try {
+    await accountStore.signOut();
+    changeProfile(null, 'sesion');
+  } catch (error) {
+    const status = app.querySelector('#account-status');
+    if (status) status.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
 }
 
 app.addEventListener('click', event => {
@@ -583,17 +691,21 @@ app.addEventListener('click', event => {
     void toggleCamera();
     return;
   }
-  const button = event.target.closest('[data-note]');
-  if (button) app.querySelector('.feedback').textContent = button.dataset.note;
+  const signOut = event.target.closest('#account-sign-out');
+  if (signOut) void closeAccount(signOut);
 });
 
 app.addEventListener('submit', event => {
   event.preventDefault();
+  if (event.target.id === 'account-sign-up' || event.target.id === 'account-sign-in') {
+    void submitAccount(event.target);
+    return;
+  }
   if (event.target.id === 'alphabet-exercise') {
     const answers = new FormData(event.target);
     const correct = exerciseCards.filter((letter, index) => answers.get(`answer-${index}`) === letter).length;
     const passed = correct === exerciseCards.length;
-    alphabetCompleted ||= passed;
+    if (passed) completedExercises.add(activeProfile?.id ?? null);
     event.target.querySelector('.feedback').textContent = passed
       ? '¡Lección completada! Identificaste las tres configuraciones.'
       : `${correct} de ${exerciseCards.length} respuestas correctas. Revisa tus opciones y vuelve a intentar.`;
@@ -628,17 +740,26 @@ window.addEventListener('pagehide', () => {
   stopCamera();
   dictation.cancel();
 });
+window.addEventListener('storage', event => {
+  if (!accountStore || (event.key !== null && event.key !== accountStorageKey)) return;
+  const profile = accountStore.current();
+  if (profile?.id !== activeProfile?.id) changeProfile(profile);
+});
 
 async function startApp() {
   if (location.protocol !== 'file:') {
-    try {
-      const { createLetterProgress, createNumberProgress, LETTER_PRACTICE_GOAL } = await import('./letter-progress.mjs');
-      letterProgress = createLetterProgress();
-      numberProgress = createNumberProgress(numberSigns);
-      practiceGoal = LETTER_PRACTICE_GOAL;
-    } catch {
-      // Lessons and the live preview are still usable if the progress module is unavailable.
+    const [progress, accounts] = await Promise.allSettled([
+      import('./letter-progress.mjs'), import('./local-profiles.mjs'),
+    ]);
+    if (progress.status === 'fulfilled') {
+      progressModule = progress.value;
+      practiceGoal = progressModule.LETTER_PRACTICE_GOAL;
     }
+    if (accounts.status === 'fulfilled') {
+      accountStore = accounts.value.createLocalProfiles();
+      accountStorageKey = accounts.value.PROFILE_STORAGE_KEY;
+    }
+    selectProfile(accountStore?.current() ?? null);
   }
   appReady = true;
   render();
