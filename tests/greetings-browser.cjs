@@ -6,6 +6,8 @@ const guideUnits = [
     titles: ['Hola', 'Buenos días', 'Buenas tardes', 'Buenas noches', '¿Cómo estás?', 'Adiós'] },
   { unit: 3, route: '#expresiones', title: 'Expresiones cotidianas', manifest: 'expressionReferences',
     titles: ['Gracias', 'Por favor', 'Perdón', 'De nada', 'Con permiso'] },
+  { unit: 4, route: '#frases', title: 'Frases y comunicación básica', manifest: 'phraseReferences',
+    titles: ['Presentarse', 'Pedir ayuda', 'Invitar a participar'] },
 ];
 const video = 'document.querySelector("#camera-video")';
 const toggle = 'document.querySelector("#camera-toggle")';
@@ -53,9 +55,16 @@ async function greetingsScenario({ send, run, check, navigate, errors, requests 
   };
   const checkReference = async reference => {
     const photos = 'Array.from(document.querySelectorAll(".reference-poses img"))';
-    assert.ok(reference.images.length, reference.title + ' debe tener fotografías locales.');
-    assert.deepEqual(await run(photos + '.map(image => image.getAttribute("src"))'), reference.images);
+    const images = reference.signs?.flatMap(sign => sign.images) ?? reference.images;
+    assert.ok(images.length, reference.title + ' debe tener fotografías locales.');
+    assert.deepEqual(await run(photos + '.map(image => image.getAttribute("src"))'), images);
     await check(photos + '.every(image => image.complete && image.naturalWidth > 0)');
+    if (reference.signs) {
+      assert.equal(await run('document.querySelector(".phrase-context")?.textContent'), reference.context);
+      assert.deepEqual(await run('Array.from(document.querySelectorAll(".phrase-sign h3"), el => el.textContent)'),
+        reference.signs.map(sign => sign.title));
+      if (reference.usesAlphabet) assert.ok(await run('Boolean(' + link('#abecedario') + ')'));
+    }
   };
 
   await send('Emulation.setDeviceMetricsOverride', { width: 320, height: 740, deviceScaleFactor: 1, mobile: false });
@@ -123,7 +132,7 @@ async function greetingsScenario({ send, run, check, navigate, errors, requests 
     assert.equal(await run('new DOMMatrixReadOnly(getComputedStyle(' + video + ').transform).a'), -1);
   };
 
-  await goTo('#practica/3/0');
+  await goTo('#practica/4/0');
   await check('Boolean(' + toggle + ')');
   await activateCamera();
   assert.equal(await run('cameraTracks[0].readyState'), 'live');
@@ -133,10 +142,14 @@ async function greetingsScenario({ send, run, check, navigate, errors, requests 
 
   await activateCamera();
   assert.equal(await run('cameraTracks[1].readyState'), 'live');
-  await clickLink('#practica/3/1');
-  await title('Por favor');
+  await clickLink('#practica/4/1');
+  await title('Pedir ayuda');
   await check('cameraTracks[1].readyState === "ended" && ' + video + '.hidden');
   assert.equal(await run('cameraRequests.length'), 2);
+  await clickLink('#practica/4/2');
+  await title('Invitar a participar');
+  await clickLink('#frases');
+  await title('Frases y comunicación básica');
 
   await goTo('#ejercicio-numeros');
   await title('Números');
@@ -160,7 +173,7 @@ async function greetingsScenario({ send, run, check, navigate, errors, requests 
 }
 
 runBrowserTest(greetingsScenario).then(() => {
-  console.log('Edge: 6 saludos y 5 expresiones con fotos locales, rutas retiradas, cámara en espejo y navegación interna a 320 px.');
+  console.log('Edge: 14 fichas de Saludos, Expresiones y Frases con fotos locales, cámara en espejo y navegación interna a 320 px.');
 }).catch(error => {
   console.error(error);
   process.exitCode = 1;

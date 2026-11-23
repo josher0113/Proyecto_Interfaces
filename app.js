@@ -6,13 +6,14 @@ const guidedUnits = {
   2: { route: 'saludos',
     references: typeof greetingReferences !== 'undefined' && Array.isArray(greetingReferences) ? greetingReferences : [] },
   3: { route: 'expresiones', references: typeof expressionReferences === 'undefined' ? [] : expressionReferences },
+  4: { route: 'frases', references: typeof phraseReferences === 'undefined' ? [] : phraseReferences },
 };
 const units = [
-  ['Abecedario', 'Explora el alfabeto manual y su uso para deletrear.', 0, alphabetLetters.map(letter => `Letra ${letter}`)],
-  ['Números', 'Practica las señas del 1 al 10.', 0, numberSigns.map(number => `Número ${number}`)],
-  ['Saludos básicos', 'Aprende a saludar y despedirte en LSM.', 0, guidedUnits[2].references.map(reference => reference?.title)],
-  ['Expresiones cotidianas', 'Practica cómo agradecer, pedir algo y disculparte en LSM.', 0, guidedUnits[3].references.map(reference => reference?.title)],
-  ['Frases y comunicación básica', 'Explora situaciones sencillas de conversación.', 0, ['Presentarse', 'Pedir ayuda', 'Invitar a participar']],
+  ['Abecedario', 'Explora el alfabeto manual y su uso para deletrear.', alphabetLetters.map(letter => `Letra ${letter}`)],
+  ['Números', 'Practica las señas del 1 al 10.', numberSigns.map(number => `Número ${number}`)],
+  ['Saludos básicos', 'Aprende a saludar y despedirte en LSM.', guidedUnits[2].references.map(reference => reference?.title)],
+  ['Expresiones cotidianas', 'Practica cómo agradecer, pedir algo y disculparte en LSM.', guidedUnits[3].references.map(reference => reference?.title)],
+  ['Frases y comunicación básica', 'Ensaya cómo presentarte, pedir ayuda e invitar a alguien a participar.', guidedUnits[4].references.map(reference => reference?.title)],
 ];
 
 const app = document.querySelector('#app');
@@ -131,7 +132,7 @@ function numberIndex() {
 }
 
 function guidedIndex(index) {
-  const [title, , , topics] = units[index];
+  const [title, , topics] = units[index];
   const links = visibleSteps(topics).map(step => `<li>${link(`leccion/${index}/${step}`, topics[step], true)}</li>`).join('');
   return `<a class="back" href="#aprender">← Ruta de aprendizaje</a>
     ${heading('Aprender', title, 'Elige una seña para consultar la referencia y practicarla frente a la cámara.')}
@@ -143,12 +144,21 @@ function visibleSteps(topics) {
   return topics.flatMap((title, step) => title ? [step] : []);
 }
 
-function guidedDemo({ title, description, cue, images, page }) {
+function photoDemo({ title, description, cue, images, page }) {
   const photos = images.map((src, index) =>
     `<img class="alphabet-photo" src="${src}" alt="Posición ${index + 1} de ${images.length} para ${title}"
       width="400" height="352">`).join('');
   return `<figure class="alphabet-demo"><div class="reference-poses">${photos}</div>
-    <figcaption>${description}</figcaption></figure><p>${cue}</p>${glossaryCredit(page)}`;
+    <figcaption>${description}</figcaption></figure>${cue ? `<p>${cue}</p>` : ''}${glossaryCredit(page)}`;
+}
+
+function guidedDemo(reference) {
+  if (!reference.signs) return photoDemo(reference);
+  const { context, cue, signs, usesAlphabet } = reference;
+  return `<p class="phrase-context">${context}</p><p>${cue}</p>
+    ${usesAlphabet ? `<div class="actions">${link('abecedario', 'Consultar el abecedario', true)}</div>` : ''}
+    <h2 class="phrase-reference-heading">Señas de apoyo</h2>
+    ${signs.map(sign => `<section class="phrase-sign"><h3>${sign.title}</h3>${photoDemo(sign)}</section>`).join('')}`;
 }
 
 const brand = 'LinguaPlay <small>LSM</small>';
@@ -186,26 +196,26 @@ function learning() {
     numberMasterySummary(numberProgress?.snapshot()),
     'Práctica guiada con cámara',
     'Práctica guiada con cámara',
+    'Práctica guiada con cámara',
   ];
   const unitLinks = [
     link('abecedario', 'Explorar abecedario'),
     link('numeros', 'Explorar números'),
     link('saludos', 'Explorar saludos'),
     link('expresiones', 'Explorar expresiones'),
+    link('frases', 'Explorar frases'),
   ];
   return `${heading('Aprender', 'Ruta de aprendizaje', 'Avanza desde el alfabeto manual hasta situaciones cotidianas.')}
-    <div class="units">${units.map(([title, description, progress], index) => `<article class="unit">
+    <div class="units">${units.map(([title, description], index) => `<article class="unit">
       <span class="unit-number" aria-label="Unidad ${index + 1}">${index + 1}</span>
-      <div><p class="eyebrow">${progressSummaries[index] ?? 'Vista previa disponible'}</p>
-      <h2>${title}</h2><p>${description}</p>${index === 0
-        ? (alphabetCompleted ? '<p>Ejercicio de A, B y C completado.</p>' : '')
-        : (index > 3 ? meter('Progreso de la unidad', progress) : '')}</div>
-      ${unitLinks[index] ?? link(`leccion/${index}/0`, 'Ver unidad', true)}
+      <div><p class="eyebrow">${progressSummaries[index]}</p>
+      <h2>${title}</h2><p>${description}</p>${index === 0 && alphabetCompleted ? '<p>Ejercicio de A, B y C completado.</p>' : ''}</div>
+      ${unitLinks[index]}
     </article>`).join('')}</div>`;
 }
 
 function lesson(unit, index, step) {
-  const [title, description, , topics] = unit;
+  const [title, description, topics] = unit;
   const letter = index === 0 ? alphabetLetters[step] : null;
   const number = index === 1 ? numberSigns[step] : null;
   const guide = guidedUnits[index];
@@ -215,14 +225,12 @@ function lesson(unit, index, step) {
   const next = positionSteps[position + 1];
   const indexPage = guide ? [guide.route, title]
     : [['abecedario', 'Abecedario'], ['numeros', 'Números']][index] ?? ['aprender', 'Ruta de aprendizaje'];
-  let demonstration = `${media('Demostración', 'Material en LSM pendiente de incorporar')}<p>Este espacio mostrará una demostración y su explicación.</p>`;
+  let demonstration;
   if (letter) {
     demonstration = alphabetDemo(letter);
-  }
-  if (number) {
+  } else if (number) {
     demonstration = numberDemo(number);
-  }
-  if (guide) {
+  } else {
     demonstration = guidedDemo(guide.references[step]);
   }
   return `<a class="back" href="#${indexPage[0]}">← ${indexPage[1]}</a>
@@ -241,7 +249,7 @@ function lesson(unit, index, step) {
 
 function practice(unit, index, step) {
   const isNumber = index === 1;
-  const [title, , , topics] = unit;
+  const [title, , topics] = unit;
   const guide = guidedUnits[index];
   const next = guide ? visibleSteps(topics).find(candidate => candidate > step) : undefined;
   const sign = isNumber ? numberSigns[step] : index === 0 ? alphabetLetters[step] : null;
@@ -254,12 +262,12 @@ function practice(unit, index, step) {
   const label = isNumber ? `del número ${sign}` : `de la letra ${sign}`;
   const framing = handCount === 2 ? 'Coloca las dos manos dentro del encuadre' : 'Coloca la mano dentro del encuadre';
   const demonstration = guide ? guidedDemo(guide.references[step])
-    : isNumber ? numberDemo(sign) : sign ? alphabetDemo(sign) : media('Ejemplo', 'Demostración pendiente');
+    : isNumber ? numberDemo(sign) : alphabetDemo(sign);
   const description = guide
     ? 'Repite la seña y usa la vista en espejo para comparar la posición de tus manos y el movimiento con la referencia.'
     : `${framing} y busca buena iluminación.`;
   return `<a class="back" href="#leccion/${index}/${step}">← Volver a la lección</a>
-    ${heading(isNumber ? 'Práctica de números con cámara' : 'Práctica con cámara', unit[3][step], description)}
+    ${heading(isNumber ? 'Práctica de números con cámara' : 'Práctica con cámara', topics[step], description)}
     <div class="grid"><article><h2>Referencia</h2>${demonstration}</article>
     <article><h2>Vista de cámara</h2>
       <div class="camera-preview">
@@ -495,16 +503,16 @@ function profile() {
     <article class="practice-progress"><h2>Dominio de números</h2>
       <p>${numberMasterySummary(numbers)}. Selecciona un número para practicar.</p>
       ${numberGrid(numbers, 'practica')}<p>${practiceStorageMessage(numbers)}</p></article>
-    <div class="grid practice-progress"><article><h2>Otras unidades</h2>${units.slice(4).map(([title, , percent]) => meter(title, percent)).join('')}</article>
-    <article><h2>Calendario de práctica</h2><p>Semana de ejemplo</p><ol class="calendar">${['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, index) =>
+    <article class="practice-progress"><h2>Calendario de práctica</h2><p>Semana de ejemplo</p><ol class="calendar">${['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, index) =>
       `<li><span>${day}</span><span class="${index < 4 ? 'checked' : ''}" aria-label="${index < 4 ? 'Práctica completada' : 'Sin práctica'}">${index < 4 ? '✓' : '·'}</span></li>`).join('')}</ol>
-      <h2>Logros</h2><p>Primer paso · Primera lección completada</p><h2>Actividad reciente</h2><p>Abecedario · Practicaste la letra A</p></article></div>`;
+      <h2>Logros</h2><p>Primer paso · Primera lección completada</p><h2>Actividad reciente</h2><p>Abecedario · Practicaste la letra A</p></article>`;
 }
 
 const pages = {
   inicio: dashboard, aprender: learning, abecedario: alphabetIndex, ejercicio: alphabetExercise,
   numeros: numberIndex, 'ejercicio-numeros': numberIndex,
   saludos: () => guidedIndex(2), 'ejercicio-saludos': () => guidedIndex(2), expresiones: () => guidedIndex(3),
+  frases: () => guidedIndex(4),
   traductor: translator, progreso: profile,
 };
 const nav = [['inicio', '⌂', 'Inicio'], ['aprender', '▤', 'Aprender'], ['traductor', '⇄', 'Traductor'], ['progreso', '◉', 'Progreso']];
@@ -515,10 +523,10 @@ function render() {
   const step = Number(stepParam);
   const unit = units[index];
   const isLesson = page === 'leccion' || page === 'practica';
-  const isLearningDetail = isLesson || ['abecedario', 'ejercicio', 'numeros', 'ejercicio-numeros', 'saludos', 'ejercicio-saludos', 'expresiones'].includes(page);
+  const isLearningDetail = isLesson || ['abecedario', 'ejercicio', 'numeros', 'ejercicio-numeros', 'saludos', 'ejercicio-saludos', 'expresiones', 'frases'].includes(page);
   const active = isLearningDetail ? 'aprender' : page;
   const content = isLesson
-    ? (unit?.[3][step] ? (page === 'leccion' ? lesson : practice)(unit, index, step)
+    ? (unit?.[2][step] ? (page === 'leccion' ? lesson : practice)(unit, index, step)
       : index === 1 ? numberIndex() : guidedUnits[index] ? guidedIndex(index) : learning())
     : (Object.hasOwn(pages, page) ? pages[page]() : null);
   app.innerHTML = content ? `<aside><a class="brand" href="#bienvenida">${brand}</a>
