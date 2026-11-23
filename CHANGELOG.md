@@ -1,5 +1,11 @@
 # Bitácora de cambios
 
+## Prácticas de frases y comunicación básica
+
+- Se añadieron **Presentarse**, **Pedir ayuda** e **Invitar a participar** con situaciones para ensayar, fotos de las señas de apoyo y cámara en espejo.
+- Presentarse incluye acceso al abecedario para deletrear el nombre. Pedir ayuda reutiliza la ficha local de «Por favor». La unidad se recorre dentro de LinguaPlay con **Practicar siguiente seña**.
+- En Edge se verificaron a 320 píxeles las fotos, la navegación entre las tres prácticas y el apagado de la cámara al cambiar de ficha.
+
 ## Primeras expresiones cotidianas y referencias locales
 
 - Se retiró «Hasta luego» de Saludos básicos hasta contar con fotos reutilizables dentro de la app. Los enlaces anteriores de esa ficha abren el índice.

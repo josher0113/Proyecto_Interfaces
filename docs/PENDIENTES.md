@@ -19,6 +19,8 @@
 - [x] Definir las fichas de referencia y la práctica directa de señas como formato para Números, Saludos básicos y las próximas unidades.
 - [x] Retirar «Hasta luego» de Saludos básicos y quitar los enlaces de salida de las fichas. Incluir los materiales de práctica dentro de LinguaPlay.
 - [x] Incorporar cinco fichas de Expresiones cotidianas con fotos locales y práctica guiada con cámara en espejo.
+- [x] Incorporar prácticas para presentarse, pedir ayuda e invitar a participar, con fotos locales, señas de apoyo y cámara en espejo.
+- [ ] Validar con la asociación ejemplos completos de peticiones e invitaciones en LSM. Incorporar demostraciones locales que muestren la conversación y sus variantes.
 - [ ] Conseguir una secuencia fotográfica en LSM de «Hasta luego» con permiso de redistribución para reincorporar la ficha.
 - [ ] Validar los seis saludos activos y las cinco expresiones con la asociación. Revisar sus variantes y definir cómo evaluar y registrar su ejecución con cámara.
 - [ ] Probar del 1 al 10 con la asociación y con cámaras físicas de escritorio y teléfono. Revisar las posturas que coinciden con letras, los resultados entre números parecidos y los movimientos del 9 y del 10.

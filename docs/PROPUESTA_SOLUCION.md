@@ -1,6 +1,6 @@
 # Propuesta de solución · Borrador del reporte
 
-LinguaPlay LSM propone una ruta de estudio y práctica para personas que empiezan a aprender Lengua de Señas Mexicana. El piloto permite consultar y practicar con cámara las 27 letras del alfabeto manual, los números del 1 al 10, seis fichas de Saludos básicos y cinco de Expresiones cotidianas en LSM. El abecedario también incluye un ejercicio de identificación de A, B y C.
+LinguaPlay LSM propone una ruta de estudio y práctica para personas que empiezan a aprender Lengua de Señas Mexicana. El piloto permite consultar y practicar con cámara las 27 letras del alfabeto manual, los números del 1 al 10, seis fichas de Saludos básicos, cinco de Expresiones cotidianas y tres prácticas de Frases y comunicación básica en LSM. El abecedario también incluye un ejercicio de identificación de A, B y C.
 
 ## Pruebas con la asociación en Xalapa
 
@@ -37,6 +37,14 @@ Los materiales de las fichas se incluyen en la aplicación. Los créditos se mue
 
 En Edge, `node tests/greetings-browser.cjs` recorrió las 11 fichas y sus prácticas a 320 píxeles. Comprobó la carga de las fotos, la navegación interna, la ausencia de cuestionarios, el regreso al índice desde las rutas retiradas y la liberación de la cámara al cambiar de expresión.
 
+### Frases y comunicación básica
+
+La unidad propone tres situaciones de conversación. **Presentarse** muestra «¿Cómo te llamas?» y «Mucho gusto» y enlaza al abecedario para deletrear el nombre. **Pedir ayuda** reutiliza la ficha de «Por favor» y añade «Ayudar». **Invitar a participar** emplea «Querer» y «Actividad». Cada situación muestra sus señas de apoyo con instrucciones y abre la práctica con la cámara en espejo.
+
+Se incorporaron 12 recortes del glosario de la UdeG (pp. 163, 164, 213, 236 y 278) bajo CC BY-NC-SA 4.0. Las fotos y los créditos se incluyen en la app. Las consignas proponen ensayos, y las señas se presentan como apoyos individuales. Queda pendiente validar con la asociación ejemplos completos de peticiones e invitaciones y las variantes que se usan en Xalapa.
+
+La prueba `node tests/greetings-browser.cjs` recorrió las 14 fichas de Saludos, Expresiones y Frases en Edge a 320 píxeles. Comprobó las fotos de cada práctica, la consulta del abecedario desde Presentarse, la navegación interna sin cuestionarios y el apagado de la cámara simulada al cambiar de situación.
+
 ### Frutas y Colores en una próxima actualización
 
 El alcance de la entrega actual retira ambas prácticas de Aprender y Progreso. El prototipo de Frutas (manzana, plátano y pera) y Colores (rojo, amarillo y verde) queda registrado en `4a5dc90` y `b5550bf` de `Manuel`. [Diccionario Wikisigns de LSM](https://www.wikisigns.org/list/es/lsm)
@@ -51,17 +59,17 @@ Antes de publicar nuevas fichas, confirmar las señas, las variantes pertinentes
 
 | Requisito | Criterio de comprobación | Estado |
 | --- | --- | --- |
-| Consultar demostraciones de las señas | Cada ficha presenta una referencia visual y el crédito de la fuente. | Implementado en Abecedario, Números, Saludos básicos y Expresiones cotidianas. |
+| Consultar demostraciones de las señas | Cada ficha presenta una referencia visual y el crédito de la fuente. | Implementado en Abecedario, Números, Saludos básicos, Expresiones cotidianas y Frases y comunicación básica. |
 | Recibir retroalimentación | La práctica con cámara comunica la coincidencia o pide reintentar. El ejercicio de A, B y C muestra el número de aciertos. | Implementado. |
 | Retomar y consultar el avance | La aplicación recupera los aciertos por seña después de recargar. La tercera fecha distinta marca la ficha aprendida en verde. | Implementado en Abecedario y Números. |
 | Introducir una consulta mediante voz | La frase se añade en español de México al campo editable, con estados para permisos, errores y cancelación. | Implementado y probado con reconocimiento simulado. Validación con micrófono físico pendiente. |
-| Practicar con la cámara | La aplicación muestra la referencia junto a la imagen de la persona. Abecedario y Números ofrecen reconocimiento experimental. Saludos básicos y Expresiones cotidianas permiten comparar la ejecución en espejo. | Implementado. Validación con participantes pendiente. |
+| Practicar con la cámara | La aplicación muestra la referencia junto a la imagen de la persona. Abecedario y Números ofrecen reconocimiento experimental. Saludos, Expresiones y Frases permiten comparar la ejecución en espejo. | Implementado. Validación con participantes pendiente. |
 
 ## Arquitectura e infraestructura
 
-El piloto usa HTML, CSS, JavaScript y archivos multimedia locales. La navegación por fragmentos de URL abre cada ficha y su práctica en un navegador de escritorio o móvil. El ejercicio piloto de A, B y C comprueba las respuestas en el dispositivo. El prototipo incluye las fotos y los videos del abecedario y las fotos de Números, Saludos básicos y Expresiones cotidianas.
+El piloto usa HTML, CSS, JavaScript y archivos multimedia locales. La navegación por fragmentos de URL abre cada ficha y su práctica en un navegador de escritorio o móvil. El ejercicio piloto de A, B y C comprueba las respuestas en el dispositivo. El prototipo incluye las fotos y los videos del abecedario y las fotos de Números, Saludos básicos, Expresiones cotidianas y Frases y comunicación básica.
 
-El prototipo incorpora dos modalidades adicionales a la interfaz gráfica. El **dictado** usa un micrófono para introducir consultas en español y la **práctica gestual** usa la cámara para ensayar letras, números del 1 al 10, saludos y expresiones cotidianas. Las pruebas con participantes y dispositivos físicos se harán por separado.
+El prototipo incorpora dos modalidades adicionales a la interfaz gráfica. El **dictado** usa un micrófono para introducir consultas en español y la **práctica gestual** usa la cámara para ensayar letras, números del 1 al 10, saludos, expresiones cotidianas y situaciones de conversación. Las pruebas con participantes y dispositivos físicos se harán por separado.
 
 ### Decisión técnica para el dictado
 

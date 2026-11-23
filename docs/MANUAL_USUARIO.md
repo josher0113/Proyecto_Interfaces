@@ -6,11 +6,11 @@ Este borrador describe el prototipo de LinguaPlay LSM en `Manuel`, incluido el d
 | --- | --- |
 | Bienvenida | Selecciona **Comenzar** para entrar a Inicio. |
 | Inicio | Usa **Explorar abecedario** para entrar al índice o **Abrir traductor** para ir a la consulta. |
-| Aprender | Selecciona **Explorar números** para consultar las fichas del 1 al 10 o **Explorar abecedario** para consultar las letras. Selecciona **Explorar saludos** o **Explorar expresiones** para ver las fichas y practicar las señas. |
+| Aprender | Selecciona **Explorar números** para consultar las fichas del 1 al 10 o **Explorar abecedario** para consultar las letras. Selecciona **Explorar saludos**, **Explorar expresiones** o **Explorar frases** para ver las fichas y practicar. |
 | Abecedario | Elige cualquiera de las 27 letras. La etiqueta **Foto** o **Video** indica el tipo de demostración. Desde el índice también puedes abrir el **Ejercicio de A, B y C**. |
 | Lección | Usa **Anterior** y **Siguiente** para cambiar de ficha. El enlace situado arriba del título vuelve al índice de su unidad. |
 | Ejercicio | Selecciona una letra por cada configuración de la mano y pulsa **Comprobar respuestas**. Puedes corregir tus opciones o usar **Repasar desde A**. |
-| Práctica | Consulta la referencia junto a tu cámara. En Abecedario y Números, registra un acierto cuando la seña coincida. En Saludos básicos y Expresiones cotidianas, usa la cámara como espejo para comparar tu ejecución. Selecciona **Volver a la lección** para regresar a la ficha. |
+| Práctica | Consulta la referencia junto a tu cámara. En Abecedario y Números, registra un acierto cuando la seña coincida. En Saludos, Expresiones y Frases, usa la cámara como espejo para comparar tu ejecución. Selecciona **Volver a la lección** para regresar a la ficha. |
 | Traductor | Escribe o dicta una frase en español. Revisa el texto y pulsa **Traducir** para ver el estado de la consulta de demostración. |
 | Progreso | Consulta el avance del abecedario y de Números. Selecciona una ficha para volver a practicar. Las estadísticas generales son de ejemplo. |
 
@@ -46,6 +46,13 @@ Para usar la cámara, abre el prototipo desde HTTPS o `localhost`.
 2. Lee las indicaciones y observa las fotos de referencia en orden. Cada ficha incluye su material dentro de la aplicación.
 3. Selecciona **Ir a práctica con cámara**, pulsa **Activar cámara** y acepta el permiso. Repite la seña a tu ritmo y compara tu imagen en espejo con la referencia. Ajusta la posición y el movimiento antes de volver a intentarlo.
 4. Selecciona **Practicar siguiente seña** para continuar. En la última ficha puedes volver al índice de la unidad. Usa **Detener cámara** en cualquier momento. La cámara se apaga al salir de la práctica.
+
+## Practicar Frases y comunicación básica
+
+1. En **Aprender**, selecciona **Explorar frases** y elige **Presentarse**, **Pedir ayuda** o **Invitar a participar**.
+2. Lee la situación y practica las señas de apoyo con sus fotos e indicaciones. En **Presentarse**, usa **Consultar el abecedario** si necesitas repasar cómo deletrear tu nombre.
+3. Selecciona **Ir a práctica con cámara** y pulsa **Activar cámara**. Usa la vista en espejo para comparar tu ejecución y ensayar la situación a tu ritmo.
+4. Selecciona **Practicar siguiente seña** para cambiar de práctica. Al salir de la vista, la cámara se apaga.
 
 ## Probar la cámara
 
