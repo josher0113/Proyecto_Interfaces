@@ -1,5 +1,11 @@
 # Bitácora de cambios
 
+## Deletreo con el abecedario de SignWriting
+
+- **Deletrear** utiliza las 27 letras del abecedario manual de LSM, incluida la Ñ. El resultado muestra cada palabra letra por letra y las imágenes se incluyen dentro de Conecta LSM.
+- Las fichas del abecedario incorporan su grafía. La ruta anterior del traductor abre el deletreador.
+- En Edge se verificaron las 27 grafías, el manejo de acentos y el ajuste a 320 píxeles.
+
 ## Escritura en SignWriting para el traductor
 
 - El Traductor muestra seis grafías de LSM tomadas del diccionario de SignPuddle Online. Se incluyen como imágenes locales acreditadas.

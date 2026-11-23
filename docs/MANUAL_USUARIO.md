@@ -5,13 +5,13 @@ Este borrador describe el prototipo de Conecta LSM en `Manuel`, incluido el dict
 | Pantalla | Cómo usarla |
 | --- | --- |
 | Bienvenida | Selecciona **Comenzar** para entrar a Inicio. |
-| Inicio | Usa **Explorar abecedario** para entrar al índice o **Abrir traductor** para ir a la consulta. |
+| Inicio | Usa **Explorar abecedario** para entrar al índice o **Abrir deletreador** para escribir palabras con el abecedario SignWriting. |
 | Aprender | Selecciona **Explorar números** para consultar las fichas del 1 al 10 o **Explorar abecedario** para consultar las letras. Selecciona **Explorar saludos**, **Explorar expresiones** o **Explorar frases** para ver las fichas y practicar. |
-| Abecedario | Elige cualquiera de las 27 letras. La etiqueta **Foto** o **Video** indica el tipo de demostración. Desde el índice también puedes abrir el **Ejercicio de A, B y C**. |
+| Abecedario | Elige cualquiera de las 27 letras. La etiqueta **Foto** o **Video** indica el tipo de demostración. Cada ficha muestra también la letra en SignWriting. Desde el índice también puedes abrir el **Ejercicio de A, B y C**. |
 | Lección | Usa **Anterior** y **Siguiente** para cambiar de ficha. El enlace situado arriba del título vuelve al índice de su unidad. |
 | Ejercicio | Selecciona una letra por cada configuración de la mano y pulsa **Comprobar respuestas**. Puedes corregir tus opciones o usar **Repasar desde A**. |
 | Práctica | Consulta la referencia junto a tu cámara. En Abecedario y Números, registra un acierto cuando la seña coincida. En Saludos, Expresiones y Frases, usa la cámara como espejo para comparar tu ejecución. Selecciona **Volver a la lección** para regresar a la ficha. |
-| Traductor | Escribe o dicta una frase en español. Revisa el texto y pulsa **Traducir** para ver cómo se escribe en SignWriting una expresión del catálogo. |
+| Deletreador | Escribe o dicta un texto en español y pulsa **Deletrear** para mostrar una grafía por letra del abecedario manual de LSM. |
 | Progreso | Consulta el avance del abecedario y de Números. Selecciona una ficha para volver a practicar. Las estadísticas generales son de ejemplo. |
 
 En escritorio, los apartados principales aparecen en la barra lateral. En móvil, aparecen en la barra inferior. Usa **Tab** y **Mayús + Tab** para recorrer los controles. Al principio de la página, **Saltar al contenido** lleva al área principal. Al cambiar de pantalla, el foco pasa al contenido de la nueva vista.
@@ -78,18 +78,18 @@ Se registra como máximo un acierto por letra y fecha local. Tras el primer o se
 
 El avance se guarda en el mismo navegador y desde la misma dirección del sitio. Por ejemplo, `localhost` y `127.0.0.1` mantienen historiales separados. Si el navegador bloquea el almacenamiento, la pantalla avisa que la práctica queda en la visita actual.
 
-## Consultar SignWriting en el traductor
+## Deletrear palabras en SignWriting
 
-1. En **Traductor**, escribe una expresión en español y selecciona **Traducir**. En **Expresiones disponibles** puedes elegir **Hola**, **Buenos días**, **¿Cómo estás?**, **Adiós**, **Gracias** o **Perdón**.
-2. En el recuadro **SignWriting** verás la grafía y su crédito. Usa **Ver práctica relacionada** para consultar las fotos e indicaciones de la expresión dentro de Conecta LSM. La escritura corresponde a la variante del diccionario de SignPuddle.
-3. Si la consulta queda fuera del catálogo, el traductor te avisa y puedes elegir una expresión disponible.
+1. Abre **Deletrear** en el menú. Escribe un nombre o una palabra y pulsa **Deletrear**. También puedes elegir una opción del panel **Ejemplos**.
+2. Lee las grafías de izquierda a derecha dentro de cada palabra. Cada símbolo lleva la letra correspondiente debajo. Por ejemplo, «Año» muestra A, Ñ y O.
+3. Selecciona **Consultar el abecedario** para abrir la ficha de cualquier letra con su foto o video y su SignWriting.
 
-Las grafías están incluidas como imágenes locales. Puedes consultarlas por texto al abrir `index.html` directamente.
+Se conserva la Ñ. Las vocales acentuadas y la Ü usan la grafía de la vocal base. Los espacios y la puntuación separan las palabras. Los números y otros caracteres quedan fuera del resultado. El deletreo escrito funciona también al abrir `index.html` directamente.
 
-## Dictar una frase en el traductor
+## Dictar el texto para deletrear
 
-1. Abre Conecta LSM en HTTPS o desde `localhost`. En **Traductor**, pulsa **Dictar en español** y permite el micrófono cuando el navegador lo solicite.
+1. Abre Conecta LSM en HTTPS o desde `localhost`. En **Deletrear**, pulsa **Dictar en español** y permite el micrófono cuando el navegador lo solicite.
 2. Cuando aparezca **Escuchando**, di una frase corta. Puedes pulsar **Detener dictado** para pedir que se procese lo dicho. Mientras esperas el acceso al micrófono, **Cancelar dictado** interrumpe la solicitud.
-3. El texto dictado se añade al final del campo. Puedes editarlo y pulsar **Traducir** cuando esté listo. Si la expresión está en el catálogo, verás su escritura en SignWriting y el acceso a la práctica relacionada.
+3. El texto dictado se añade al final del campo. Puedes editarlo y pulsar **Deletrear** cuando esté listo para ver la escritura por letras.
 
-Si el servicio no está disponible, puedes escribir en el mismo campo. Salir de Traductor cancela la escucha. Conecta LSM recibe el texto y el navegador puede enviar audio a su proveedor de reconocimiento. [API de reconocimiento de voz](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition)
+Si el servicio no está disponible, puedes escribir en el mismo campo. Salir del deletreador cancela la escucha. Conecta LSM recibe el texto y el navegador puede enviar audio a su proveedor de reconocimiento. [API de reconocimiento de voz](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition)

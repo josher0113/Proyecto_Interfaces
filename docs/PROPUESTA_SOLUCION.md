@@ -62,7 +62,7 @@ Antes de publicar nuevas fichas, confirmar las señas, las variantes pertinentes
 | Consultar demostraciones de las señas | Cada ficha presenta una referencia visual y el crédito de la fuente. | Implementado en Abecedario, Números, Saludos básicos, Expresiones cotidianas y Frases y comunicación básica. |
 | Recibir retroalimentación | La práctica con cámara comunica la coincidencia o pide reintentar. El ejercicio de A, B y C muestra el número de aciertos. | Implementado. |
 | Retomar y consultar el avance | La aplicación recupera los aciertos por seña después de recargar. La tercera fecha distinta marca la ficha aprendida en verde. | Implementado en Abecedario y Números. |
-| Consultar SignWriting de LSM | Una expresión del catálogo muestra su grafía local. Una consulta sin coincidencia recibe un aviso. | Implementado para seis expresiones. |
+| Deletrear con SignWriting de LSM | Cada letra del texto se muestra con su grafía local y se conserva la separación por palabras. | Implementado para las 27 letras. |
 | Introducir una consulta mediante voz | La frase se añade en español de México al campo editable, con estados para permisos, errores y cancelación. | Implementado y probado con reconocimiento simulado. Validación con micrófono físico pendiente. |
 | Practicar con la cámara | La aplicación muestra la referencia junto a la imagen de la persona. Abecedario y Números ofrecen reconocimiento experimental. Saludos, Expresiones y Frases permiten comparar la ejecución en espejo. | Implementado. Validación con participantes pendiente. |
 
@@ -72,13 +72,15 @@ El piloto usa HTML, CSS, JavaScript y archivos multimedia locales. La navegació
 
 El prototipo incorpora dos modalidades adicionales a la interfaz gráfica. El **dictado** usa un micrófono para introducir consultas en español y la **práctica gestual** usa la cámara para ensayar letras, números del 1 al 10, saludos, expresiones cotidianas y situaciones de conversación. Las pruebas con participantes y dispositivos físicos se harán por separado.
 
-### Traductor educativo en SignWriting
+### Deletreador del abecedario en SignWriting
 
-El catálogo asocia cada entrada en español con una grafía documentada de LSM y una práctica relacionada. Incluye **Hola**, **Buenos días**, **¿Cómo estás?**, **Adiós**, **Gracias** y **Perdón**. La búsqueda tolera variaciones de mayúsculas, acentos, espacios y puntuación alrededor de la consulta. La ñ se conserva como letra independiente. Las expresiones sin grafía registrada reciben un aviso.
+El deletreador representa el texto letra por letra mediante el abecedario manual de LSM. Genera una secuencia visual por palabra y deja la letra latina debajo de cada grafía como referencia. Las fichas del abecedario usan los mismos archivos. La ruta anterior `#traductor` abre el deletreador.
 
-La salida usa recortes de la escritura del *Diccionario de Lengua de Señas Mexicana* de SignPuddle Online. El recorte conserva la disposición de los símbolos. Las imágenes PNG se incluyen con la aplicación para poder consultarlas sin servicios externos. Cada resultado muestra la fuente y la página. Los créditos y la licencia CC BY-SA 3.0 de los recortes se registran en `assets/signwriting/README.md` de `Manuel`. La escritura corresponde a la variante documentada en el diccionario.
+Las 27 grafías son recortes de entradas de SignPuddle Online publicadas en *Lengua de Señas Mexicana, 3 de mayo de 2025*. Se incluye una variante por letra y se conservan las marcas de movimiento presentes en esa variante. Las grabaciones de la UABCS pueden mostrar otras variantes. El detalle de páginas, créditos y licencia CC BY-SA 3.0 está en `assets/signwriting/README.md` de `Manuel`.
 
-En Edge, `node tests/signwriting-browser.cjs` comprobó la carga de las seis grafías locales, las variantes de entrada, la consulta sin coincidencia y el acceso a la práctica relacionada a 320 píxeles.
+La conversión pasa el texto a mayúsculas y usa la vocal base para las vocales acentuadas y la Ü. La Ñ conserva su grafía propia. Las imágenes son locales, y el resultado se puede consultar sin instalar fuentes ni llamar a servicios externos.
+
+La prueba `node tests/signwriting-browser.cjs` verificó las 27 grafías y fichas en Edge a 320 píxeles. Cubrió la Ñ, la separación por palabras, las vocales acentuadas y los caracteres omitidos.
 
 ### Decisión técnica para el dictado
 
