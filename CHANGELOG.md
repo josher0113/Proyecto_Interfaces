@@ -1,5 +1,10 @@
 # Bitácora de cambios
 
+## 23 de noviembre de 2026 · Prueba móvil en Galaxy A57
+
+- Un integrante del equipo probó el dictado de **Deletrear** y la práctica con cámara del **Abecedario** en Chrome para Android y confirmó que ambas funciones operaron en su Galaxy A57.
+- El prototipo se abrió en `http://localhost:8765` en el teléfono mediante el reenvío USB de ADB hacia la computadora. Queda pendiente repetir la prueba en escritorio y medir la precisión de ambas modalidades.
+
 ## Dictado local en español
 
 - El deletreador transcribe el audio en el dispositivo mediante Vosk. La app carga el modelo de español desde su propio servidor al activar el dictado.

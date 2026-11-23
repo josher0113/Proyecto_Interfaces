@@ -63,14 +63,14 @@ Antes de publicar nuevas fichas, confirmar las señas, las variantes pertinentes
 | Recibir retroalimentación | La práctica con cámara comunica la coincidencia o pide reintentar. El ejercicio de A, B y C muestra el número de aciertos. | Implementado. |
 | Retomar y consultar el avance | La aplicación recupera los aciertos por seña después de recargar. La tercera fecha distinta marca la ficha aprendida en verde. | Implementado en Abecedario y Números. |
 | Deletrear con SignWriting de LSM | Cada letra del texto se muestra con su grafía local y se conserva la separación por palabras. | Implementado para las 27 letras. |
-| Introducir una consulta mediante voz | El dictado local añade la frase en español al campo editable, con avisos para permisos, errores y cancelación. | Implementado y verificado con un archivo de audio. Validación con micrófono físico pendiente. |
-| Practicar con la cámara | La aplicación muestra la referencia junto a la imagen de la persona. Abecedario y Números ofrecen reconocimiento experimental. Saludos, Expresiones y Frases permiten comparar la ejecución en espejo. | Implementado. Validación con participantes pendiente. |
+| Introducir una consulta mediante voz | El dictado local añade la frase en español al campo editable, con avisos para permisos, errores y cancelación. | Implementado. Prueba funcional con archivo de audio y micrófono de un Galaxy A57. Prueba física en escritorio pendiente. |
+| Practicar con la cámara | La aplicación muestra la referencia junto a la imagen de la persona. Abecedario y Números ofrecen reconocimiento experimental. Saludos, Expresiones y Frases permiten comparar la ejecución en espejo. | Implementado. Prueba funcional de la cámara en un Galaxy A57. Validación con participantes pendiente. |
 
 ## Arquitectura e infraestructura
 
 El piloto usa HTML, CSS, JavaScript y archivos multimedia locales. La navegación por fragmentos de URL abre cada ficha y su práctica en un navegador de escritorio o móvil. El ejercicio piloto de A, B y C comprueba las respuestas en el dispositivo. El prototipo incluye las fotos y los videos del abecedario y las fotos de Números, Saludos básicos, Expresiones cotidianas y Frases y comunicación básica.
 
-El prototipo incorpora dos modalidades adicionales a la interfaz gráfica. El **dictado** usa un micrófono para introducir consultas en español y la **práctica gestual** usa la cámara para ensayar letras, números del 1 al 10, saludos, expresiones cotidianas y situaciones de conversación. Las pruebas con participantes y dispositivos físicos se harán por separado.
+El prototipo incorpora dos modalidades adicionales a la interfaz gráfica. El **dictado** usa un micrófono para introducir consultas en español y la **práctica gestual** usa la cámara para ensayar letras, números del 1 al 10, saludos, expresiones cotidianas y situaciones de conversación. El 23 de noviembre de 2026, un integrante del equipo confirmó el funcionamiento del dictado y de la práctica con cámara del abecedario en un Samsung Galaxy A57 con Chrome para Android. El teléfono accedió al servidor de la computadora por USB mediante ADB. Esta prueba cubrió el funcionamiento de ambas modalidades en el dispositivo. Las pruebas en escritorio y la evaluación de precisión con participantes siguen pendientes.
 
 ### Deletreador del abecedario en SignWriting
 
@@ -88,7 +88,7 @@ El primer prototipo usó Web Speech por su integración con el navegador. Durant
 
 El navegador pide permiso al micrófono mediante `getUserMedia`. Un `AudioWorklet` agrupa las muestras y Vosk las procesa con WebAssembly en un trabajador. El texto se añade al campo editable. El dictado requiere un navegador compatible y acceso por HTTPS o `localhost`. El modelo comprimido pesa unos 40 MB y se carga desde el mismo origen que la aplicación al iniciar el primer dictado.
 
-La prueba `node tests/dictation-browser.cjs` verificó en Edge la captura simulada, los permisos, la cancelación, la liberación del micrófono y la escritura manual cuando el motor no está disponible. Con un WAV generado con voz sintética de español de México, transcribió «Buenos días, esto es una prueba de dictado». Falta comprobar la precisión con voces y micrófonos reales y medir la primera carga en computadora y teléfono.
+La prueba `node tests/dictation-browser.cjs` verificó en Edge la captura simulada, los permisos, la cancelación, la liberación del micrófono y la escritura manual cuando el motor no está disponible. Con un WAV generado con voz sintética de español de México, transcribió «Buenos días, esto es una prueba de dictado». Queda pendiente medir el tiempo de la primera carga y evaluar la precisión con distintas voces y micrófonos.
 
 ### Decisión técnica para la práctica con cámara
 
