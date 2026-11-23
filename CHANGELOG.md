@@ -1,5 +1,11 @@
 # Bitácora de cambios
 
+## Racha de práctica por perfil
+
+- **Inicio** y **Progreso** muestran la racha de la cuenta o del invitado. El primer acierto registrado inicia la racha. Cada día consecutivo suma una vez, aunque se practiquen varias letras y números.
+- La racha aprovecha las fechas ya guardadas. Las señas aprendidas admiten nuevos aciertos en los días siguientes para mantenerla.
+- Se comprobaron el primer día, el avance de un día consecutivo, el reinicio tras una pausa y la separación entre cuentas.
+
 ## Inicio de sesión y progreso por perfil
 
 - Se habilitaron el registro, el inicio y el cierre de sesión en el navegador. Sigue disponible el modo invitado.

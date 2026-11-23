@@ -13,7 +13,7 @@ Este borrador describe el prototipo de Conecta LSM en `Manuel`.
 | Ejercicio | Selecciona una letra por cada configuración de la mano y pulsa **Comprobar respuestas**. Puedes corregir tus opciones o usar **Repasar desde A**. |
 | Práctica | Consulta la referencia junto a tu cámara. En Abecedario y Números, registra un acierto cuando la seña coincida. En Saludos, Expresiones y Frases, usa la cámara como espejo para comparar tu ejecución. Selecciona **Volver a la lección** para regresar a la ficha. |
 | Deletreador | Escribe o dicta un texto en español y pulsa **Deletrear** para mostrar una grafía por letra del abecedario manual de LSM. |
-| Progreso | Consulta el avance del abecedario y de Números. Selecciona una ficha para volver a practicar. Aquí también puedes iniciar o cerrar la sesión. |
+| Progreso | Consulta tu racha y el avance del Abecedario y de Números. Selecciona una ficha para volver a practicar. Aquí también puedes iniciar o cerrar la sesión. |
 
 En escritorio, los apartados principales aparecen en la barra lateral. En móvil, aparecen en la barra inferior. Usa **Tab** y **Mayús + Tab** para recorrer los controles. Al principio de la página, **Saltar al contenido** lleva al área principal. Al cambiar de pantalla, el foco pasa al contenido de la nueva vista.
 
@@ -24,6 +24,12 @@ En escritorio, los apartados principales aparecen en la barra lateral. En móvil
 3. Para volver al mismo historial en próximas visitas, usa la misma dirección de Conecta LSM y el mismo navegador. Elige **Cerrar sesión** en **Progreso** cuando compartas el equipo.
 
 El historial de invitado y el de cada cuenta se conservan por separado. En la HP y en el Galaxy se crea una cuenta independiente si deseas usar ambas instalaciones. Borrar los datos del sitio en el navegador elimina las cuentas y su historial guardado en ese navegador.
+
+## Consultar la racha de práctica
+
+La racha está en **Inicio** y **Progreso**. Empieza en cero para una cuenta nueva. En **Abecedario** o **Números**, haz una seña con la cámara y pulsa **Registrar práctica** cuando la app confirme la coincidencia. Esto suma el primer día. Cada fecha consecutiva suma un día, incluso si registras varias señas en esa fecha.
+
+Si practicaste ayer, la racha sigue disponible durante hoy. Si termina el día sin guardar un acierto, vuelve a cero. Puedes registrar una práctica con una seña que ya esté en verde. El verde sigue dependiendo de tres fechas distintas de práctica para esa seña.
 
 ## Comprobación de navegación
 

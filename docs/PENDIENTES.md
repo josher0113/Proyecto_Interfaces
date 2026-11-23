@@ -58,7 +58,8 @@
 - [ ] Revisar con el equipo si conservar el criterio de tres fechas o ajustar la frecuencia de práctica.
 - [x] Incorporar las 27 letras del abecedario manual de LSM en SignWriting en el deletreador y en sus fichas. Verificar las imágenes locales, la Ñ y el ajuste en móvil.
 - [ ] Revisar con personas usuarias de LSM las variantes de las letras en SignPuddle y su correspondencia con las referencias de práctica de la UABCS.
-- [ ] Guardar el avance de las otras unidades, las lecciones completadas y los logros. Calcular la racha a partir de actividades completadas en días consecutivos.
+- [x] Calcular la racha con los días consecutivos de aciertos registrados en Abecedario y Números. Mostrarla en Inicio y Progreso.
+- [ ] Guardar el avance de las otras unidades, las lecciones completadas y los logros.
 - [x] Habilitar cuentas locales, inicio y cierre de sesión y avance separado por perfil e invitado.
 
 ## Entrega académica

@@ -63,6 +63,7 @@ Antes de publicar nuevas fichas, confirmar las señas, las variantes pertinentes
 | Recibir retroalimentación | La práctica con cámara comunica la coincidencia o pide reintentar. El ejercicio de A, B y C muestra el número de aciertos. | Implementado. |
 | Iniciar sesión y separar el historial | Cada cuenta recupera su propio progreso al volver a entrar. Se conserva el avance de invitado. | Implementado y comprobado en Edge. |
 | Retomar y consultar el avance | La aplicación recupera los aciertos por seña después de recargar. La tercera fecha distinta marca la ficha aprendida en verde. | Implementado en Abecedario y Números. |
+| Mantener una racha de práctica | La racha suma cada fecha local consecutiva con al menos un acierto registrado en letras o números. | Implementado por perfil e invitado. |
 | Deletrear con SignWriting de LSM | Cada letra del texto se muestra con su grafía local y se conserva la separación por palabras. | Implementado para las 27 letras. |
 | Introducir una consulta mediante voz | El dictado local añade la frase en español al campo editable, con avisos para permisos, errores y cancelación. | Implementado. Pruebas funcionales con un archivo de audio y con micrófonos físicos en un Galaxy A57 y una HP ProBook 445 G8. |
 | Practicar con la cámara | La aplicación muestra la referencia junto a la imagen de la persona. Abecedario y Números ofrecen reconocimiento experimental. Saludos, Expresiones y Frases permiten comparar la ejecución en espejo. | Implementado. Pruebas funcionales con cámara en un Galaxy A57 y una HP ProBook 445 G8. Evaluación con participantes pendiente. |
@@ -110,6 +111,8 @@ Para **J, Ñ, P, Q, X y Z** elegimos comparar secuencias porque un fotograma ais
 ### Criterio de progreso por letra
 
 El primer acierto acredita el primer día de práctica. El equipo podrá revisar el umbral provisional de **tres fechas distintas** después de probar el flujo. La persona confirma cada registro con un botón, y repetirlo en la misma fecha sirve como repaso. El criterio mantiene visible el avance entre visitas y evita equiparar un intento aislado con el objetivo de la unidad.
+
+La racha de práctica se deriva de las fechas que ya se guardan por seña. Se unen los historiales de letras y números de la cuenta activa o del invitado. El conteo empieza en la fecha actual si tiene un acierto registrado y desde ayer si todavía falta la práctica de hoy. Avanza hacia atrás hasta el primer día sin registro. Repasar una seña aprendida puede sumar a la racha en una nueva fecha.
 
 Se almacena una clave en `localStorage` por letra y fecha local. Esta granularidad evita que dos pestañas se sobrescriban al guardar prácticas distintas. El historial se mantiene en el navegador y en el mismo origen del sitio. Si falla el almacenamiento, la aplicación conserva los registros sin guardar en memoria durante la visita. [Web Storage](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)
 
