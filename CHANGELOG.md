@@ -1,5 +1,10 @@
 # Bitácora de cambios
 
+## Material de demostración para el foro
+
+- Se preparó un ejecutable de Windows que abre en el navegador el prototipo de la rama `Manuel` (`eb18390`). Los medios y los modelos de cámara y dictado están incluidos.
+- Se grabó un recorrido de las pantallas y se montó un MP4 con narración y subtítulos. Las demostraciones de reconocimiento con material de referencia de la UABCS y de dictado con voz sintética se identifican en el video.
+
 ## Alcance de las pruebas para la presentación
 
 - Se acordó usar la HP ProBook 445 G8 y el Samsung Galaxy A57, con la cámara y el dictado ya probados en ambos equipos. Las pruebas adicionales se retoman después de la presentación.

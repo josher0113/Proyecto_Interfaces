@@ -3,7 +3,8 @@
 ## Alcance de la presentación
 
 - La presentación usará la HP ProBook 445 G8 y el Samsung Galaxy A57. En ambos ya se realizó la prueba funcional de dictado y práctica con cámara.
-- Las pruebas adicionales quedan para después de la presentación. Las tareas de **Entrega académica** son la prioridad actual.
+- Se prepararon para el foro un ejecutable local para Windows y un video de demostración con narración y subtítulos.
+- Las pruebas adicionales quedan para después de la presentación. El reporte, la presentación y el ZIP de la entrega académica se preparan por separado.
 
 ## Interfaz y contenidos
 
