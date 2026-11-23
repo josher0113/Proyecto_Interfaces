@@ -75,6 +75,7 @@ const alphabetPhoto = (letter, description) =>
   `<img class="alphabet-photo" src="assets/abecedario/${letter}.jpg" alt="${description}" width="480" height="640">`;
 const alphabetCredit = () => `<p class="media-credit">Material de Yahilyn Rodriguez, Michelle Bocanegra y Kenya Sanchez.
   Biblioteca Universitaria UABCS · CC BY-SA 4.0. Imágenes redimensionadas.</p>`;
+const signWritingCredit = () => '<p class="media-credit">Grafías del diccionario de LSM de SignPuddle Online (2025) · Sutton SignWriting · CC BY-SA 3.0.</p>';
 const glossaryCredit = page => `<p class="media-credit">Recortes de las fotografías de Servando Alvarado Cisneros,
   <i>Glosario universitario de Lengua de Señas Mexicana</i>, Universidad de Guadalajara, p. ${page} · CC BY-NC-SA 4.0.</p>`;
 
@@ -86,7 +87,11 @@ function alphabetDemo(letter) {
       <figcaption><a href="assets/abecedario/${letter}.mp4">Abrir video de la letra ${letter}</a></figcaption>`
     : alphabetPhoto(letter, description ? '' : `Configuración manual de la letra ${letter} en LSM`);
   return `<figure class="alphabet-demo">${visual}
-    ${description ? `<figcaption>${description}</figcaption>` : ''}</figure>${alphabetCredit()}`;
+    ${description ? `<figcaption>${description}</figcaption>` : ''}</figure>${alphabetCredit()}
+    <figure class="alphabet-writing">
+      <img src="${signWritingGlyph(letter)}" width="96" height="96" alt="Letra ${letter} en SignWriting">
+      <figcaption>SignWriting</figcaption>
+    </figure>${signWritingCredit()}`;
 }
 
 function alphabetIndex() {
@@ -185,8 +190,8 @@ function dashboard() {
     <div class="grid"><article class="feature"><p class="eyebrow">Alfabeto manual</p><h2>Abecedario</h2>
       <p>${alphabetMasterySummary(letterProgress?.snapshot())}.</p>${link('abecedario', 'Explorar abecedario')}</article>
       <article><h2>Esta semana</h2>${stats()}${meter('Meta semanal', 60)}</article>
-    </div><article class="quick"><div><h2>Traductor LSM</h2><p>Consulta expresiones de LSM escritas en SignWriting.</p></div>
-      ${link('traductor', 'Abrir traductor', true)}</article>`;
+    </div><article class="quick"><div><h2>Deletreador LSM</h2><p>Deletrea palabras y nombres con el abecedario de SignWriting para LSM.</p></div>
+      ${link('traductor', 'Abrir deletreador', true)}</article>`;
 }
 
 function learning() {
@@ -479,50 +484,38 @@ function translator() {
     : (location.protocol === 'file:' || !window.isSecureContext
       ? 'Abre Conecta LSM en HTTPS o localhost para usar el dictado. También puedes escribir la frase.'
       : 'Dictado no disponible en este navegador. Puedes escribir la frase.');
-  return `${heading('Consulta educativa', 'Traductor LSM', 'Consulta cómo se escribe en SignWriting una expresión de Lengua de Señas Mexicana.')}
+  return `${heading('Abecedario manual', 'Deletreador LSM', 'Escribe palabras o nombres y lee cada letra en SignWriting del abecedario de LSM.')}
   <div class="grid translation"><article><form id="translate">
-  <h2><label for="phrase">Escribe en español</label></h2><textarea required maxlength="300" id="phrase" placeholder="Por ejemplo: Buenos días"></textarea>
+  <h2><label for="phrase">Texto para deletrear</label></h2><textarea required maxlength="300" id="phrase" placeholder="Por ejemplo: Año"></textarea>
   <div class="actions"><button type="button" class="secondary" id="dictation-toggle" aria-describedby="dictation-note" ${voiceAvailable ? '' : 'disabled'}>
     <span aria-hidden="true">🎙</span><span id="dictation-label">Dictar en español</span></button>
-    <button type="submit">Traducir</button></div>
+    <button type="submit">Deletrear</button></div>
     <p id="dictation-status" role="status"></p><p id="dictation-note">${voiceNote}</p>
-    <details class="translation-examples"><summary>Expresiones disponibles</summary>
-      <div class="actions">${signWritingCatalog.map(({ spanish }) =>
-        `<button type="button" class="secondary" data-signwriting-example="${spanish}">${spanish}</button>`).join('')}</div>
+    <details class="translation-examples"><summary>Ejemplos</summary>
+      <div class="actions">${spellingExamples.map(example =>
+        `<button type="button" class="secondary" data-signwriting-example="${example}">${example}</button>`).join('')}</div>
     </details></form></article>
-  <article><h2>SignWriting</h2>
-    <p class="feedback" id="translation-status" role="status">Escribe una expresión o elige un ejemplo del catálogo.</p>
+  <article><h2>Deletreo en SignWriting</h2>
+    <p class="feedback" id="translation-status" role="status">Escribe un texto o elige un ejemplo.</p>
     <div id="translation-writing" hidden>
-      <figure class="translation-writing">
-        <img id="translation-writing-image" width="280" height="280" alt="">
-        <figcaption class="media-credit" id="translation-credit"></figcaption>
-      </figure>
-      <div class="actions"><a id="translation-reference" class="button secondary" href="#aprender">Ver práctica relacionada</a></div>
+      <ol id="spelling-words" aria-label="Palabras deletreadas"></ol>
+      ${signWritingCredit()}
+      <div class="actions">${link('abecedario', 'Consultar el abecedario', true)}</div>
     </div>
   </article></div>`;
 }
 
 function showSignWriting(phrase) {
-  const query = normalizeSignWritingQuery(phrase);
-  const entry = signWritingBySpanish.get(query);
+  const { words, unsupported } = readSpelling(phrase);
   const status = app.querySelector('#translation-status');
   const writing = app.querySelector('#translation-writing');
-  const image = writing.querySelector('#translation-writing-image');
-  const credit = writing.querySelector('#translation-credit');
-  status.textContent = entry ? `Para «${entry.spanish}»`
-    : query ? `«${phrase}» todavía no está en el catálogo. Puedes elegir una expresión de ejemplo.`
-      : 'Escribe una palabra o frase para consultar.';
-  writing.hidden = !entry;
-  if (!entry) {
-    image.removeAttribute('src');
-    image.alt = '';
-    credit.textContent = '';
-    return;
-  }
-  image.src = `assets/signwriting/${entry.image}`;
-  image.alt = `«${entry.spanish}» en SignWriting de Lengua de Señas Mexicana`;
-  credit.textContent = `Diccionario de LSM de SignPuddle Online, p. ${entry.page} · Sutton SignWriting · CC BY-SA 3.0.`;
-  writing.querySelector('#translation-reference').href = `#${entry.lesson}`;
+  status.textContent = words.length
+    ? `Para «${phrase}».${unsupported ? ' Se omitieron los números y otros caracteres fuera del abecedario.' : ''}`
+    : 'Escribe al menos una letra del abecedario para deletrear.';
+  writing.hidden = words.length === 0;
+  writing.querySelector('#spelling-words').innerHTML = words.map(word => `<li><ol class="spelling-word" aria-label="${word.join('')}">
+    ${word.map(letter => `<li><img src="${signWritingGlyph(letter)}" width="56" height="56" alt=""><span>${letter}</span></li>`).join('')}
+    </ol></li>`).join('');
 }
 
 function profile() {
@@ -548,7 +541,7 @@ const pages = {
   frases: () => guidedIndex(4),
   traductor: translator, progreso: profile,
 };
-const nav = [['inicio', '⌂', 'Inicio'], ['aprender', '▤', 'Aprender'], ['traductor', '⇄', 'Traductor'], ['progreso', '◉', 'Progreso']];
+const nav = [['inicio', '⌂', 'Inicio'], ['aprender', '▤', 'Aprender'], ['traductor', '⇄', 'Deletrear'], ['progreso', '◉', 'Progreso']];
 
 function render() {
   const [page, unitParam, stepParam] = location.hash.slice(1).split('/');
@@ -608,7 +601,7 @@ app.addEventListener('submit', event => {
     return;
   }
   if (event.target.id === 'translate') {
-    dictation.cancel('Dictado cancelado al consultar el texto actual.');
+    dictation.cancel('Dictado cancelado al deletrear el texto actual.');
     showSignWriting(event.target.querySelector('#phrase').value.trim());
   }
 });

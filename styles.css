@@ -79,9 +79,12 @@ progress::-moz-progress-bar { background: var(--wine); }
 .translation-examples { margin-top: 1rem; }
 .translation-examples summary { cursor: pointer; }
 #translation-status { overflow-wrap: anywhere; }
-.translation-writing { margin: 1rem 0 0; }
-.translation-writing img { display: block; width: min(100%, 17.5rem); height: auto; border: 1px solid var(--line); border-radius: 8px; background: white; }
-.translation-writing figcaption { margin-top: .65rem; }
+.alphabet-writing { display: flex; align-items: center; gap: .75rem; margin: 1rem 0 0; }
+.alphabet-writing img, .spelling-word img { display: block; background: white; border: 1px solid var(--line); border-radius: 8px; }
+#spelling-words, .spelling-word { list-style: none; padding: 0; }
+#spelling-words { display: grid; gap: .9rem; margin: 1rem 0; }
+.spelling-word { display: flex; flex-wrap: wrap; gap: .45rem; margin: 0; }
+.spelling-word li { display: grid; justify-items: center; gap: .2rem; font-weight: 650; }
 .alphabet-video { display: block; width: 100%; max-width: 28rem; max-height: 27rem; background: var(--ink); border-radius: 9px; }
 .camera-preview { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 3; margin-top: 1rem; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--rose); }
 .camera-preview p { margin: 0; padding: .75rem; text-align: center; }

@@ -4,78 +4,69 @@ const { runBrowserTest } = require('./browser-harness.cjs');
 async function signWritingScenario({ send, run, check, navigate, errors, requests }) {
   await send('Emulation.setDeviceMetricsOverride', { width: 320, height: 740, deviceScaleFactor: 1, mobile: false });
   await navigate('#traductor');
-  await check('document.querySelector("h1")?.textContent === "Traductor LSM"');
+  await check('document.querySelector("h1")?.textContent === "Deletreador LSM"');
 
-  const status = 'document.querySelector("#translation-status")';
+  const alphabet = [...'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'];
   const result = 'document.querySelector("#translation-writing")';
-  const image = 'document.querySelector("#translation-writing-image")';
-  const reference = 'document.querySelector("#translation-reference")';
+  const status = 'document.querySelector("#translation-status")';
+  const glyphs = 'Array.from(document.querySelectorAll(".spelling-word img"))';
+  const labels = 'Array.from(document.querySelectorAll(".spelling-word"), word => word.textContent.replace(/\\s/g, ""))';
   const submit = phrase => run(`
     document.querySelector('#phrase').value = ${JSON.stringify(phrase)};
     document.querySelector('#translate').requestSubmit();
   `);
-
-  const checkImage = filename => check(`${image}.getAttribute("src") === "assets/signwriting/${filename}"
-    && ${image}.complete && ${image}.naturalWidth === 280 && !${result}.hidden`);
+  const localGlyphs = () => check(glyphs + '.every(image => image.complete && image.naturalWidth === 128)');
 
   assert.equal(await run(result + '.hidden'), true);
-  assert.equal(await run(image + '.hasAttribute("src")'), false);
-  assert.equal(await run('document.querySelectorAll(".translation video, .translation iframe").length'), 0);
+  await submit('An\u0303o, pingüino.\nÉxito');
+  await localGlyphs();
+  assert.deepEqual(await run(labels), ['AÑO', 'PINGUINO', 'EXITO']);
+  assert.equal(await run(glyphs + '[1].getAttribute("src")'), 'assets/signwriting/abecedario/enie.png');
 
-  await submit('  ¡  BUENOS   DIAS  !  ');
-  await checkImage('buenos-dias.png');
-  assert.equal(await run(reference + '.hash'), '#leccion/2/1');
+  await submit('Buenos días');
+  assert.deepEqual(await run(labels), ['BUENOS', 'DIAS']);
 
-  await submit('¿Como\n\t  estas?');
-  await checkImage('como-estas.png');
-  await submit('Disculpe.');
-  await checkImage('perdon.png');
+  await submit(alphabet.join(''));
+  await check(glyphs + '.length === 27');
+  await localGlyphs();
+  assert.deepEqual(await run(labels), [alphabet.join('')]);
+  assert.equal(await run('new Set(' + glyphs + '.map(image => image.src)).size'), 27);
+  assert.equal(await run(glyphs + '.every(image => new URL(image.src).origin === location.origin)'), true);
+  const widths = await run('({ content: document.documentElement.scrollWidth, viewport: document.documentElement.clientWidth })');
+  assert.ok(widths.content <= widths.viewport, 'El abecedario completo debe ajustarse a 320 px.');
 
-  const catalog = await run('signWritingCatalog');
-  assert.equal(catalog.length, 6);
-  for (const entry of catalog) {
-    await submit(entry.spanish);
-    await checkImage(entry.image);
-    assert.ok((await run(image + '.alt')).includes(entry.spanish));
-    assert.ok((await run('document.querySelector("#translation-credit").textContent')).includes('p. ' + entry.page));
-    assert.equal(await run(reference + '.hash'), '#' + entry.lesson);
-    const [, unit, step] = entry.lesson.split('/');
-    assert.ok(await run(`units[${Number(unit)}][2][${Number(step)}]`), entry.spanish + ' debe enlazar una ficha existente.');
-  }
+  await submit('LSM 123 🔤');
+  assert.deepEqual(await run(labels), ['LSM']);
+  assert.match(await run(status + '.textContent'), /Se omitieron/);
+  await submit('123 ¿!');
+  assert.equal(await run(result + '.hidden'), true);
+  assert.equal(await run(glyphs + '.length'), 0);
+  assert.match(await run(status + '.textContent'), /Escribe al menos una letra/);
 
-  for (const phrase of ['Por favor', 'Hola, quiero aprender LSM']) {
-    await submit(phrase);
-    assert.match(await run(status + '.textContent'), /todavía no está en el catálogo/);
-    assert.equal(await run(result + '.hidden'), true);
-    assert.equal(await run(image + '.hasAttribute("src")'), false);
-  }
-
-  const textOnly = '<img src="imagen.html">';
-  await submit(textOnly);
-  assert.ok((await run(status + '.textContent')).includes(textOnly));
+  const pasted = '<iframe>';
+  await submit(pasted);
   assert.equal(await run(status + '.children.length'), 0);
-  await submit('  !!!  ');
-  assert.match(await run(status + '.textContent'), /Escribe una palabra/);
-  assert.equal(await run('normalizeSignWritingQuery("AÑO")'), 'año');
+  assert.ok((await run(status + '.textContent')).includes(pasted));
 
   await run('document.querySelector(".translation-examples summary").click()');
-  assert.equal(await run('document.querySelectorAll("[data-signwriting-example]").length'), catalog.length);
-  const overflow = await run('document.documentElement.scrollWidth - document.documentElement.clientWidth');
-  assert.ok(overflow <= 0, 'La vista de 320 px debe caber horizontalmente.');
-  await run('document.querySelector(\'button[data-signwriting-example="Gracias"]\').click()');
-  await checkImage('gracias.png');
-  assert.equal(await run('document.querySelector("#phrase").value'), 'Gracias');
-  assert.ok(await run(`${image}.getBoundingClientRect().right <= document.documentElement.clientWidth`));
-  assert.equal(await run(`[...document.querySelectorAll('.translation [src], .translation a[href]')]
-    .every(node => new URL(node.src || node.href).origin === location.origin)`), true);
-  assert.ok(requests.includes('assets/signwriting/gracias.png'));
-  await run(reference + '.click()');
-  await check('location.hash === "#leccion/3/0" && document.querySelector("h1")?.textContent === "Gracias"');
+  await run('document.querySelector("[data-signwriting-example=Hola]").click()');
+  assert.deepEqual(await run(labels), ['HOLA']);
+  assert.equal(await run('document.querySelector("#phrase").value'), 'Hola');
+  await run('document.querySelector(\'#translation-writing a[href="#abecedario"]\').click()');
+  await check('document.querySelector("h1").textContent === "Abecedario"');
+
+  for (const [step, letter] of alphabet.entries()) {
+    await run('location.hash = "#leccion/0/' + step + '"');
+    await check(`document.querySelector("h1")?.textContent === ${JSON.stringify('Letra ' + letter)}
+      && document.querySelector(".alphabet-writing img")?.naturalWidth === 128`);
+    assert.match(await run('document.querySelector(".alphabet-writing img").alt'), new RegExp('Letra ' + letter));
+  }
+  assert.ok(requests.includes('assets/signwriting/abecedario/enie.png'));
   assert.deepEqual(errors, []);
 }
 
 runBrowserTest(signWritingScenario).then(() => {
-  console.log('Edge: seis grafías locales de SignWriting, variantes de entrada, consulta sin coincidencia y práctica relacionada a 320 px.');
+  console.log('Edge: 27 grafías locales, Ñ, acentos, separación de palabras, caracteres omitidos y fichas del abecedario a 320 px.');
 }).catch(error => {
   console.error(error);
   process.exitCode = 1;
