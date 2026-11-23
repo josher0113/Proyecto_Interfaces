@@ -63,7 +63,7 @@ Antes de publicar nuevas fichas, confirmar las señas, las variantes pertinentes
 | Recibir retroalimentación | La práctica con cámara comunica la coincidencia o pide reintentar. El ejercicio de A, B y C muestra el número de aciertos. | Implementado. |
 | Retomar y consultar el avance | La aplicación recupera los aciertos por seña después de recargar. La tercera fecha distinta marca la ficha aprendida en verde. | Implementado en Abecedario y Números. |
 | Deletrear con SignWriting de LSM | Cada letra del texto se muestra con su grafía local y se conserva la separación por palabras. | Implementado para las 27 letras. |
-| Introducir una consulta mediante voz | La frase se añade en español de México al campo editable, con estados para permisos, errores y cancelación. | Implementado y probado con reconocimiento simulado. Validación con micrófono físico pendiente. |
+| Introducir una consulta mediante voz | El dictado local añade la frase en español al campo editable, con avisos para permisos, errores y cancelación. | Implementado y verificado con un archivo de audio. Validación con micrófono físico pendiente. |
 | Practicar con la cámara | La aplicación muestra la referencia junto a la imagen de la persona. Abecedario y Números ofrecen reconocimiento experimental. Saludos, Expresiones y Frases permiten comparar la ejecución en espejo. | Implementado. Validación con participantes pendiente. |
 
 ## Arquitectura e infraestructura
@@ -84,11 +84,11 @@ La prueba `node tests/signwriting-browser.cjs` verificó las 27 grafías y ficha
 
 ### Decisión técnica para el dictado
 
-Se eligió la API Web Speech porque permite incorporar una entrada por voz en la aplicación web existente. `SpeechRecognition` y su variante `webkitSpeechRecognition` permiten solicitar el micrófono desde la acción de la persona y devolver texto sin que el equipo tenga que operar un servicio propio de reconocimiento. El prototipo solicita `es-MX`, recibe una frase corta y agrega los resultados finales al campo editable. La persona confirma el envío de la consulta después de revisar el texto. [Especificación de Web Speech](https://wicg.github.io/speech-api/)
+El primer prototipo usó Web Speech por su integración con el navegador. Durante las pruebas surgió un error de conexión con el proveedor de voz. Elegimos Vosk para procesar el audio en el dispositivo y evitar que la transcripción dependa de la conexión con un proveedor externo. El modelo incluido es de español general.
 
-Para usarlo se necesita un navegador compatible, permiso de micrófono y acceso al servicio que ofrezca ese navegador. El servicio puede requerir conexión y enviar el audio al proveedor. Por ejemplo, Microsoft documenta el uso de Azure Cognitive Services en Edge. La interfaz informa de ese tratamiento y ofrece el campo de escritura cuando el servicio falla o no está disponible. Al salir de la vista se cancela la sesión de voz. [Política de reconocimiento de voz de Edge](https://learn.microsoft.com/en-us/deployedge/microsoft-edge-browser-policies/speechrecognitionenabled)
+El navegador pide permiso al micrófono mediante `getUserMedia`. Un `AudioWorklet` agrupa las muestras y Vosk las procesa con WebAssembly en un trabajador. El texto se añade al campo editable. El dictado requiere un navegador compatible y acceso por HTTPS o `localhost`. El modelo comprimido pesa unos 40 MB y se carga desde el mismo origen que la aplicación al iniciar el primer dictado.
 
-La prueba `node tests/dictation-browser.cjs` usa un servicio de voz simulado en Edge para comprobar `es-MX`, transcripción final, edición, límite de texto, permiso denegado, fallos de conexión, cancelación y escritura sin la API. La evaluación con dispositivos físicos deberá verificar la transcripción de frases en español de México y la disponibilidad real del servicio.
+La prueba `node tests/dictation-browser.cjs` verificó en Edge la captura simulada, los permisos, la cancelación, la liberación del micrófono y la escritura manual cuando el motor no está disponible. Con un WAV generado con voz sintética de español de México, transcribió «Buenos días, esto es una prueba de dictado». Falta comprobar la precisión con voces y micrófonos reales y medir la primera carga en computadora y teléfono.
 
 ### Decisión técnica para la práctica con cámara
 

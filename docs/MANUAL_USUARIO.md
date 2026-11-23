@@ -1,6 +1,6 @@
 # Manual de usuario · Prototipo de interfaces
 
-Este borrador describe el prototipo de Conecta LSM en `Manuel`, incluido el dictado de la revisión `dadb59a`.
+Este borrador describe el prototipo de Conecta LSM en `Manuel`.
 
 | Pantalla | Cómo usarla |
 | --- | --- |
@@ -89,7 +89,7 @@ Se conserva la Ñ. Las vocales acentuadas y la Ü usan la grafía de la vocal ba
 ## Dictar el texto para deletrear
 
 1. Abre Conecta LSM en HTTPS o desde `localhost`. En **Deletrear**, pulsa **Dictar en español** y permite el micrófono cuando el navegador lo solicite.
-2. Cuando aparezca **Escuchando**, di una frase corta. Puedes pulsar **Detener dictado** para pedir que se procese lo dicho. Mientras esperas el acceso al micrófono, **Cancelar dictado** interrumpe la solicitud.
+2. Cuando aparezca **Escuchando**, di una frase corta. Puedes pulsar **Detener dictado** para pedir que se procese lo dicho. En la primera sesión el modelo de español puede tardar en cargar. Puedes pulsar **Cancelar dictado** durante la espera.
 3. El texto dictado se añade al final del campo. Puedes editarlo y pulsar **Deletrear** cuando esté listo para ver la escritura por letras.
 
-Si el servicio no está disponible, puedes escribir en el mismo campo. Salir del deletreador cancela la escucha. Conecta LSM recibe el texto y el navegador puede enviar audio a su proveedor de reconocimiento. [API de reconocimiento de voz](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition)
+Si el navegador no puede iniciar el dictado, puedes escribir en el mismo campo. Salir del deletreador cancela la escucha. El audio se procesa en el dispositivo.

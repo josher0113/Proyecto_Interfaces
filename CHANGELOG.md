@@ -1,5 +1,11 @@
 # Bitácora de cambios
 
+## Dictado local en español
+
+- El deletreador transcribe el audio en el dispositivo mediante Vosk. La app carga el modelo de español desde su propio servidor al activar el dictado.
+- En Edge se transcribió un audio de prueba en español y se verificaron los permisos, la cancelación, la liberación del micrófono y la escritura manual si el motor falla.
+- Queda pendiente probar la precisión y el tiempo de carga con micrófonos físicos en computadora y teléfono.
+
 ## Deletreo con el abecedario de SignWriting
 
 - **Deletrear** utiliza las 27 letras del abecedario manual de LSM, incluida la Ñ. El resultado muestra cada palabra letra por letra y las imágenes se incluyen dentro de Conecta LSM.
