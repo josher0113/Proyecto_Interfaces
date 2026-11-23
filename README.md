@@ -7,7 +7,7 @@ LinguaPlay LSM es un proyecto educativo para empezar a aprender Lengua de Señas
 Para probar la versión actual, cambia a `Manuel`. Puedes abrir `index.html` directamente para recorrer el prototipo. Sirve esa misma carpeta mediante `localhost` o HTTPS para probar la cámara y el dictado. Los pasos están en el [manual](docs/MANUAL_USUARIO.md).
 
 1. En la bienvenida, selecciona **Comenzar** para entrar al inicio.
-2. En **Aprender**, selecciona **Explorar números** para practicar del 1 al 10 con cámara o abre **Abecedario** para practicar sus 27 letras. Selecciona **Explorar saludos** para estudiar tres expresiones y repasar cuándo usarlas.
+2. En **Aprender**, selecciona **Explorar números** para practicar del 1 al 10 con cámara o abre **Abecedario** para practicar sus 27 letras. Selecciona **Explorar saludos** para consultar siete fichas y practicar las señas frente a la cámara.
 3. En **Traductor**, escribe o dicta una frase en español, revisa el texto y selecciona **Traducir** para ver el estado de la consulta.
 4. En **Progreso**, consulta tu avance por letra y por número. Cada seña pasa a verde después de registrar un acierto en cada uno de tres días distintos.
 
@@ -15,6 +15,7 @@ Para probar la versión actual, cambia a `Manuel`. Puedes abrir `index.html` dir
 
 - **Prototipado por etapas.** La primera versión reúne siete pantallas enlazadas para revisar el recorrido, la claridad de los controles y la retroalimentación. El diseño usa navegación lateral en escritorio y navegación inferior en móvil.
 - **Implementación web estática.** HTML define la entrada, CSS adapta el diseño a distintos tamaños y JavaScript organiza las vistas, reutiliza componentes y gestiona la navegación mediante el fragmento de URL.
+- **Práctica por seña.** Saludos básicos y Números se recorren con fichas de referencia y práctica directa. Este será el formato de las próximas unidades.
 - **Contenido educativo validado.** Las demostraciones de señas se incorporarán después de revisar sus fuentes. El traductor educativo se planteará como un catálogo de expresiones validadas que respete la gramática de la LSM.
 - **Interacción por voz y gestos.** Traductor usa el servicio de voz del navegador para introducir texto en español de México. Práctica usa MediaPipe para seguir las manos en el navegador. Un clasificador experimental compara las posturas y los movimientos del abecedario y de Números, y el avance se registra por días. La validación con participantes y dispositivos físicos sigue pendiente.
 

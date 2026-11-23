@@ -15,8 +15,9 @@
 - [x] Incorporar las fichas del 1 al 3 y verificar en Edge el ejercicio de identificación, su retroalimentación y el reintento.
 - [x] Limitar la unidad activa de Números a las fichas del 1 al 10 y conservar el registro por fecha.
 - [x] Separar la entrada al reconocimiento de letras y números para que cada ficha evalúe su propio tipo de seña.
-- [x] Iniciar Saludos básicos con las fichas de **Hola**, **Buenos días** y **Hasta luego**, y un repaso de uso.
-- [ ] Revisar estas señas y sus variantes con la asociación. Definir cómo evaluar y registrar la ejecución de los saludos con cámara.
+- [x] Ampliar Saludos básicos a siete fichas, incorporar la práctica guiada con cámara en espejo y retirar el cuestionario de la unidad.
+- [x] Definir las fichas de referencia y la práctica directa de señas como formato para Números, Saludos básicos y las próximas unidades.
+- [ ] Validar las siete señas de Saludos básicos y sus variantes con la asociación. Definir cómo evaluar y registrar su ejecución con cámara.
 - [ ] Probar del 1 al 10 con la asociación y con cámaras físicas de escritorio y teléfono. Revisar las posturas que coinciden con letras, los resultados entre números parecidos y los movimientos del 9 y del 10.
 - [ ] Retomar las decenas del 20 al 100 y las centenas del 200 al 1000 en una próxima actualización. Usar el prototipo de `bca086d` de `Manuel` como punto de partida y validar los movimientos, incluido el 1000 con dos manos.
 - [ ] Incorporar ejemplos cotidianos de uso de los números y revisar con la asociación variantes y formas de expresar cantidades intermedias.

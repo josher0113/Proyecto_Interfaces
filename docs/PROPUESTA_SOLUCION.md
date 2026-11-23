@@ -1,6 +1,6 @@
 # Propuesta de solución · Borrador del reporte
 
-LinguaPlay LSM propone una ruta de estudio y práctica para personas que empiezan a aprender Lengua de Señas Mexicana. El piloto permite consultar y practicar con cámara las 27 letras del alfabeto manual y los números del 1 al 10 en LSM. También incluye un ejercicio de identificación de A, B y C y una introducción a Saludos básicos.
+LinguaPlay LSM propone una ruta de estudio y práctica para personas que empiezan a aprender Lengua de Señas Mexicana. El piloto permite consultar y practicar con cámara las 27 letras del alfabeto manual, los números del 1 al 10 y siete expresiones de Saludos básicos en LSM. El abecedario también incluye un ejercicio de identificación de A, B y C.
 
 ## Pruebas con la asociación en Xalapa
 
@@ -17,7 +17,7 @@ El 21 de noviembre de 2026, un integrante del equipo visitó a la Asociación de
 
 ### Práctica de Números
 
-La unidad activa cubre del 1 al 10. Cada ficha incluye una foto para la seña estática o dos posiciones y una instrucción para la seña en movimiento. Las referencias proceden de los recortes de fotografías de Servando Alvarado Cisneros en el glosario, bajo CC BY-NC-SA 4.0. [Glosario universitario de Lengua de Señas Mexicana](https://riudg.udg.mx/handle/20.500.12104/111344) · [Licencia](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+La unidad activa cubre del 1 al 10 y lleva de cada ficha a la práctica con cámara. Cada ficha incluye una foto para la seña estática o dos posiciones y una instrucción para la seña en movimiento. Las referencias proceden de los recortes de fotografías de Servando Alvarado Cisneros en el glosario, bajo CC BY-NC-SA 4.0. [Glosario universitario de Lengua de Señas Mexicana](https://riudg.udg.mx/handle/20.500.12104/111344) · [Licencia](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 MediaPipe sigue la mano desde el navegador. Para las señas del 1 al 8, el comparador contrasta la geometría y la orientación con las fotos. Para el 9 y el 10, considera también la secuencia de movimiento. En las pruebas cruzadas, las posturas de referencia de 2, 3 y 4 produjeron V, W y B al evaluarlas desde el abecedario. Se separaron las entradas a los dos clasificadores. Cada ficha inicia el reconocimiento de su unidad, y una versión incompatible del módulo pide recargar la página. El registro se habilita con una coincidencia en la ficha actual.
 
@@ -29,9 +29,13 @@ Las decenas del 20 al 100 y las centenas del 200 al 1000 quedan para una próxim
 
 ### Saludos básicos
 
-La primera versión presenta **Hola**, **Buenos días** y **Hasta luego**. Las dos primeras fichas usan secuencias fotográficas de las páginas 152 y 158 del glosario de la UdeG, con licencia CC BY-NC-SA 4.0. La última enlaza al video de Carlos Gonzalez publicado para Wikisigns. El repaso comprueba qué expresión corresponde a cada situación. La evaluación de la ejecución con cámara y la validación con personas usuarias de LSM quedan pendientes. [Glosario de la UdeG](https://riudg.udg.mx/handle/20.500.12104/111344) · [Hasta luego en Wikisigns](https://www.wikisigns.org/es/lsm/hasta%20luego)
+La unidad presenta **Hola**, **¿Cómo estás?**, **Buenos días**, **Buenas tardes**, **Buenas noches**, **Adiós** y **Hasta luego**. Las seis fichas con fotografías usan recortes del glosario de la UdeG, con licencia CC BY-NC-SA 4.0. **Hasta luego** enlaza al video de Carlos Gonzalez publicado para Wikisigns. Cada ficha incluye indicaciones sobre el movimiento o cómo observar la referencia. [Glosario de la UdeG](https://riudg.udg.mx/handle/20.500.12104/111344) · [Hasta luego en Wikisigns](https://www.wikisigns.org/es/lsm/hasta%20luego)
 
-En Edge, `node tests/greetings-browser.cjs` comprobó las tres fichas a 320 píxeles, la carga de las seis fotos, el enlace al video y la navegación desde una ruta anterior. El repaso solicitó las tres respuestas y permitió pasar de dos aciertos a tres en un reintento. La unidad permaneció disponible sin solicitar permiso de cámara.
+La práctica guiada muestra la referencia junto a la vista en espejo. La persona activa la cámara, compara su ejecución con la seña y repite el movimiento a su ritmo. La evaluación automática y la validación con personas usuarias de LSM quedan pendientes. El enlace anterior al repaso abre el índice de Saludos básicos.
+
+Saludos básicos y Números adoptan el formato de ficha de referencia y práctica directa de cada seña. Las próximas unidades seguirán el mismo formato.
+
+En Edge, `node tests/greetings-browser.cjs` comprobó las siete fichas, la carga de las 19 fotografías, el enlace al video y el recorrido desde los enlaces anteriores. Con una cámara simulada a 320 píxeles, verificó la vista en espejo, la activación voluntaria, la captura exclusiva de video y la liberación al detenerla o pasar a otro saludo. También comprobó el acceso directo a la práctica en Números.
 
 ### Frutas y Colores en una próxima actualización
 
@@ -47,17 +51,17 @@ Antes de publicar nuevas fichas, confirmar las señas, las variantes pertinentes
 
 | Requisito | Criterio de comprobación | Estado |
 | --- | --- | --- |
-| Consultar demostraciones del abecedario | Cada una de las 27 fichas muestra una foto o un video local y el crédito de la fuente. | Implementado. |
+| Consultar demostraciones de las señas | Cada ficha presenta una referencia visual y el crédito de la fuente. | Implementado en Abecedario, Números y Saludos básicos. |
 | Recibir retroalimentación | La práctica con cámara comunica la coincidencia o pide reintentar. El ejercicio de A, B y C muestra el número de aciertos. | Implementado. |
 | Retomar y consultar el avance | La aplicación recupera los aciertos por seña después de recargar. La tercera fecha distinta marca la ficha aprendida en verde. | Implementado en Abecedario y Números. |
 | Introducir una consulta mediante voz | La frase se añade en español de México al campo editable, con estados para permisos, errores y cancelación. | Implementado y probado con reconocimiento simulado. Validación con micrófono físico pendiente. |
-| Practicar con una interacción gestual | El sistema sigue la mano y ofrece retroalimentación para las 27 letras y los 10 números disponibles. | Reconocimiento experimental. Validación con participantes pendiente. |
+| Practicar con la cámara | La aplicación muestra la referencia junto a la imagen de la persona. Abecedario y Números ofrecen reconocimiento experimental. Saludos básicos permite comparar la ejecución en espejo. | Implementado. Validación con participantes pendiente. |
 
 ## Arquitectura e infraestructura
 
-El piloto usa HTML, CSS, JavaScript y archivos multimedia locales. La navegación por fragmentos de URL abre cada ficha y el ejercicio en un navegador de escritorio o móvil. El formulario comprueba las respuestas en el dispositivo. El prototipo incluye las fotos y los videos del abecedario y las fotos de Números y Saludos básicos. El video de Hasta luego se consulta en su sitio de origen.
+El piloto usa HTML, CSS, JavaScript y archivos multimedia locales. La navegación por fragmentos de URL abre cada ficha y su práctica en un navegador de escritorio o móvil. El ejercicio piloto de A, B y C comprueba las respuestas en el dispositivo. El prototipo incluye las fotos y los videos del abecedario y las fotos de Números y Saludos básicos. El video de Hasta luego se consulta en su sitio de origen.
 
-El prototipo incorpora dos modalidades adicionales a la interfaz gráfica. El **dictado** usa un micrófono para introducir consultas en español y la **práctica gestual** usa la cámara para ensayar las letras y los números del 1 al 10. Las pruebas con participantes y dispositivos físicos se harán por separado.
+El prototipo incorpora dos modalidades adicionales a la interfaz gráfica. El **dictado** usa un micrófono para introducir consultas en español y la **práctica gestual** usa la cámara para ensayar letras, números del 1 al 10 y los saludos. Las pruebas con participantes y dispositivos físicos se harán por separado.
 
 ### Decisión técnica para el dictado
 

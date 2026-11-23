@@ -1,5 +1,13 @@
 # Bitácora de cambios
 
+## Ampliación de Saludos y práctica directa
+
+- Saludos básicos incorpora **¿Cómo estás?**, **Buenas tardes**, **Buenas noches** y **Adiós** con referencias del glosario de la UdeG.
+- Se retiraron las preguntas de repaso de Saludos básicos. Cada ficha lleva a una práctica que muestra la referencia junto a la cámara en espejo. El enlace al repaso anterior abre el índice de la unidad.
+- Las fichas de referencia y la práctica directa son el formato de Saludos básicos, Números y las próximas unidades.
+- Pasaron las 21 pruebas unitarias. La prueba de Números en Edge verificó las diez fichas, el reconocimiento separado del abecedario, la evaluación del movimiento para el 9 y el 10, y el progreso tras tres fechas distintas.
+- La prueba de Saludos en Edge verificó las siete fichas, el recorrido a 320 píxeles y el apagado de la cámara simulada al detenerla o cambiar de ficha.
+
 ## Ajustes en Números e inicio de Saludos básicos
 
 - La unidad de Números queda disponible del 1 al 10. Las decenas y centenas pasan a [Pendientes](docs/PENDIENTES.md), con el prototipo anterior en `bca086d` de `Manuel`.
