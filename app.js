@@ -161,7 +161,7 @@ function guidedDemo(reference) {
     ${signs.map(sign => `<section class="phrase-sign"><h3>${sign.title}</h3>${photoDemo(sign)}</section>`).join('')}`;
 }
 
-const brand = 'LinguaPlay <small>LSM</small>';
+const brand = 'Conecta <small>LSM</small>';
 const media = (label, note) => `<div class="media"><span aria-hidden="true">▣</span><strong>${label}</strong><span>${note}</span></div>`;
 const link = (href, label, secondary = false) =>
   `<a class="button ${secondary ? 'secondary' : ''}" href="#${href}">${label}</a>`;
@@ -301,7 +301,7 @@ function practiceRecordLabel(entry, isNumber) {
 
 function practicePrompt(isNumber, handCount) {
   if (location.protocol === 'file:') {
-    return `Abre LinguaPlay en HTTPS o localhost para reconocer y registrar ${isNumber ? 'números' : 'letras'}.`;
+    return `Abre Conecta LSM en HTTPS o localhost para reconocer y registrar ${isNumber ? 'números' : 'letras'}.`;
   }
   return handCount === 2 ? 'Mantén las dos manos dentro del encuadre.' : gesturePrompt;
 }
@@ -389,7 +389,7 @@ async function startRecognition(session) {
   const { view } = session;
   if (!view.gesture) return;
   if (location.protocol === 'file:') {
-    view.gesture.textContent = 'Abre LinguaPlay mediante HTTPS o localhost para activar el reconocimiento.';
+    view.gesture.textContent = 'Abre Conecta LSM mediante HTTPS o localhost para activar el reconocimiento.';
     return;
   }
   view.gesture.textContent = view.isNumber ? 'Cargando reconocimiento de números…' : 'Cargando reconocimiento del abecedario…';
@@ -432,7 +432,7 @@ async function toggleCamera() {
 
   const view = cameraView();
   if (!navigator.mediaDevices?.getUserMedia) {
-    view.status.textContent = 'Abre LinguaPlay en HTTPS o localhost con un navegador que admita cámara.';
+    view.status.textContent = 'Abre Conecta LSM en HTTPS o localhost con un navegador que admita cámara.';
     return;
   }
 
@@ -476,9 +476,9 @@ async function toggleCamera() {
 function translator() {
   const voiceAvailable = dictation.available();
   const voiceNote = voiceAvailable
-    ? 'El navegador puede enviar audio a su servicio de voz. LinguaPlay recibe el texto.'
+    ? 'El navegador puede enviar audio a su servicio de voz. Conecta LSM recibe el texto.'
     : (location.protocol === 'file:' || !window.isSecureContext
-      ? 'Abre LinguaPlay en HTTPS o localhost para usar el dictado. También puedes escribir la frase.'
+      ? 'Abre Conecta LSM en HTTPS o localhost para usar el dictado. También puedes escribir la frase.'
       : 'Dictado no disponible en este navegador. Puedes escribir la frase.');
   return `${heading('Consulta educativa', 'Traductor LSM', 'Explora cómo se consultarán expresiones validadas en Lengua de Señas Mexicana.')}
   <div class="grid translation"><article><form id="translate">
@@ -534,7 +534,7 @@ function render() {
       <span aria-hidden="true">${icon}</span>${label}</a>`).join('')}</nav></aside>
     <main id="contenido" tabindex="-1">${content}</main>` :
     `<main id="contenido" class="landing" tabindex="-1">${welcome()}</main>`;
-  document.title = `${app.querySelector('h1').textContent} | LinguaPlay LSM`;
+  document.title = `${app.querySelector('h1').textContent} | Conecta LSM`;
 }
 
 app.addEventListener('click', event => {
